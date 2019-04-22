@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "662698447690",
+    "firebase_url": "https://pokerkings-6dd93.firebaseio.com",
+    "project_id": "pokerkings-6dd93",
+    "storage_bucket": "pokerkings-6dd93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662698447690:android:8d5c1dea2293d523",
+        "android_client_info": {
+          "package_name": "com.games.pokerkings"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "662698447690-jbahihfth4ji14c35tqgig9s0ahgu6ha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOttAW8_rPR5vXB_rd3ZhUyzB6GYFdp7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "662698447690-jbahihfth4ji14c35tqgig9s0ahgu6ha.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
