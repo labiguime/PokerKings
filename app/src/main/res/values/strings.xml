@@ -3,4 +3,11 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="your_avatar">Your avatar</string>
     <string name="nickname_text">Enter your nickname</string>
+    <string name="default_user_nickname">John Doe</string>
+    <string name="default_user_money">$0</string>
+    <string name="total_text">Total:</string>
+    <string name="default_total_bet">$0</string>
+    <string name="default_current_bet">$0</string>
+    <string name="current_minimum_text">Current minimum:</string>
+    <string name="ready_up_text">Click when ready:</string>
 </resources>
