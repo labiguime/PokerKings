@@ -6,13 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:id="@+id/fragment_placeholder"
             android:layout_height="match_parent"
             android:orientation="vertical"/>
-
-
 
 </android.support.constraint.ConstraintLayout>

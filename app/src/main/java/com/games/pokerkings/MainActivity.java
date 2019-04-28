@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /* Forces the phone to stay in landscape mode */
+        // Forces the phone to stay in landscape mode
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         View decorView = getWindow().getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        /* Call HomePageFragment by default */
+        // Call HomePageFragment by default
         HomePageFragment fragment = new HomePageFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.fragment_placeholder, fragment);
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        /* Keeps the phone in landscape mode even when the user alters the settings */
+        // Keeps the phone in landscape mode even when the user alters the settings
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             getWindow().getDecorView().setSystemUiVisibility(
