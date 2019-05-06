@@ -1,6 +1,7 @@
 package com.games.pokerkings.classes;
 
 public class User {
+
     private String nickname;
     private int avatar;
     private int money;
@@ -12,7 +13,7 @@ public class User {
         this.money = 0;
         this.hasFolded = false;
     }
-    
+
     public User(String nickname, int avatar) {
         this.nickname = nickname;
         this.avatar = avatar;
