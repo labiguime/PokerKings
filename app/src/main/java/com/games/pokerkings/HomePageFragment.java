@@ -42,7 +42,7 @@ public class HomePageFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance();
 
-        /*
+
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
         freeSpots.put("0", true);
@@ -51,7 +51,7 @@ public class HomePageFragment extends Fragment {
         freeSpots.put("3", true);
         freeSpotsReference.setValue(freeSpots);
 
-        freeSpots.clear();*/
+        freeSpots.clear();
 
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
@@ -130,6 +130,18 @@ public class HomePageFragment extends Fragment {
         reference.setValue(freeSpots);
 
         GameRoomFragment fragment = new GameRoomFragment();
+
+        // Variables to pass
+        String avatarFileName = "avatar" + (avatarId+1);
+        String nickname = nicknameTextBox.getText().toString();
+
+        // Put variables into bundle to pass them to the next fragment
+        Bundle bundle = new Bundle();
+        bundle.putString("avatar", avatarFileName);
+        bundle.putString("nickname", nickname);
+        fragment.setArguments(bundle);
+
+        // Move to the next fragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);
         transaction.addToBackStack(null);

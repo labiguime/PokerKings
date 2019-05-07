@@ -3,18 +3,18 @@ package com.games.pokerkings.classes;
 public class User {
 
     private String nickname;
-    private int avatar;
+    private String avatar;
     private int money;
     private Boolean hasFolded;
 
     public User() {
-        this.nickname = "Unknwon";
-        this.avatar = 0;
-        this.money = 0;
+        this.nickname = "Unknown";
+        this.avatar = "avatar1";
+        this.money = 10000;
         this.hasFolded = false;
     }
 
-    public User(String nickname, int avatar) {
+    public User(String nickname, String avatar) {
         this.nickname = nickname;
         this.avatar = avatar;
         this.money = 10000;
@@ -29,11 +29,11 @@ public class User {
         this.nickname = nickname;
     }
 
-    public Integer getAvatar() {
+    public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(Integer avatar) {
+    public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
 

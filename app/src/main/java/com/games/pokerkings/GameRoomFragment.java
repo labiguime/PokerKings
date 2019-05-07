@@ -1,12 +1,16 @@
 package com.games.pokerkings;
 
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.games.pokerkings.classes.User;
 
 public class GameRoomFragment extends Fragment {
 
@@ -15,7 +19,10 @@ public class GameRoomFragment extends Fragment {
     LinearLayout tableCardsLayout;
     LinearLayout[] layoutPlayer = new LinearLayout[4];
     LinearLayout gameButtonsLayout;
+    TextView userNicknameText;
     ImageView[] userCard = new ImageView[2];
+    ConstraintLayout userAvatar;
+    User user;
 
     public GameRoomFragment() {
         // Required empty public constructor
@@ -40,12 +47,26 @@ public class GameRoomFragment extends Fragment {
         userCard[0] = view.findViewById(R.id.user_card_1);
         userCard[1] = view.findViewById(R.id.user_card_2);
 
+        userNicknameText = view.findViewById(R.id.user_nickname_text);
+        userAvatar = view.findViewById(R.id.user_avatar);
+
+        user = new User();
+
+        // Recover variables from previous fragment
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            user.setNickname(bundle.getString("nickname"));
+            user.setAvatar(bundle.getString("avatar"));
+        }
+
+        // Setup UI
         setupNotReadyUiForPlayer();
 
         return view;
     }
 
     private void setupNotReadyUiForPlayer() {
+
         totalBetLayout.setVisibility(View.INVISIBLE);
         currentBetLayout.setVisibility(View.INVISIBLE);
         tableCardsLayout.setVisibility(View.INVISIBLE);
@@ -55,6 +76,11 @@ public class GameRoomFragment extends Fragment {
         layoutPlayer[3].setVisibility(View.INVISIBLE);
         userCard[0].setVisibility(View.INVISIBLE);
         userCard[1].setVisibility(View.INVISIBLE);
+
+        // Set user name and avatar picture
+        int resID = getResources().getIdentifier(user.getAvatar()+ "_notfolded", "drawable", "com.games.pokerkings");
+        userAvatar.setBackgroundResource(resID);
+        userNicknameText.setText(user.getNickname());
     }
 
 }
