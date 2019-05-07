@@ -16,6 +16,8 @@ public class HomePageFragment extends Fragment {
     ImageView changeAvatarButton;
     ImageView homeAvatarPicture;
 
+    Integer avatarId = 0;
+
     public HomePageFragment() {
         // Required empty public constructor
     }
@@ -26,26 +28,47 @@ public class HomePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
+        // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
         changeAvatarButton = view.findViewById(R.id.change_avatar_button);
         homeAvatarPicture = view.findViewById(R.id.home_avatar_picture);
         joinGameButton = view.findViewById(R.id.join_game_button);
 
+        // Setup the listeners
         joinGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GameRoomFragment fragment = new GameRoomFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_placeholder, fragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                onUserPressJoinGameButton();
             }
         });
+
+        changeAvatarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onUserPressChangeAvatarButton();
+            }
+        });
+
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+    }
+
+    private void onUserPressJoinGameButton() {
+        GameRoomFragment fragment = new GameRoomFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_placeholder, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void onUserPressChangeAvatarButton() {
+        avatarId = ((avatarId+1)%6);
+        String avatarFileName = "avatar" + Integer.toString(avatarId+1);
+        int resID = getResources().getIdentifier(avatarFileName, "drawable", "com.games.pokerkings");
+        homeAvatarPicture.setImageResource(resID);
     }
 }
