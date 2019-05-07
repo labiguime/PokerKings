@@ -42,6 +42,17 @@ public class GameRoomFragment extends Fragment {
 
         setupNotReadyUiForPlayer();
 
+        String nickname;
+        String avatarPicture;
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            nickname = bundle.getString("nickname");
+            avatarPicture = bundle.getString("avatar");
+        }
+
+        
+
         return view;
     }
 
