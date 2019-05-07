@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -15,7 +16,9 @@ public class GameRoomFragment extends Fragment {
     LinearLayout tableCardsLayout;
     LinearLayout[] layoutPlayer = new LinearLayout[4];
     LinearLayout gameButtonsLayout;
+    EditText userNicknameText;
     ImageView[] userCard = new ImageView[2];
+    ImageView userAvatar;
 
     public GameRoomFragment() {
         // Required empty public constructor
@@ -40,10 +43,13 @@ public class GameRoomFragment extends Fragment {
         userCard[0] = view.findViewById(R.id.user_card_1);
         userCard[1] = view.findViewById(R.id.user_card_2);
 
+        userNicknameText = view.findViewById(R.id.user_nickname_text);
+        userAvatar = view.findViewById(R.id.user_avatar);
+
         setupNotReadyUiForPlayer();
 
-        String nickname;
-        String avatarPicture;
+        String nickname = "None";
+        String avatarPicture = "avatar1";
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
@@ -51,7 +57,9 @@ public class GameRoomFragment extends Fragment {
             avatarPicture = bundle.getString("avatar");
         }
 
-        
+        int resID = getResources().getIdentifier(avatarPicture+ "_notfolded", "drawable", "com.example.lepti.pokerapp");
+        userAvatar.setBackgroundResource(resID);
+        userNicknameText.setText(nickname);
 
         return view;
     }
