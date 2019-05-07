@@ -1,6 +1,7 @@
 package com.games.pokerkings;
 
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class GameRoomFragment extends Fragment {
 
@@ -16,9 +18,9 @@ public class GameRoomFragment extends Fragment {
     LinearLayout tableCardsLayout;
     LinearLayout[] layoutPlayer = new LinearLayout[4];
     LinearLayout gameButtonsLayout;
-    EditText userNicknameText;
+    TextView userNicknameText;
     ImageView[] userCard = new ImageView[2];
-    ImageView userAvatar;
+    ConstraintLayout userAvatar;
 
     public GameRoomFragment() {
         // Required empty public constructor
@@ -57,7 +59,7 @@ public class GameRoomFragment extends Fragment {
             avatarPicture = bundle.getString("avatar");
         }
 
-        int resID = getResources().getIdentifier(avatarPicture+ "_notfolded", "drawable", "com.example.lepti.pokerapp");
+        int resID = getResources().getIdentifier(avatarPicture+ "_notfolded", "drawable", "com.games.pokerkings");
         userAvatar.setBackgroundResource(resID);
         userNicknameText.setText(nickname);
 
