@@ -42,6 +42,7 @@ public class HomePageFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance();
 
+        /*
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
         freeSpots.put("0", true);
@@ -49,8 +50,8 @@ public class HomePageFragment extends Fragment {
         freeSpots.put("2", true);
         freeSpots.put("3", true);
         freeSpotsReference.setValue(freeSpots);
-        
-        freeSpots.clear();
+
+        freeSpots.clear();*/
 
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
