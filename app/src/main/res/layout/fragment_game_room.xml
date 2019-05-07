@@ -231,7 +231,7 @@ android:background="@drawable/background_gradient">
             android:layout_width="130dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:background="@drawable/avatar1_folded"
+            android:background="@drawable/avatar1_notfolded"
             tools:layout_editor_absoluteX="289dp"
             tools:layout_editor_absoluteY="162dp">
 

@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 public class GameRoomFragment extends Fragment {
@@ -14,6 +15,7 @@ public class GameRoomFragment extends Fragment {
     LinearLayout tableCardsLayout;
     LinearLayout[] layoutPlayer = new LinearLayout[4];
     LinearLayout gameButtonsLayout;
+    ImageView[] userCard = new ImageView[2];
 
     public GameRoomFragment() {
         // Required empty public constructor
@@ -32,7 +34,11 @@ public class GameRoomFragment extends Fragment {
         layoutPlayer[1] = view.findViewById(R.id.layout_player_1);
         layoutPlayer[2] = view.findViewById(R.id.layout_player_2);
         layoutPlayer[3] = view.findViewById(R.id.layout_player_3);
+
         gameButtonsLayout = view.findViewById(R.id.game_buttons_layout);
+
+        userCard[0] = view.findViewById(R.id.user_card_1);
+        userCard[1] = view.findViewById(R.id.user_card_2);
 
         setupNotReadyUiForPlayer();
 
@@ -47,6 +53,8 @@ public class GameRoomFragment extends Fragment {
         layoutPlayer[1].setVisibility(View.INVISIBLE);
         layoutPlayer[2].setVisibility(View.INVISIBLE);
         layoutPlayer[3].setVisibility(View.INVISIBLE);
+        userCard[0].setVisibility(View.INVISIBLE);
+        userCard[1].setVisibility(View.INVISIBLE);
     }
 
 }
