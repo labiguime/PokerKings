@@ -129,7 +129,21 @@ public class HomePageFragment extends Fragment {
         DatabaseReference reference = database.getReference("game-1/free-spots");
         reference.setValue(freeSpots);
 
+
+
         GameRoomFragment fragment = new GameRoomFragment();
+
+        // Variables to pass
+        String avatarFileName = "avatar" + (avatarId+1);
+        String nickname = nicknameTextBox.getText().toString();
+
+        // Put variables into bundle to pass them to the next fragment
+        Bundle bundle = new Bundle();
+        bundle.putString("avatar", avatarFileName);
+        bundle.putString("nickname", nickname);
+        fragment.setArguments(bundle);
+
+        // Move to the next fragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);
         transaction.addToBackStack(null);
