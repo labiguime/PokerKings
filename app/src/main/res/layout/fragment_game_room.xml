@@ -13,7 +13,7 @@ android:background="@drawable/background_gradient">
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/poker_table"
-    app:layout_constraintBottom_toTopOf="@id/linearLayoutBottom"
+    app:layout_constraintBottom_toTopOf="@id/game_buttons_layout"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="1.0"
     app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@ android:background="@drawable/background_gradient">
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/current_bet_box"
+        android:id="@+id/current_bet_layout"
         android:layout_width="159dp"
         android:layout_height="36dp"
         android:layout_marginStart="8dp"
@@ -231,7 +231,7 @@ android:background="@drawable/background_gradient">
             android:layout_width="130dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:background="@drawable/avatar1_folded"
+            android:background="@drawable/avatar1_notfolded"
             tools:layout_editor_absoluteX="289dp"
             tools:layout_editor_absoluteY="162dp">
 
@@ -667,7 +667,7 @@ android:background="@drawable/background_gradient">
 </android.support.constraint.ConstraintLayout>
 
 <LinearLayout
-    android:id="@+id/linearLayoutBottom"
+    android:id="@+id/game_buttons_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
