@@ -23,6 +23,7 @@ public class GameRoomFragment extends Fragment {
     ImageView[] userCard = new ImageView[2];
     ConstraintLayout userAvatar;
     User user;
+    ImageView readyButton;
 
     public GameRoomFragment() {
         // Required empty public constructor
@@ -50,6 +51,15 @@ public class GameRoomFragment extends Fragment {
         userNicknameText = view.findViewById(R.id.user_nickname_text);
         userAvatar = view.findViewById(R.id.user_avatar);
 
+        readyButton = view.findViewById(R.id.ready_button);
+
+        readyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onReadyButtonPressed();
+            }
+        });
+
         user = new User();
 
         // Recover variables from previous fragment
@@ -76,11 +86,16 @@ public class GameRoomFragment extends Fragment {
         layoutPlayer[3].setVisibility(View.INVISIBLE);
         userCard[0].setVisibility(View.INVISIBLE);
         userCard[1].setVisibility(View.INVISIBLE);
+        readyButton.setVisibility(View.VISIBLE);
 
         // Set user name and avatar picture
         int resID = getResources().getIdentifier(user.getAvatar()+ "_notfolded", "drawable", "com.games.pokerkings");
         userAvatar.setBackgroundResource(resID);
         userNicknameText.setText(user.getNickname());
+    }
+
+    private void onReadyButtonPressed() {
+        readyButton.setVisibility(View.INVISIBLE);
     }
 
 }
