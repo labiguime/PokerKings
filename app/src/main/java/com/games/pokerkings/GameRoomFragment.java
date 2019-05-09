@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.games.pokerkings.classes.ReadyImplementation;
 import com.games.pokerkings.classes.User;
 
 public class GameRoomFragment extends Fragment {
@@ -96,6 +97,7 @@ public class GameRoomFragment extends Fragment {
 
     private void onReadyButtonPressed() {
         readyButton.setVisibility(View.INVISIBLE);
+        ReadyImplementation.addReadyPlayer("game-1", 2);
     }
 
 }
