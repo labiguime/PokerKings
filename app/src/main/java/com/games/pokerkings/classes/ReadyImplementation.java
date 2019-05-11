@@ -5,7 +5,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class ReadyImplementation {
 
     public static void addReadyPlayer(String roomName, Integer readyUsers) {
-        FirebaseDatabase.getInstance().getReference(roomName+"/variables").child("readyUsers").setValue(readyUsers); // no error or exception checks
+        FirebaseDatabase.getInstance().getReference(roomName+"/variables").child("readyUsers").setValue(readyUsers); // no error or exception checks for now
         return;
     }
 

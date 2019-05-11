@@ -1,6 +1,7 @@
 package com.games.pokerkings;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,8 +11,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.games.pokerkings.classes.Game;
 import com.games.pokerkings.classes.ReadyImplementation;
 import com.games.pokerkings.classes.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class GameRoomFragment extends Fragment {
 
@@ -26,6 +33,9 @@ public class GameRoomFragment extends Fragment {
     User user;
     ImageView readyButton;
 
+    Game gameVariables;
+
+    ValueEventListener gameVariablesListener;
     public GameRoomFragment() {
         // Required empty public constructor
     }
@@ -34,6 +44,7 @@ public class GameRoomFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_room, container, false);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         totalBetLayout = view.findViewById(R.id.total_bet_layout);
         currentBetLayout = view.findViewById(R.id.current_bet_layout);
@@ -62,7 +73,22 @@ public class GameRoomFragment extends Fragment {
         });
 
         user = new User();
+        gameVariables = new Game();
 
+        gameVariablesListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                onGameVariablesChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        database.getReference("game-1/variables").addValueEventListener(gameVariablesListener);
+        
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
         if (bundle != null) {
@@ -96,8 +122,18 @@ public class GameRoomFragment extends Fragment {
     }
 
     private void onReadyButtonPressed() {
+        Integer readyUsers = gameVariables.getReadyUsers()+1;
+        Integer playingUsers = gameVariables.getPlayingUsers()+1;
+
         readyButton.setVisibility(View.INVISIBLE);
         ReadyImplementation.addReadyPlayer("game-1", 2);
+        if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
+
+        }
+    }
+
+    private void onGameVariablesChanged() {
+
     }
 
 }
