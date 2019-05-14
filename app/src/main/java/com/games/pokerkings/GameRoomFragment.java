@@ -138,7 +138,7 @@ public class GameRoomFragment extends Fragment {
     }
 
     private void startGame() {
-        
+
     }
 
 }
