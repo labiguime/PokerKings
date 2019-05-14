@@ -34,7 +34,7 @@ public class GameRoomFragment extends Fragment {
     ImageView readyButton;
 
     Game gameVariables;
-
+    FirebaseDatabase database;
     ValueEventListener gameVariablesListener;
     public GameRoomFragment() {
         // Required empty public constructor
@@ -44,8 +44,8 @@ public class GameRoomFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_room, container, false);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
+        // Initialize layouts
         totalBetLayout = view.findViewById(R.id.total_bet_layout);
         currentBetLayout = view.findViewById(R.id.current_bet_layout);
         tableCardsLayout = view.findViewById(R.id.table_cards_layout);
@@ -72,13 +72,23 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        // Initialize variables
+        database = FirebaseDatabase.getInstance();
         user = new User();
         gameVariables = new Game();
 
+        // Recover variables from previous fragment
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            user.setNickname(bundle.getString("nickname"));
+            user.setAvatar(bundle.getString("avatar"));
+        }
+
+        // Setup listeners
         gameVariablesListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                onGameVariablesChanged();
+                onGameVariablesChanged(dataSnapshot);
             }
 
             @Override
@@ -86,15 +96,7 @@ public class GameRoomFragment extends Fragment {
 
             }
         };
-
         database.getReference("game-1/variables").addValueEventListener(gameVariablesListener);
-        
-        // Recover variables from previous fragment
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-            user.setNickname(bundle.getString("nickname"));
-            user.setAvatar(bundle.getString("avatar"));
-        }
 
         // Setup UI
         setupNotReadyUiForPlayer();
@@ -103,7 +105,6 @@ public class GameRoomFragment extends Fragment {
     }
 
     private void setupNotReadyUiForPlayer() {
-
         totalBetLayout.setVisibility(View.INVISIBLE);
         currentBetLayout.setVisibility(View.INVISIBLE);
         tableCardsLayout.setVisibility(View.INVISIBLE);
@@ -126,14 +127,18 @@ public class GameRoomFragment extends Fragment {
         Integer playingUsers = gameVariables.getPlayingUsers()+1;
 
         readyButton.setVisibility(View.INVISIBLE);
-        ReadyImplementation.addReadyPlayer("game-1", 2);
+        ReadyImplementation.addReadyPlayer("game-1", readyUsers);
         if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
-
+            startGame();
         }
     }
 
-    private void onGameVariablesChanged() {
+    private void onGameVariablesChanged(@NonNull DataSnapshot dataSnapshot) {
+        gameVariables = dataSnapshot.getValue(Game.class);
+    }
 
+    private void startGame() {
+        
     }
 
 }
