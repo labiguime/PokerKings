@@ -16,6 +16,11 @@ public class Game {
 
 
     public Game() {
+        playingUsers = 0;
+        readyUsers = 0;
+        minimumBet = 0;
+        betToMatch = 0;
+        roundJackpot = 0;
         this.playersQueue = new ArrayList<>();
         this.playersCurrentlyCompeting = new ArrayList<>();
         this.playersCurrentlyInRoom = new ArrayList<>();
