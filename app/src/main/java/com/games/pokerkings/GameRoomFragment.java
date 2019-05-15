@@ -16,7 +16,6 @@ import com.games.pokerkings.classes.ReadyImplementation;
 import com.games.pokerkings.classes.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -32,7 +31,7 @@ public class GameRoomFragment extends Fragment {
     ConstraintLayout userAvatar;
     User user;
     ImageView readyButton;
-
+    Boolean hasPlayerJustJoinedTheRoom = false;
     Game gameVariables;
     FirebaseDatabase database;
     ValueEventListener gameVariablesListener;
@@ -82,6 +81,8 @@ public class GameRoomFragment extends Fragment {
         if (bundle != null) {
             user.setNickname(bundle.getString("nickname"));
             user.setAvatar(bundle.getString("avatar"));
+            user.setTableId(bundle.getInt("spot"));
+            hasPlayerJustJoinedTheRoom = true;
         }
 
         // Setup listeners
@@ -135,6 +136,12 @@ public class GameRoomFragment extends Fragment {
 
     private void onGameVariablesChanged(@NonNull DataSnapshot dataSnapshot) {
         gameVariables = dataSnapshot.getValue(Game.class);
+        // Increase the number of playing users if the user just joined the room
+        if(hasPlayerJustJoinedTheRoom) {
+            hasPlayerJustJoinedTheRoom = false;
+            FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(gameVariables.getPlayingUsers()+1);
+            return;
+        }
     }
 
     private void startGame() {

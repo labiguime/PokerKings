@@ -53,6 +53,10 @@ public class HomePageFragment extends Fragment {
 
         freeSpots.clear();
 
+        // Reset variables (for debugging only)
+        FirebaseDatabase.getInstance().getReference("game-1/variables").child("readyUsers").setValue(0);
+        FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(0);
+
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
         changeAvatarButton = view.findViewById(R.id.change_avatar_button);
@@ -134,11 +138,13 @@ public class HomePageFragment extends Fragment {
         // Variables to pass
         String avatarFileName = "avatar" + (avatarId+1);
         String nickname = nicknameTextBox.getText().toString();
+        Integer spot = gameSpot;
 
         // Put variables into bundle to pass them to the next fragment
         Bundle bundle = new Bundle();
         bundle.putString("avatar", avatarFileName);
         bundle.putString("nickname", nickname);
+        bundle.putInt("spot", spot);
         fragment.setArguments(bundle);
 
         // Move to the next fragment
