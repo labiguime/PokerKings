@@ -3,6 +3,7 @@ package com.games.pokerkings;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +11,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.content.ContentValues.TAG;
 
 public class HomePageFragment extends Fragment {
 
@@ -29,6 +35,14 @@ public class HomePageFragment extends Fragment {
     Integer avatarId = 0;
     Map<String, Boolean> freeSpots = new HashMap<>();
 
+    private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("http://192.168.0.22:7000");
+        } catch (URISyntaxException e) {
+        }
+    }
+
     FirebaseDatabase database;
     public HomePageFragment() {
         // Required empty public constructor
@@ -39,6 +53,8 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+
+        mSocket.connect();
 
         database = FirebaseDatabase.getInstance();
 
