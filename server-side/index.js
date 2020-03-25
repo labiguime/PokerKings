@@ -24,6 +24,25 @@ app.get('/', (req, res) => {
 	return res.send("You have landed on the server's main page.");
 });
 
+app.get('/reset_room', (req, res) => {
+	require('./models/room.model').remove({}, function(err) {
+		if(err) {
+			console.log("Couldn't reset room table!");
+		}
+		console.log("Room Table has been reset!");
+	});
+	const room = new require('./models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false});
+	room.save(err => {
+            if(err){
+               return res.status(400).json({
+                   error: "Cannot create room!",
+                });
+            } else {
+				return res.status(200).json({result: "Room created!"});
+			}
+        });
+});
+
 io.on('connection', (socket) => {
 	console.log("Client Id: ["+socket.id+"] has connected to the server.");
 	socket.on('disconnect', () => {
