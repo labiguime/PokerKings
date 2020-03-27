@@ -26,11 +26,16 @@ app.get('/', (req, res) => {
 
 app.use('/admin/', require('./routes/admin'));
 
-io.on('connection', (socket) => {
+io.of("/namespacex").on('connection', (socket) => {
 	console.log("Client Id: ["+socket.id+"] has connected to the server.");
 	socket.on('disconnect', () => {
 		console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
 	});
+
+});
+
+io.use((socket, next) => {
+	require('./routes/test').testF(socket, next);
 });
 
 app.listen(3000, () => {

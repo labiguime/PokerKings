@@ -1,5 +1,6 @@
 package com.games.pokerkings;
 
+import com.games.pokerkings.utils.SocketManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -34,13 +35,10 @@ public class HomePageFragment extends Fragment {
 
     Integer avatarId = 0;
     Map<String, Boolean> freeSpots = new HashMap<>();
-
+    
     private Socket mSocket;
     {
-        try {
-            mSocket = IO.socket("http://192.168.0.22:7000");
-        } catch (URISyntaxException e) {
-        }
+
     }
 
     FirebaseDatabase database;
@@ -53,11 +51,11 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
-
         mSocket.connect();
 
         database = FirebaseDatabase.getInstance();
 
+        mSocket.emit("test", "Ceci est un test");
 
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
