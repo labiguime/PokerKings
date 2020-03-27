@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 
 app.use('/admin/', require('./routes/admin'));
 
-io.of("/namespacex").on('connection', (socket) => {
+io.on('connection', (socket) => {
 	console.log("Client Id: ["+socket.id+"] has connected to the server.");
 	socket.on('disconnect', () => {
 		console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
@@ -34,9 +34,7 @@ io.of("/namespacex").on('connection', (socket) => {
 
 });
 
-io.use((socket, next) => {
-	require('./routes/test').testF(socket, next);
-});
+io.use(require('./routes/room'));
 
 app.listen(3000, () => {
 	console.log('The server is up and running on port 3000.');

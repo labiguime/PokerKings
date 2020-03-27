@@ -20,6 +20,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,11 +38,8 @@ public class HomePageFragment extends Fragment {
 
     Integer avatarId = 0;
     Map<String, Boolean> freeSpots = new HashMap<>();
-    
-    private Socket mSocket;
-    {
 
-    }
+    Socket mSocket;
 
     FirebaseDatabase database;
     public HomePageFragment() {
@@ -51,11 +51,9 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
-        mSocket.connect();
 
         database = FirebaseDatabase.getInstance();
-
-        mSocket.emit("test", "Ceci est un test");
+        mSocket = SocketManager.getInstance();
 
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
@@ -111,7 +109,20 @@ public class HomePageFragment extends Fragment {
         }
         else {
             joinGameButton.setClickable(false);
-            DatabaseReference myRef = database.getReference("game-1/free-spots");
+            joinGameButton.setVisibility(View.GONE);
+
+            JSONObject joinObject = new JSONObject();
+            try {
+                joinObject.put("room", "Room#1");
+                joinObject.put("name", nickname);
+                joinObject.put("avatar", "avatar" + (avatarId+1));
+            } catch( JSONException e ) {
+
+            }
+
+            mSocket.emit("room/join", joinObject);
+
+            /*DatabaseReference myRef = database.getReference("game-1/free-spots");
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -126,7 +137,7 @@ public class HomePageFragment extends Fragment {
                 public void onCancelled(DatabaseError databaseError) {
                     joinGame(-1);
                 }
-            });
+            });*/
         }
 
     }
@@ -150,13 +161,13 @@ public class HomePageFragment extends Fragment {
         GameRoomFragment fragment = new GameRoomFragment();
 
         // Variables to pass
-        String avatarFileName = "avatar" + (avatarId+1);
+
         String nickname = nicknameTextBox.getText().toString();
         Integer spot = gameSpot;
 
         // Put variables into bundle to pass them to the next fragment
         Bundle bundle = new Bundle();
-        bundle.putString("avatar", avatarFileName);
+        //bundle.putString("avatar", avatarFileName);
         bundle.putString("nickname", nickname);
         bundle.putInt("spot", spot);
         fragment.setArguments(bundle);
