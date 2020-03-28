@@ -9,31 +9,46 @@ roomController.joinRoom = async function (obj, socket) {
 		if(!room) {
 			success = false;
 			message = "This room doesn't exist.";
-			socket.emit('onJoinRoom', {success: success, message: message});
+			socket.emit('joinRoom', {success: success, message: message});
+			console.log({success: success, message: message});
+			return;
 		}
-		if (room.is_in_game == True) {
+
+		if (room.is_in_game == true) {
 			success = false;
 			message = "A game is currently being played in this room.";
-			socket.emit('onJoinRoom', {success: success, message: message});
+			socket.emit('joinRoom', {success: success, message: message});
+			console.log({success: success, message: message});
+			return;
 		}
 
 		const spot = await Spot.findOneAndUpdate({room_id: room._id, player_id: 'None'}, {player_id: socket.id});
 		if(!spot) {
 			success = false;
 			message = "This room is full.";
-			socket.emit('onJoinRoom', {success: success, message: message});
+			socket.emit('joinRoom', {success: success, message: message});
+			console.log({success: success, message: message});
+			return;
 		}
 
-		const user = await User.save({name: obj.name, avatar: obj.avatar, room_id: room._id, spot_id: spot._id});
+		const user = await User.create({name: obj.name, avatar: obj.avatar, room_id: room._id, spot_id: spot._id});
 		if(!user) {
 			success = false;
 			message = "There are too many players connected to PokerKings.";
-			socket.emit('onJoinRoom', {success: success, message: message});
+			socket.emit('joinRoom', {success: success, message: message});
+			console.log({success: success, message: message});
+			return;
 		}
 
+		const roomPlayers = await User.find({room_id: room._id});
+		success = true;
+		message = "Joining the room...";
+		socket.emit('joinRoom', {success: success, message: message, roomPlayers: roomPlayers});
+		console.log({success: success, message: message, roomPlayers: roomPlayers});
+		return;
 
 	} catch (e) {
-
+		console.log(e.message);
 	}
 };
 

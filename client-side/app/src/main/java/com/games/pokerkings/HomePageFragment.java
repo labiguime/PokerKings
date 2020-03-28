@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.database.DataSnapshot;
@@ -54,7 +55,6 @@ public class HomePageFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance();
         mSocket = SocketManager.getInstance();
-        
 
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
@@ -122,7 +122,12 @@ public class HomePageFragment extends Fragment {
             }
 
             mSocket.emit("room/join", joinObject);
-
+            mSocket.on("joinRoom", new Emitter.Listener() {
+                @Override
+                public void call(final Object... args) {
+                    joinRoom(args);
+                }
+            });
             /*DatabaseReference myRef = database.getReference("game-1/free-spots");
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -150,12 +155,24 @@ public class HomePageFragment extends Fragment {
         homeAvatarPicture.setImageResource(resID);
     }
 
-    private void joinGame(final int gameSpot) {
-        if(gameSpot == -1) {
+    private void joinRoom(Object... args) {
+        JSONObject data = (JSONObject) args[0];
+        Boolean success;
+        String message;
+        try {
+            success = data.getBoolean("success");
+            message = data.getString("message");
+        } catch (JSONException e) {
+            return;
+        }
+
+        // add the message to view
+
+        /*if(gameSpot == -1) {
             Toast.makeText(getActivity(), "The room is full!", Toast.LENGTH_SHORT).show();
             joinGameButton.setClickable(true);
             return;
-        }
+        }*/
         DatabaseReference reference = database.getReference("game-1/free-spots");
         reference.setValue(freeSpots);
 
@@ -164,7 +181,7 @@ public class HomePageFragment extends Fragment {
         // Variables to pass
 
         String nickname = nicknameTextBox.getText().toString();
-        Integer spot = gameSpot;
+        Integer spot = 0;
 
         // Put variables into bundle to pass them to the next fragment
         Bundle bundle = new Bundle();
