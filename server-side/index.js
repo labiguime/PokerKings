@@ -4,7 +4,7 @@ const io = require('socket.io')(server);
 
 const mongoose = require('mongoose');
 try {
-	mongoose.connect("mongodb://localhost/pokerkings", { useNewUrlParser: true, useUnifiedTopology: true });
+	mongoose.connect("mongodb://localhost/pokerkings", { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 } catch (error) {
 	console.log('Database error: Could not establish connection.');
 	console.log(error.message);
@@ -26,12 +26,12 @@ app.get('/', (req, res) => {
 
 app.use('/admin/', require('./routes/admin'));
 
+
 io.on('connection', (socket) => {
 	console.log("Client Id: ["+socket.id+"] has connected to the server.");
 	socket.on('disconnect', () => {
 		console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
 	});
-
 });
 
 io.use(require('./routes/room'));

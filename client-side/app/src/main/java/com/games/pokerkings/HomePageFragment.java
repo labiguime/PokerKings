@@ -54,6 +54,7 @@ public class HomePageFragment extends Fragment {
 
         database = FirebaseDatabase.getInstance();
         mSocket = SocketManager.getInstance();
+        
 
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");

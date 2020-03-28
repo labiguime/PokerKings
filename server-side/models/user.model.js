@@ -9,7 +9,7 @@ const userSchema = new Schema({
 	},
 
 	avatar: {
-		type: Number,
+		type: String,
 		default: 0
 	},
 
