@@ -111,6 +111,8 @@ public class HomePageFragment extends Fragment {
         else {
             joinGameButton.setClickable(false);
             joinGameButton.setVisibility(View.GONE);
+            changeAvatarButton.setClickable(false);
+            nicknameTextBox.setEnabled(false);
 
             JSONObject joinObject = new JSONObject();
             try {
@@ -159,52 +161,40 @@ public class HomePageFragment extends Fragment {
         JSONObject data = (JSONObject) args[0];
         Boolean success;
         String message;
+        String spot;
         try {
             success = data.getBoolean("success");
             message = data.getString("message");
+            spot = data.getString("spot");
         } catch (JSONException e) {
             return;
         }
 
-        // add the message to view
-
-        /*if(gameSpot == -1) {
-            Toast.makeText(getActivity(), "The room is full!", Toast.LENGTH_SHORT).show();
+        if(!success) {
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            joinGameButton.setVisibility(View.VISIBLE);
+            changeAvatarButton.setClickable(true);
+            nicknameTextBox.setEnabled(true);
             joinGameButton.setClickable(true);
-            return;
-        }*/
-        DatabaseReference reference = database.getReference("game-1/free-spots");
-        reference.setValue(freeSpots);
+        } else {
+            GameRoomFragment fragment = new GameRoomFragment();
+            Bundle bundle = new Bundle();
 
-        GameRoomFragment fragment = new GameRoomFragment();
+            String nickname = nicknameTextBox.getText().toString();
+            String avatarFileName = Integer.toString(avatarId+1);
 
-        // Variables to pass
+            // Put variables into bundle to pass them to the next fragment
+            bundle.putString("avatar", avatarFileName);
+            bundle.putString("nickname", nickname);
+            bundle.putString("spot", spot);
+            fragment.setArguments(bundle);
 
-        String nickname = nicknameTextBox.getText().toString();
-        Integer spot = 0;
-
-        // Put variables into bundle to pass them to the next fragment
-        Bundle bundle = new Bundle();
-        //bundle.putString("avatar", avatarFileName);
-        bundle.putString("nickname", nickname);
-        bundle.putInt("spot", spot);
-        fragment.setArguments(bundle);
-
-        // Move to the next fragment
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_placeholder, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
-    private int getFreeSpot() {
-        for (Map.Entry<String, Boolean> entry : freeSpots.entrySet()) {
-            if(entry.getValue()) {
-                entry.setValue(false);
-                return Integer.parseInt(entry.getKey());
-            }
+            // Move to the next fragment
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_placeholder, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
         }
-        return -1;
     }
 
 }
