@@ -9,7 +9,7 @@ roomController.joinRoom = async function (obj, socket) {
 		if(!room) {
 			success = false;
 			message = "This room doesn't exist.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('joinRoom/'+socket._id, {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -17,7 +17,7 @@ roomController.joinRoom = async function (obj, socket) {
 		if (room.is_in_game == true) {
 			success = false;
 			message = "A game is currently being played in this room.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('joinRoom/'+socket._id, {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -26,7 +26,7 @@ roomController.joinRoom = async function (obj, socket) {
 		if(!spot) {
 			success = false;
 			message = "This room is full.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('joinRoom/'+socket._id, {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -35,20 +35,30 @@ roomController.joinRoom = async function (obj, socket) {
 		if(!user) {
 			success = false;
 			message = "There are too many players connected to PokerKings.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('joinRoom/'+socket._id, {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
 
-		const roomPlayers = await User.find({room_id: room._id});
+		//
 		success = true;
 		message = "Joining the room...";
-		socket.emit('joinRoom', {success: success, message: message, roomPlayers: roomPlayers});
-		console.log({success: success, message: message, roomPlayers: roomPlayers});
+		socket.emit('joinRoom/'+socket._id, {success: success, message: message, spot: spot._id, room: room._id});
+		console.log({success: success, message: message, spot: spot._id});
 		return;
 
 	} catch (e) {
 		console.log(e.message);
+	}
+};
+
+roomController.getPlayers = async function (obj, socket) {
+	try {
+		const roomPlayers = await User.find({room_id: obj.room_id});
+		socket.emit('getPlayers/'+socket._id, {players: roomPlayers});
+	} catch {
+		console.log("Cannot retrieve players!");
+		socket.emit('getPlayers/'+socket._id, {players: roomPlayers});
 	}
 };
 

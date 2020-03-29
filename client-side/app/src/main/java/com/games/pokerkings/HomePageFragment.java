@@ -4,7 +4,6 @@ import com.games.pokerkings.utils.SocketManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,22 +12,15 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 public class HomePageFragment extends Fragment {
 
@@ -130,22 +122,6 @@ public class HomePageFragment extends Fragment {
                     joinRoom(args);
                 }
             });
-            /*DatabaseReference myRef = database.getReference("game-1/free-spots");
-            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    freeSpots.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        freeSpots.put(snapshot.getKey(), snapshot.getValue(Boolean.class));
-                    }
-                    joinGame(getFreeSpot());
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    joinGame(-1);
-                }
-            });*/
         }
 
     }

@@ -17,6 +17,13 @@ router.get('/reset_room', async function (req, res) {
 		}
 		console.log("Admin: Spot table has been reset!");
 
+		result = await require('../models/user.model').deleteMany({});
+		if(!result) {
+			console.log("Admin: Couldn't reset user table!");
+			return res.status(400);
+		}
+		console.log("Admin: User table has been reset!");
+
 		const room = new require('../models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false});
 		result = await room.save();
 		if(!result) {
