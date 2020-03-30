@@ -1,35 +1,64 @@
 package com.games.pokerkings.classes;
 
 public class User {
-
-    private String nickname;
+    private String id;
+    private String roomId;
+    private String spotId;
+    private String name;
     private String avatar;
     private Integer money;
     private Boolean hasFolded;
-    private Integer tableId;
 
     public User() {
-        this.nickname = "Unknown";
+        this.name = "Unknown";
         this.avatar = "avatar1";
         this.money = 10000;
         this.hasFolded = false;
-        this.tableId = -1;
+        this.id = "";
+        this.roomId = "";
     }
 
-    public User(String nickname, String avatar) {
-        this.nickname = nickname;
+    public User(String name, String avatar, String id, String roomId, String spotId) {
+        this.name = name;
         this.avatar = avatar;
         this.money = 10000;
         this.hasFolded = false;
-        this.tableId = -1;
+        this.id = id;
+        this.roomId = roomId;
+        this.spotId = spotId;
+
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getSpotId() {
+        return spotId;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setSpotId(String spotId) {
+        this.spotId = spotId;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String nickname) {
+        this.name = nickname;
     }
 
     public String getAvatar() {
@@ -64,11 +93,4 @@ public class User {
         this.hasFolded = hasFolded;
     }
 
-    public Integer getTableId() {
-        return tableId;
-    }
-
-    public void setTableId(Integer tableId) {
-        this.tableId = tableId;
-    }
 }

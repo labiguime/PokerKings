@@ -4,6 +4,7 @@ import com.games.pokerkings.utils.SocketManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,7 +115,6 @@ public class HomePageFragment extends Fragment {
             } catch( JSONException e ) {
 
             }
-
             mSocket.emit("room/join", joinObject);
             mSocket.on("joinRoom", new Emitter.Listener() {
                 @Override
@@ -123,7 +123,6 @@ public class HomePageFragment extends Fragment {
                 }
             });
         }
-
     }
 
     private void onChangeAvatarButtonPressed() {
@@ -138,10 +137,12 @@ public class HomePageFragment extends Fragment {
         Boolean success;
         String message;
         String spot;
+        String room;
         try {
             success = data.getBoolean("success");
             message = data.getString("message");
             spot = data.getString("spot");
+            room = data.getString("room");
         } catch (JSONException e) {
             return;
         }
@@ -156,13 +157,14 @@ public class HomePageFragment extends Fragment {
             GameRoomFragment fragment = new GameRoomFragment();
             Bundle bundle = new Bundle();
 
-            String nickname = nicknameTextBox.getText().toString();
-            String avatarFileName = Integer.toString(avatarId+1);
+            String name = nicknameTextBox.getText().toString();
+            String avatarFileName = "avatar"+(avatarId+1);
 
             // Put variables into bundle to pass them to the next fragment
             bundle.putString("avatar", avatarFileName);
-            bundle.putString("nickname", nickname);
+            bundle.putString("name", name);
             bundle.putString("spot", spot);
+            bundle.putString("room", room);
             fragment.setArguments(bundle);
 
             // Move to the next fragment

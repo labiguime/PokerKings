@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,20 @@ import android.widget.TextView;
 import com.games.pokerkings.classes.Game;
 import com.games.pokerkings.classes.ReadyImplementation;
 import com.games.pokerkings.classes.User;
+import com.games.pokerkings.utils.SocketManager;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public class GameRoomFragment extends Fragment {
 
@@ -33,8 +44,12 @@ public class GameRoomFragment extends Fragment {
     ImageView readyButton;
     Boolean hasPlayerJustJoinedTheRoom = false;
     Game gameVariables;
-    FirebaseDatabase database;
-    ValueEventListener gameVariablesListener;
+    String avatar;
+    String name;
+    String spot;
+    String room;
+    Socket mSocket;
+    HashMap<String, User> roomUsers;
     public GameRoomFragment() {
         // Required empty public constructor
     }
@@ -72,35 +87,37 @@ public class GameRoomFragment extends Fragment {
         });
 
         // Initialize variables
-        database = FirebaseDatabase.getInstance();
         user = new User();
         gameVariables = new Game();
+        mSocket = SocketManager.getInstance();
 
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            user.setNickname(bundle.getString("nickname"));
-            user.setAvatar(bundle.getString("avatar"));
-            user.setTableId(bundle.getInt("spot"));
+            name = bundle.getString("name");
+            avatar = bundle.getString("avatar");
+            spot = bundle.getString("spot");
+            room = bundle.getString("room");
             hasPlayerJustJoinedTheRoom = true;
         }
 
-        // Setup listeners
-        gameVariablesListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                onGameVariablesChanged(dataSnapshot);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        database.getReference("game-1/variables").addValueEventListener(gameVariablesListener);
-
         // Setup UI
         setupNotReadyUiForPlayer();
+        roomUsers = new HashMap<>();
+        JSONObject object = new JSONObject();
+        try {
+            object.put("room_id", room);
+        } catch(JSONException e) {
+
+        }
+        mSocket.emit("room/getPlayers", object);
+
+        mSocket.on("getPlayers", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                getPlayers(args);
+            }
+        });
 
         return view;
     }
@@ -118,11 +135,43 @@ public class GameRoomFragment extends Fragment {
         readyButton.setVisibility(View.VISIBLE);
 
         // Set user name and avatar picture
-        int resID = getResources().getIdentifier(user.getAvatar()+ "_notfolded", "drawable", "com.games.pokerkings");
+        int resID = getResources().getIdentifier(avatar+ "_notfolded", "drawable", "com.games.pokerkings");
         userAvatar.setBackgroundResource(resID);
-        userNicknameText.setText(user.getNickname());
+        userNicknameText.setText(name);
     }
 
+    private void getPlayers(Object... args) {
+        JSONObject data = (JSONObject) args[0];
+        try {
+            JSONArray array = data.getJSONArray("players");
+            for(int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                String name = obj.getString("name");
+                String avatar = obj.getString("avatar");
+                String roomId = obj.getString("room_id");
+                String spotId = obj.getString("spot_id");
+                String id = obj.getString("_id");
+                User u = new User(name, avatar, id, roomId, spotId);
+                roomUsers.put(spotId, u);
+            }
+
+        } catch (JSONException e) {
+
+        }
+        updateUsersUi();
+
+    }
+
+    private void updateUsersUi() {
+        TreeMap<String, User> map = new TreeMap<>(roomUsers);
+
+        if(map.size() == 1) return;
+
+        for(TreeMap.Entry<String,User> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Log.d("DEBUG", "Id: "+key);
+        }
+    }
     private void onReadyButtonPressed() {
         Integer readyUsers = gameVariables.getReadyUsers()+1;
         Integer playingUsers = gameVariables.getPlayingUsers()+1;
@@ -131,16 +180,6 @@ public class GameRoomFragment extends Fragment {
         ReadyImplementation.addReadyPlayer("game-1", readyUsers);
         if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
             startGame();
-        }
-    }
-
-    private void onGameVariablesChanged(@NonNull DataSnapshot dataSnapshot) {
-        gameVariables = dataSnapshot.getValue(Game.class);
-        // Increase the number of playing users if the user just joined the room
-        if(hasPlayerJustJoinedTheRoom) {
-            hasPlayerJustJoinedTheRoom = false;
-            FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(gameVariables.getPlayingUsers()+1);
-            return;
         }
     }
 
