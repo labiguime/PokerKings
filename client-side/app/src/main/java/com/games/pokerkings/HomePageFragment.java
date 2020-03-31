@@ -1,5 +1,6 @@
 package com.games.pokerkings;
 
+import com.games.pokerkings.utils.SocketManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -11,19 +12,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.net.URISyntaxException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 public class HomePageFragment extends Fragment {
 
@@ -35,13 +33,7 @@ public class HomePageFragment extends Fragment {
     Integer avatarId = 0;
     Map<String, Boolean> freeSpots = new HashMap<>();
 
-    private Socket mSocket;
-    {
-        try {
-            mSocket = IO.socket("http://192.168.0.22:7000");
-        } catch (URISyntaxException e) {
-        }
-    }
+    Socket mSocket;
 
     FirebaseDatabase database;
     public HomePageFragment() {
@@ -54,10 +46,8 @@ public class HomePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        mSocket.connect();
-
         database = FirebaseDatabase.getInstance();
-
+        mSocket = SocketManager.getInstance();
 
         // Setup freeSpots
         DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
@@ -113,24 +103,26 @@ public class HomePageFragment extends Fragment {
         }
         else {
             joinGameButton.setClickable(false);
-            DatabaseReference myRef = database.getReference("game-1/free-spots");
-            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    freeSpots.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        freeSpots.put(snapshot.getKey(), snapshot.getValue(Boolean.class));
-                    }
-                    joinGame(getFreeSpot());
-                }
+            joinGameButton.setVisibility(View.GONE);
+            changeAvatarButton.setClickable(false);
+            nicknameTextBox.setEnabled(false);
 
+            JSONObject joinObject = new JSONObject();
+            try {
+                joinObject.put("room", "Room#1");
+                joinObject.put("name", nickname);
+                joinObject.put("avatar", "avatar" + (avatarId+1));
+            } catch( JSONException e ) {
+
+            }
+            mSocket.emit("room/join", joinObject);
+            mSocket.on("joinRoom", new Emitter.Listener() {
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    joinGame(-1);
+                public void call(final Object... args) {
+                    joinRoom(args);
                 }
             });
         }
-
     }
 
     private void onChangeAvatarButtonPressed() {
@@ -140,44 +132,47 @@ public class HomePageFragment extends Fragment {
         homeAvatarPicture.setImageResource(resID);
     }
 
-    private void joinGame(final int gameSpot) {
-        if(gameSpot == -1) {
-            Toast.makeText(getActivity(), "The room is full!", Toast.LENGTH_SHORT).show();
-            joinGameButton.setClickable(true);
+    private void joinRoom(Object... args) {
+        JSONObject data = (JSONObject) args[0];
+        Boolean success;
+        String message;
+        String spot;
+        String room;
+        try {
+            success = data.getBoolean("success");
+            message = data.getString("message");
+            spot = data.getString("spot");
+            room = data.getString("room");
+        } catch (JSONException e) {
             return;
         }
-        DatabaseReference reference = database.getReference("game-1/free-spots");
-        reference.setValue(freeSpots);
 
-        GameRoomFragment fragment = new GameRoomFragment();
+        if(!success) {
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            joinGameButton.setVisibility(View.VISIBLE);
+            changeAvatarButton.setClickable(true);
+            nicknameTextBox.setEnabled(true);
+            joinGameButton.setClickable(true);
+        } else {
+            GameRoomFragment fragment = new GameRoomFragment();
+            Bundle bundle = new Bundle();
 
-        // Variables to pass
-        String avatarFileName = "avatar" + (avatarId+1);
-        String nickname = nicknameTextBox.getText().toString();
-        Integer spot = gameSpot;
+            String name = nicknameTextBox.getText().toString();
+            String avatarFileName = "avatar"+(avatarId+1);
 
-        // Put variables into bundle to pass them to the next fragment
-        Bundle bundle = new Bundle();
-        bundle.putString("avatar", avatarFileName);
-        bundle.putString("nickname", nickname);
-        bundle.putInt("spot", spot);
-        fragment.setArguments(bundle);
+            // Put variables into bundle to pass them to the next fragment
+            bundle.putString("avatar", avatarFileName);
+            bundle.putString("name", name);
+            bundle.putString("spot", spot);
+            bundle.putString("room", room);
+            fragment.setArguments(bundle);
 
-        // Move to the next fragment
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_placeholder, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
-    private int getFreeSpot() {
-        for (Map.Entry<String, Boolean> entry : freeSpots.entrySet()) {
-            if(entry.getValue()) {
-                entry.setValue(false);
-                return Integer.parseInt(entry.getKey());
-            }
+            // Move to the next fragment
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_placeholder, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
         }
-        return -1;
     }
 
 }

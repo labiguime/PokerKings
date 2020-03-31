@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +15,20 @@ import android.widget.TextView;
 import com.games.pokerkings.classes.Game;
 import com.games.pokerkings.classes.ReadyImplementation;
 import com.games.pokerkings.classes.User;
+import com.games.pokerkings.utils.SocketManager;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public class GameRoomFragment extends Fragment {
 
@@ -25,16 +36,22 @@ public class GameRoomFragment extends Fragment {
     LinearLayout currentBetLayout;
     LinearLayout tableCardsLayout;
     LinearLayout[] layoutPlayer = new LinearLayout[4];
+    TextView[] playerNameText = new TextView[3];
+    ConstraintLayout[] playerAvatarImage = new ConstraintLayout[3];
+    ImageView[][] playerCardImage = new ImageView[4][2];
     LinearLayout gameButtonsLayout;
     TextView userNicknameText;
     ImageView[] userCard = new ImageView[2];
     ConstraintLayout userAvatar;
-    User user;
     ImageView readyButton;
     Boolean hasPlayerJustJoinedTheRoom = false;
     Game gameVariables;
-    FirebaseDatabase database;
-    ValueEventListener gameVariablesListener;
+    String avatar;
+    String name;
+    String spot;
+    String room;
+    Socket mSocket;
+    HashMap<String, User> roomUsers;
     public GameRoomFragment() {
         // Required empty public constructor
     }
@@ -54,6 +71,23 @@ public class GameRoomFragment extends Fragment {
         layoutPlayer[2] = view.findViewById(R.id.layout_player_2);
         layoutPlayer[3] = view.findViewById(R.id.layout_player_3);
 
+        playerNameText[0] = view.findViewById(R.id.top_player_nickname_text);
+        playerNameText[1] = view.findViewById(R.id.left_player_nickname_text);
+        playerNameText[2] = view.findViewById(R.id.right_player_nickname_text);
+
+        playerAvatarImage[0] = view.findViewById(R.id.top_player_avatar);
+        playerAvatarImage[1] = view.findViewById(R.id.left_player_avatar);
+        playerAvatarImage[2] = view.findViewById(R.id.right_player_avatar);
+
+        playerCardImage[0][0] = view.findViewById(R.id.top_player_card_1);
+        playerCardImage[0][1] = view.findViewById(R.id.top_player_card_2);
+
+        playerCardImage[1][0] = view.findViewById(R.id.left_player_card_1);
+        playerCardImage[1][1] = view.findViewById(R.id.left_player_card_2);
+
+        playerCardImage[2][0] = view.findViewById(R.id.right_player_card_1);
+        playerCardImage[2][1] = view.findViewById(R.id.right_player_card_2);
+
         gameButtonsLayout = view.findViewById(R.id.game_buttons_layout);
 
         userCard[0] = view.findViewById(R.id.user_card_1);
@@ -72,35 +106,37 @@ public class GameRoomFragment extends Fragment {
         });
 
         // Initialize variables
-        database = FirebaseDatabase.getInstance();
-        user = new User();
         gameVariables = new Game();
+        mSocket = SocketManager.getInstance();
 
+        Log.d("DEBUG", "Reached here at least...");
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            user.setNickname(bundle.getString("nickname"));
-            user.setAvatar(bundle.getString("avatar"));
-            user.setTableId(bundle.getInt("spot"));
+            name = bundle.getString("name");
+            avatar = bundle.getString("avatar");
+            spot = bundle.getString("spot");
+            room = bundle.getString("room");
             hasPlayerJustJoinedTheRoom = true;
         }
 
-        // Setup listeners
-        gameVariablesListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                onGameVariablesChanged(dataSnapshot);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        database.getReference("game-1/variables").addValueEventListener(gameVariablesListener);
-
         // Setup UI
         setupNotReadyUiForPlayer();
+        roomUsers = new HashMap<>();
+        JSONObject object = new JSONObject();
+        try {
+            object.put("room_id", room);
+        } catch(JSONException e) {
+
+        }
+        mSocket.emit("room/getPlayers", object);
+
+        mSocket.on("getPlayers", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                getPlayers(args);
+            }
+        });
 
         return view;
     }
@@ -118,11 +154,107 @@ public class GameRoomFragment extends Fragment {
         readyButton.setVisibility(View.VISIBLE);
 
         // Set user name and avatar picture
-        int resID = getResources().getIdentifier(user.getAvatar()+ "_notfolded", "drawable", "com.games.pokerkings");
+        int resID = getResources().getIdentifier(avatar+ "_notfolded", "drawable", "com.games.pokerkings");
         userAvatar.setBackgroundResource(resID);
-        userNicknameText.setText(user.getNickname());
+        userNicknameText.setText(name);
     }
 
+    private void getPlayers(Object... args) {
+        JSONObject data = (JSONObject) args[0];
+        try {
+            JSONArray array = data.getJSONArray("players");
+            for(int i = 0; i < array.length(); i++) {
+                Log.d("DEBUG", "Starting iteration...");
+                JSONObject obj = array.getJSONObject(i);
+                String name = obj.getString("name");
+                String avatar = obj.getString("avatar");
+                String roomId = obj.getString("room_id");
+                String spotId = obj.getString("spot_id");
+                String id = obj.getString("_id");
+                Log.d("DEBUG", "name is: "+ name);
+                User u = new User(name, avatar, id, roomId, spotId);
+                roomUsers.put(spotId, u);
+            }
+
+        } catch (JSONException e) {
+
+        }
+        updateUsersUi();
+
+    }
+
+    private void setupNotReadyUiFor(String recipient, final String playerName, final String playerAvatar) {
+        final int index;
+        if (recipient.equals("top")) {
+            index = 0;
+        } else if (recipient.equals("left")) {
+            index = 1;
+        } else {
+            index = 2;
+        }
+        Log.d("DEBUG", "Working on index: "+ index);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                layoutPlayer[index + 1].setVisibility(View.VISIBLE);
+                playerCardImage[index][0].setVisibility(View.INVISIBLE);
+                playerCardImage[index][1].setVisibility(View.INVISIBLE);
+                Log.d("DEBUG", "Set visibility!");
+                // Set user name and avatar picture
+                int resID = getResources().getIdentifier(playerAvatar + "_notfolded", "drawable", "com.games.pokerkings");
+                Log.d("DEBUG", "Resource found!");
+                playerAvatarImage[index].setBackgroundResource(resID);
+                Log.d("DEBUG", "Background set!");
+                playerNameText[index].setText(playerName);
+            }
+        });
+    }
+
+    private String getLayoutForId(int playerIndex, int id, int size) {
+        if(size == 2) return "top";
+        int newId = (id+(size-playerIndex))%size;
+        if(newId == 1) {
+            return "left";
+        } else if(newId == 2) {
+            return "top";
+        } else {
+            return "right";
+        }
+    }
+    private void updateUsersUi() {
+        Log.d("DEBUG", "Taking care of the UI...");
+        TreeMap<String, User> map = new TreeMap<>(roomUsers);
+        int size = map.size();
+        if(size == 1) return;
+        int index = -1,
+            playerIndex = -1;
+
+        for(TreeMap.Entry<String,User> entry : map.entrySet()) {
+            playerIndex++;
+            Log.d("DEBUG", "Retrieving id...");
+            if (entry.getKey().equals(spot)) {
+                Log.d("DEBUG", "ID found!");
+                break;
+            }
+        }
+
+        Log.d("DEBUG", "Setting it up...");
+        for(TreeMap.Entry<String,User> entry : map.entrySet()) {
+            index++;
+            Log.d("DEBUG", "Item getting worked!");
+            if (entry.getKey().equals(spot)) {
+                Log.d("DEBUG", "Main has gone away!");
+                continue;
+            }
+
+            User u = entry.getValue();
+            Log.d("DEBUG", "Working on name: "+u.getName()+" with avatar name: "+u.getAvatar());
+            String position = getLayoutForId(playerIndex, index, size);
+            Log.d("DEBUG", "Position recovered!");
+            setupNotReadyUiFor(position, u.getName(), u.getAvatar());
+            Log.d("DEBUG", "Finished working on name: "+u.getName());
+        }
+    }
     private void onReadyButtonPressed() {
         Integer readyUsers = gameVariables.getReadyUsers()+1;
         Integer playingUsers = gameVariables.getPlayingUsers()+1;
@@ -131,16 +263,6 @@ public class GameRoomFragment extends Fragment {
         ReadyImplementation.addReadyPlayer("game-1", readyUsers);
         if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
             startGame();
-        }
-    }
-
-    private void onGameVariablesChanged(@NonNull DataSnapshot dataSnapshot) {
-        gameVariables = dataSnapshot.getValue(Game.class);
-        // Increase the number of playing users if the user just joined the room
-        if(hasPlayerJustJoinedTheRoom) {
-            hasPlayerJustJoinedTheRoom = false;
-            FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(gameVariables.getPlayingUsers()+1);
-            return;
         }
     }
 
