@@ -51,15 +51,48 @@ roomController.joinRoom = async function (obj, socket) {
 	}
 };
 
+roomController.setReady = async function (obj, socket) {
+	try {
+		// Must check for edge cases
+		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
+
+		const playerList = await User.find({ready: false}, {name: 1});
+		if(playerList.length == 0) { // Everybody is ready
+			socket.emit('getReady', {success: true, gameIsStarting: true, message: "The game is starting..."});
+			socket.broadcast.emit('getReady', {success: true, gameIsStarting: true, message: "The game is starting..."});
+		} else {
+			const indexOfLastElement = playerList.length-1;
+			var emitMessage = "Waiting for: ";
+			playerList.forEach((item, index) => {
+				emitMessage += item.name;
+				if(index != indexOfLastElement) {
+					emitMessage += ", ";
+				} else {
+					emitMessage += "...";
+				}
+			});
+			console.log(emitMessage);
+			socket.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});
+			socket.broadcast.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});
+		}
+	} catch {
+		console.log("Cannot retrieve ready players!");
+		socket.emit('getReady', {success: false, gameIsStarting: false, message: null});
+	}
+};
+
 roomController.getPlayers = async function (obj, socket) {
 	try {
 		const roomPlayers = await User.find({room_id: obj.room_id});
 		console.log({players: roomPlayers});
 		socket.emit('getPlayers', {players: roomPlayers});
+		socket.broadcast.emit('getPlayers', {players: roomPlayers});
 	} catch {
 		console.log("Cannot retrieve players!");
 		socket.emit('getPlayers', {players: roomPlayers});
 	}
 };
+
+
 
 module.exports = roomController;

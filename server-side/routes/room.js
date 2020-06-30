@@ -8,6 +8,12 @@ module.exports = (socket, next) => {
 		room.joinRoom(message, socket);
 	});
 
+	socket.on('room/setReady', (message) => {
+		console.log(message);
+		console.log('Sending request');
+		room.setReady(message, socket);
+	});
+
 	socket.on('room/getPlayers', (message) => {
 		console.log(message);
 		console.log('Sending request');

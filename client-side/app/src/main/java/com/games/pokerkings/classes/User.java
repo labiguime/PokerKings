@@ -8,6 +8,7 @@ public class User {
     private String avatar;
     private Integer money;
     private Boolean hasFolded;
+    private Boolean ready;
 
     public User() {
         this.name = "Unknown";
@@ -16,9 +17,10 @@ public class User {
         this.hasFolded = false;
         this.id = "";
         this.roomId = "";
+        this.ready = false;
     }
 
-    public User(String name, String avatar, String id, String roomId, String spotId) {
+    public User(String name, String avatar, String id, String roomId, String spotId, Boolean ready) {
         this.name = name;
         this.avatar = avatar;
         this.money = 10000;
@@ -26,7 +28,15 @@ public class User {
         this.id = id;
         this.roomId = roomId;
         this.spotId = spotId;
+        this.ready = ready;
+    }
 
+    public Boolean getReady() {
+        return ready;
+    }
+
+    public void setReady(Boolean ready) {
+        this.ready = ready;
     }
 
     public String getSpotId() {

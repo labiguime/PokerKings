@@ -21,6 +21,11 @@ const userSchema = new Schema({
 	spot_id: {
 		type: Schema.Types.ObjectId,
 		ref: 'Spot'
+	},
+	
+	ready: {
+		type: Boolean,
+		default: false
 	}
 });
 

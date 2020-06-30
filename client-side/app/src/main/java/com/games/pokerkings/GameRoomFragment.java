@@ -1,27 +1,24 @@
 package com.games.pokerkings;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.games.pokerkings.classes.Game;
-import com.games.pokerkings.classes.ReadyImplementation;
 import com.games.pokerkings.classes.User;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,15 +33,23 @@ public class GameRoomFragment extends Fragment {
     LinearLayout currentBetLayout;
     LinearLayout tableCardsLayout;
     LinearLayout[] layoutPlayer = new LinearLayout[4];
+    LinearLayout readyBox;
+
+    TextView totalBetText;
+    TextView currentBetText;
+    TextView raiseText;
+
     TextView[] playerNameText = new TextView[3];
     ConstraintLayout[] playerAvatarImage = new ConstraintLayout[3];
     ImageView[][] playerCardImage = new ImageView[4][2];
     LinearLayout gameButtonsLayout;
     TextView userNicknameText;
+    TextView readyMessage;
     ImageView[] userCard = new ImageView[2];
     ConstraintLayout userAvatar;
     ImageView readyButton;
     Boolean hasPlayerJustJoinedTheRoom = false;
+    Boolean isPlayerReady = false;
     Game gameVariables;
     String avatar;
     String name;
@@ -65,6 +70,7 @@ public class GameRoomFragment extends Fragment {
         totalBetLayout = view.findViewById(R.id.total_bet_layout);
         currentBetLayout = view.findViewById(R.id.current_bet_layout);
         tableCardsLayout = view.findViewById(R.id.table_cards_layout);
+        readyBox = view.findViewById(R.id.ready_box);
 
         layoutPlayer[0] = view.findViewById(R.id.layout_player_0);
         layoutPlayer[1] = view.findViewById(R.id.layout_player_1);
@@ -97,13 +103,17 @@ public class GameRoomFragment extends Fragment {
         userAvatar = view.findViewById(R.id.user_avatar);
 
         readyButton = view.findViewById(R.id.ready_button);
-
+        readyMessage = view.findViewById(R.id.readyMessageTextView);
         readyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onReadyButtonPressed();
             }
         });
+
+        totalBetText = view.findViewById(R.id.total_bet_text);
+        currentBetText = view.findViewById(R.id.current_bet_text);
+        raiseText = view.findViewById(R.id.raise_text);
 
         // Initialize variables
         gameVariables = new Game();
@@ -138,6 +148,13 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        mSocket.on("getReady", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                getReady(args);
+            }
+        });
+
         return view;
     }
 
@@ -159,6 +176,36 @@ public class GameRoomFragment extends Fragment {
         userNicknameText.setText(name);
     }
 
+
+    private void setupPlayableUiForPlayer() {
+
+        // Remove the ready button and its text from the constrained layout
+        readyBox.setVisibility(View.INVISIBLE);
+
+        // Setup the right side panel
+        raiseText.setText("0");
+        totalBetText.setText("$0");
+        currentBetText.setText("$0");
+        currentBetText.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_default));
+        totalBetLayout.setVisibility(View.VISIBLE);
+        currentBetLayout.setVisibility(View.VISIBLE);
+
+        Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+        for(int i = 0; i < 3; i++) {
+            if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
+                playerCardImage[i][0].setVisibility(View.VISIBLE);
+                playerCardImage[i][1].setVisibility(View.VISIBLE);
+
+                playerCardImage[i][0].startAnimation(fade_in);
+                playerCardImage[i][1].startAnimation(fade_in);
+            }
+        }
+        //generateCardsForPlayer();
+        //displayAllButtons();
+    }
+
+
+
     private void getPlayers(Object... args) {
         JSONObject data = (JSONObject) args[0];
         try {
@@ -170,9 +217,10 @@ public class GameRoomFragment extends Fragment {
                 String avatar = obj.getString("avatar");
                 String roomId = obj.getString("room_id");
                 String spotId = obj.getString("spot_id");
+                Boolean ready = obj.getBoolean("ready");
                 String id = obj.getString("_id");
                 Log.d("DEBUG", "name is: "+ name);
-                User u = new User(name, avatar, id, roomId, spotId);
+                User u = new User(name, avatar, id, roomId, spotId, ready);
                 roomUsers.put(spotId, u);
             }
 
@@ -181,6 +229,33 @@ public class GameRoomFragment extends Fragment {
         }
         updateUsersUi();
 
+    }
+
+    private void getReady(final Object... args) {
+        if(!isPlayerReady) return;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject data = (JSONObject) args[0];
+                try {
+                    Boolean success = data.getBoolean("success");
+                    Boolean gameIsStarting = data.getBoolean("gameIsStarting");
+                    String message = data.getString("message");
+                    Log.d("DEBUG", "Message is: "+ message);
+                    if(!success) {
+                        // restore ready button
+                        return;
+                    }
+                    readyMessage.setText(message);
+                    if(gameIsStarting) {
+                        setupPlayableUiForPlayer();
+                        return;
+                    }
+                } catch (JSONException e) {
+
+                }
+            }
+        });
     }
 
     private void setupNotReadyUiFor(String recipient, final String playerName, final String playerAvatar) {
@@ -258,12 +333,19 @@ public class GameRoomFragment extends Fragment {
     private void onReadyButtonPressed() {
         Integer readyUsers = gameVariables.getReadyUsers()+1;
         Integer playingUsers = gameVariables.getPlayingUsers()+1;
-
+        isPlayerReady = true;
         readyButton.setVisibility(View.INVISIBLE);
-        ReadyImplementation.addReadyPlayer("game-1", readyUsers);
+        JSONObject object = new JSONObject();
+        try {
+            object.put("room_id", room);
+            object.put("name", name);
+        } catch(JSONException e) {
+        }
+        mSocket.emit("room/setReady", object);
+        /*ReadyImplementation.addReadyPlayer("game-1", readyUsers);
         if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
             startGame();
-        }
+        }*/
     }
 
     private void startGame() {
