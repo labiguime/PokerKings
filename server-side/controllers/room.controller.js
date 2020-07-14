@@ -3,7 +3,7 @@ const Spot = require('../models/spot.model');
 const User = require('../models/user.model');
 let roomController = {};
 
-roomController.joinRoom = async function (obj, socket) {
+roomController.joinRoom = async function (obj, socket, next) {
 	try {
 		const room = await Room.findOne({ name: obj.room });
 		if(!room) {
@@ -45,14 +45,15 @@ roomController.joinRoom = async function (obj, socket) {
 		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join("room/"+room._id);
 		console.log({success: success, message: message, spot: spot._id, room: room._id});
-		return;
+
+		next();
 
 	} catch (e) {
 		console.log(e.message);
 	}
 };
 
-roomController.setReady = async function (obj, socket) {
+roomController.setReady = async function (obj, socket, next) {
 	try {
 		// Must check for edge cases
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
@@ -82,7 +83,7 @@ roomController.setReady = async function (obj, socket) {
 	}
 };
 
-roomController.getPlayers = async function (obj, socket) {
+roomController.getPlayers = async function (obj, socket, next) {
 	try {
 		const roomPlayers = await User.find({room_id: obj.room_id});
 		console.log({players: roomPlayers});
