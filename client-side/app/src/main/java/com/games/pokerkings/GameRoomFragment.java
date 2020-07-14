@@ -155,6 +155,13 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        mSocket.on("testtest", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                Log.d("LOLILOL", "Has worked");
+            }
+        });
+
         return view;
     }
 

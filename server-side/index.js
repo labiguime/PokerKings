@@ -1,6 +1,7 @@
 const app = require('express')();
 const server = require('http').Server(app).listen(7000);
 const io = require('socket.io')(server);
+const file1 = require('./routes/socket')(io);
 
 const mongoose = require('mongoose');
 try {
@@ -27,33 +28,11 @@ app.get('/', (req, res) => {
 app.use('/admin/', require('./routes/admin'));
 
 
-io.on('connection', (socket) => {
-	console.log("Client Id: ["+socket.id+"] has connected to the server.");
-	socket.on('disconnect', () => {
-		console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
-	});
-});
 
-io.use(require('./routes/room'));
 
-/*
-* Data to be broadcasted to an entire room will be passed to instructionSet
-* instructionSet contains the following field:
-*    room: A string that corresponds to the socket.io room to join
-*    route: The get function that is listened for by the Android app
-*    data: The data to pass to the Android app.
-*/
+//
 
-io.use((socket, next) => {
-	const instructionSet = socket.instructionSet;
-	if(instructionSet) {
-		const room = instructionSet.room;
-		const route = instructionSet.route;
-		const data = instructionSet.data;
-		io.to(room).emit(route, data);
-	}
-	next();
-});
+
 
 app.listen(3000, () => {
 	console.log('The server is up and running on port 3000.');

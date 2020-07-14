@@ -44,9 +44,6 @@ roomController.joinRoom = async function (obj, socket, next) {
 		message = "Joining the room...";
 		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join("room/"+room._id);
-		console.log({success: success, message: message, spot: spot._id, room: room._id});
-
-		next();
 
 	} catch (e) {
 		console.log(e.message);
@@ -76,6 +73,7 @@ roomController.setReady = async function (obj, socket, next) {
 			console.log(emitMessage);
 			socket.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});
 			socket.broadcast.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});
+			next();
 		}
 	} catch {
 		console.log("Cannot retrieve ready players!");
@@ -94,7 +92,5 @@ roomController.getPlayers = async function (obj, socket, next) {
 		socket.emit('getPlayers', {players: roomPlayers});
 	}
 };
-
-
 
 module.exports = roomController;
