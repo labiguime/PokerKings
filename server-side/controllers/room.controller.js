@@ -42,9 +42,14 @@ roomController.joinRoom = async function (obj, socket, next) {
 
 		success = true;
 		message = "Joining the room...";
+		const roomRoute = "room/"+room._id;
 		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
-		socket.join("room/"+room._id);
-		return;
+		socket.join(roomRoute);
+
+		const roomPlayers = await User.find({room_id: room._id});
+		socket.getRequest = {room: roomRoute, route: "getPlayers", data: {players: roomPlayers}};
+		console.log("Request successfully fulfilled!");
+		next();
 
 	} catch (e) {
 		console.log(e.message);
@@ -55,11 +60,12 @@ roomController.setReady = async function (obj, socket, next) {
 	try {
 		// Must check for edge cases
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
-
+		var data = {};
 		const playerList = await User.find({ready: false}, {name: 1});
 		if(playerList.length == 0) { // Everybody is ready
-			socket.emit('getReady', {success: true, gameIsStarting: true, message: "The game is starting..."});
-			socket.broadcast.emit('getReady', {success: true, gameIsStarting: true, message: "The game is starting..."});
+			data = {success: true, gameIsStarting: true, message: "The game is starting..."};
+			/*socket.emit('getReady', );
+			socket.broadcast.emit('getReady', {success: true, gameIsStarting: true, message: "The game is starting..."});*/
 		} else {
 			const indexOfLastElement = playerList.length-1;
 			var emitMessage = "Waiting for: ";
@@ -70,24 +76,31 @@ roomController.setReady = async function (obj, socket, next) {
 				} else {
 					emitMessage += "...";
 				}
+				data = {success: true, gameIsStarting: false, message: emitMessage};
 			});
-			//console.log(emitMessage);
-			socket.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});
-			socket.broadcast.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});
-			next();
+
+
+			/*socket.emit('getReady', );
+			socket.broadcast.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});*/
 		}
+		socket.getRequest = {room: "room/"+obj.room_id, route: "getReady", data: data};
+		console.log("Request successfully fulfilled!");
+		next();
 	} catch {
 		console.log("Cannot retrieve ready players!");
 		socket.emit('getReady', {success: false, gameIsStarting: false, message: null});
+		//return;
 	}
 };
 
 roomController.getPlayers = async function (obj, socket, next) {
 	try {
 		const roomPlayers = await User.find({room_id: obj.room_id});
-		console.log({players: roomPlayers});
+		//console.log({players: roomPlayers});
 		socket.emit('getPlayers', {players: roomPlayers});
-		socket.broadcast.emit('getPlayers', {players: roomPlayers});
+		console.log("Request successfully fulfilled!");
+		return;
+		//socket.broadcast.emit('getPlayers', {players: roomPlayers});
 	} catch {
 		console.log("Cannot retrieve players!");
 		socket.emit('getPlayers', {players: roomPlayers});

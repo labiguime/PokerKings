@@ -239,7 +239,10 @@ public class GameRoomFragment extends Fragment {
     }
 
     private void getReady(final Object... args) {
-        if(!isPlayerReady) return;
+        if(!isPlayerReady) {
+            Log.d("DEBUG", "Player not ready");
+            return;
+        }
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

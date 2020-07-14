@@ -17,15 +17,14 @@ exports = module.exports = (io) => {
 	*/
 
 	io.use((socket, next) => {
-		console.log("used");
-		const instructionSet = socket.instructionSet;
-		console.log(socket.instructionSet);
-		if(instructionSet) {
-			console.log(instructionSet);
-			const room = instructionSet.room;
-			const route = instructionSet.route;
-			const data = instructionSet.data;
+		const getRequest = socket.getRequest;
+		if(getRequest) {
+			const room = getRequest.room;
+			const route = getRequest.route;
+			const data = getRequest.data;
 			io.in(room).emit(route, data);
+			console.log('-- GET route '+route+' has been broadcast on '+room);
+			return;
 		}
 		next();
 	});
