@@ -1,7 +1,9 @@
 const app = require('express')();
 const server = require('http').Server(app).listen(7000);
 const io = require('socket.io')(server);
-const file1 = require('./routes/socket')(io);
+
+// We load the module in charge of routing all socket.io requests
+require('./routes/socket')(io);
 
 const mongoose = require('mongoose');
 try {

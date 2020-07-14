@@ -115,7 +115,7 @@ public class HomePageFragment extends Fragment {
             } catch( JSONException e ) {
 
             }
-            mSocket.emit("room/join", joinObject);
+            mSocket.emit("room/POST:join", joinObject);
             mSocket.on("joinRoom", new Emitter.Listener() {
                 @Override
                 public void call(final Object... args) {

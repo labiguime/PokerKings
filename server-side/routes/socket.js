@@ -25,7 +25,7 @@ exports = module.exports = (io) => {
 			const room = instructionSet.room;
 			const route = instructionSet.route;
 			const data = instructionSet.data;
-			io.to(room).emit(route, data);
+			io.in(room).emit(route, data);
 		}
 		next();
 	});

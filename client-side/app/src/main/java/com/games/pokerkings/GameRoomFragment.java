@@ -139,7 +139,7 @@ public class GameRoomFragment extends Fragment {
         } catch(JSONException e) {
 
         }
-        mSocket.emit("room/getPlayers", object);
+        mSocket.emit("room/GET:players", object);
 
         mSocket.on("getPlayers", new Emitter.Listener() {
             @Override
@@ -152,13 +152,6 @@ public class GameRoomFragment extends Fragment {
             @Override
             public void call(final Object... args) {
                 getReady(args);
-            }
-        });
-
-        mSocket.on("testtest", new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                Log.d("LOLILOL", "Has worked");
             }
         });
 
@@ -355,7 +348,7 @@ public class GameRoomFragment extends Fragment {
             object.put("name", name);
         } catch(JSONException e) {
         }
-        mSocket.emit("room/setReady", object);
+        mSocket.emit("room/POST:ready", object);
         /*ReadyImplementation.addReadyPlayer("game-1", readyUsers);
         if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
             startGame();
