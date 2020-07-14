@@ -36,6 +36,17 @@ io.on('connection', (socket) => {
 
 io.use(require('./routes/room'));
 
+io.use((socket, next) => {
+	const instructionSet = socket.instructionSet;
+	if(instructionSet) {
+		const room = instructionSet.room;
+		const route = instructionSet.route;
+		const data = instructionSet.data;
+
+	}
+	next();
+})
+
 app.listen(3000, () => {
 	console.log('The server is up and running on port 3000.');
 });

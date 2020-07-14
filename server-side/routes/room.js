@@ -19,6 +19,6 @@ module.exports = (socket, next) => {
 		console.log('Sending request');
 		room.getPlayers(message, socket);
 	});
-
+	socket.jean = 3;
 	next();
 };

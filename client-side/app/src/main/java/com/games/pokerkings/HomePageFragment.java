@@ -46,11 +46,11 @@ public class HomePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        database = FirebaseDatabase.getInstance();
+        //database = FirebaseDatabase.getInstance();
         mSocket = SocketManager.getInstance();
 
         // Setup freeSpots
-        DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
+        /*DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
         freeSpots.put("0", true);
         freeSpots.put("1", true);
         freeSpots.put("2", true);
@@ -61,7 +61,7 @@ public class HomePageFragment extends Fragment {
 
         // Reset variables (for debugging only)
         FirebaseDatabase.getInstance().getReference("game-1/variables").child("readyUsers").setValue(0);
-        FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(0);
+        FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(0);*/
 
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);

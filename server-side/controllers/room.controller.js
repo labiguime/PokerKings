@@ -43,6 +43,7 @@ roomController.joinRoom = async function (obj, socket) {
 		success = true;
 		message = "Joining the room...";
 		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
+		socket.join("room/"+room._id);
 		console.log({success: success, message: message, spot: spot._id, room: room._id});
 		return;
 

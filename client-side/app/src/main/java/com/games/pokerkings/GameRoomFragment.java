@@ -191,6 +191,13 @@ public class GameRoomFragment extends Fragment {
         currentBetLayout.setVisibility(View.VISIBLE);
 
         Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+
+        userCard[0].setVisibility(View.VISIBLE);
+        userCard[1].setVisibility(View.VISIBLE);
+
+        userCard[0].startAnimation(fade_in);
+        userCard[1].startAnimation(fade_in);
+
         for(int i = 0; i < 3; i++) {
             if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
                 playerCardImage[i][0].setVisibility(View.VISIBLE);
@@ -200,7 +207,7 @@ public class GameRoomFragment extends Fragment {
                 playerCardImage[i][1].startAnimation(fade_in);
             }
         }
-        //generateCardsForPlayer();
+        //animateUserCard();
         //displayAllButtons();
     }
 
