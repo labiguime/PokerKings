@@ -29,13 +29,6 @@ app.get('/', (req, res) => {
 
 app.use('/admin/', require('./routes/admin'));
 
-
-
-
-//
-
-
-
 app.listen(3000, () => {
 	console.log('The server is up and running on port 3000.');
 });

@@ -1,5 +1,11 @@
-// Here we handle everything about the socket
+/*
+* This module manages connections to the socket, makes use of middlewares for
+* re-routing socket calls and implements global broadcast.
+*/
+
 exports = module.exports = (io) => {
+
+  //
 	io.on('connection', (socket) => {
 		console.log("Client Id: ["+socket.id+"] has connected to the server.");
 		socket.on('disconnect', () => {
@@ -7,26 +13,25 @@ exports = module.exports = (io) => {
 		});
 	});
 
+  // We check for all routes using middlewares
 	io.use(require('../routes/socket/room'));
-	/*
-	* Data to be broadcasted to an entire room will be passed to instructionSet
-	* instructionSet contains the following field:
-	*    room: A string that corresponds to the socket.io room to join
-	*    route: The get function that is listened for by the Android app
-	*    data: The data to pass to the Android app.
-	*/
 
+  // If socker.getRequest is provided room, route & data fields
+	// it will be broadcast accordingly. It's a custom implementation of GET.
 	io.use((socket, next) => {
 		const getRequest = socket.getRequest;
-		if(getRequest) {
-			const room = getRequest.room;
-			const route = getRequest.route;
-			const data = getRequest.data;
-			io.in(room).emit(route, data);
-			console.log('-- GET route '+route+' has been broadcast on '+room);
+		if(getRequest === undefined || getRequest.length == 0) next();
+		else {
+			getRequest.forEach((item, i) => {
+				const room = item.room;
+				const route = item.route;
+				const data = item.data;
+				io.in(room).emit(route, data);
+				console.log('-- GET route '+route+' has been broadcast on '+room);
+			});
+			socket.getRequest = null;
 			return;
 		}
-		next();
 	});
 
 };

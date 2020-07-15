@@ -1,6 +1,8 @@
-const Room = require('../models/room.model');
-const Spot = require('../models/spot.model');
-const User = require('../models/user.model');
+const Room = require('../../models/room.model');
+const Spot = require('../../models/spot.model');
+const User = require('../../models/user.model');
+
+const core = require('../../controllers/game/core.controller');
 let roomController = {};
 
 roomController.joinRoom = async function (obj, socket, next) {
@@ -47,7 +49,8 @@ roomController.joinRoom = async function (obj, socket, next) {
 		socket.join(roomRoute);
 
 		const roomPlayers = await User.find({room_id: room._id});
-		socket.getRequest = {room: roomRoute, route: "getPlayers", data: {players: roomPlayers}};
+		socket.getRequest = [];
+		socket.getRequest.push({room: roomRoute, route: "getPlayers", data: {players: roomPlayers}});
 		console.log("Request successfully fulfilled!");
 		next();
 
@@ -61,11 +64,11 @@ roomController.setReady = async function (obj, socket, next) {
 		// Must check for edge cases
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
 		var data = {};
+		socket.getRequest = [];
 		const playerList = await User.find({ready: false}, {name: 1});
 		if(playerList.length == 0) { // Everybody is ready
 			data = {success: true, gameIsStarting: true, message: "The game is starting..."};
-			/*socket.emit('getReady', );
-			socket.broadcast.emit('getReady', {success: true, gameIsStarting: true, message: "The game is starting..."});*/
+			core.startGame(obj, socket, next);
 		} else {
 			const indexOfLastElement = playerList.length-1;
 			var emitMessage = "Waiting for: ";
@@ -78,29 +81,22 @@ roomController.setReady = async function (obj, socket, next) {
 				}
 				data = {success: true, gameIsStarting: false, message: emitMessage};
 			});
-
-
-			/*socket.emit('getReady', );
-			socket.broadcast.emit('getReady', {success: true, gameIsStarting: false, message: emitMessage});*/
 		}
-		socket.getRequest = {room: "room/"+obj.room_id, route: "getReady", data: data};
+		socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 		console.log("Request successfully fulfilled!");
 		next();
 	} catch {
 		console.log("Cannot retrieve ready players!");
 		socket.emit('getReady', {success: false, gameIsStarting: false, message: null});
-		//return;
 	}
 };
 
 roomController.getPlayers = async function (obj, socket, next) {
 	try {
 		const roomPlayers = await User.find({room_id: obj.room_id});
-		//console.log({players: roomPlayers});
 		socket.emit('getPlayers', {players: roomPlayers});
 		console.log("Request successfully fulfilled!");
 		return;
-		//socket.broadcast.emit('getPlayers', {players: roomPlayers});
 	} catch {
 		console.log("Cannot retrieve players!");
 		socket.emit('getPlayers', {players: roomPlayers});
