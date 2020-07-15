@@ -65,7 +65,7 @@ roomController.setReady = async function (obj, socket, next) {
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
 		var data = {};
 		socket.getRequest = [];
-		const playerList = await User.find({ready: false}, {name: 1});
+		const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
 		if(playerList.length == 0) { // Everybody is ready
 			data = {success: true, gameIsStarting: true, message: "The game is starting..."};
 			core.startGame(obj, socket, next);
