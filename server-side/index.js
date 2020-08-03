@@ -2,6 +2,9 @@ const app = require('express')();
 const server = require('http').Server(app).listen(7000);
 const io = require('socket.io')(server);
 
+// We load the module in charge of routing all socket.io requests
+require('./routes/socket')(io);
+
 const mongoose = require('mongoose');
 try {
 	mongoose.connect("mongodb://localhost/pokerkings", { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
@@ -25,16 +28,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/admin/', require('./routes/admin'));
-
-
-io.on('connection', (socket) => {
-	console.log("Client Id: ["+socket.id+"] has connected to the server.");
-	socket.on('disconnect', () => {
-		console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
-	});
-});
-
-io.use(require('./routes/room'));
 
 app.listen(3000, () => {
 	console.log('The server is up and running on port 3000.');

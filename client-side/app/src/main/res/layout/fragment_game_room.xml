@@ -644,6 +644,7 @@ android:background="@drawable/background_gradient">
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/readyMessageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -715,7 +716,7 @@ android:background="@drawable/background_gradient">
         tools:layout_editor_absoluteY="162dp">
 
         <TextView
-            android:id="@+id/raise_edit_text"
+            android:id="@+id/raise_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

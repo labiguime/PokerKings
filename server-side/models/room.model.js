@@ -25,7 +25,43 @@ const roomSchema = new Schema({
 	last_used: {
 		type: Date,
 		default: Date.now
-	}
+	},
+
+	table_cards: [{
+		type: Number,
+	}],
+
+	users_cards: [{
+		type: Number,
+	}],
+
+	players_ids: [{
+		type: Number,
+	}],
+
+	current_player: {
+		type: Number,
+	},
+
+	game_stage: {
+		type: Number,
+	},
+
+	current_minimum: {
+		type: Number,
+	},
+
+	room_total_money: {
+		type: Number,
+	},
+
+	round_total_money: {
+		type: Number,
+	},
+
+	players_money: [{
+		type: Number,
+	}]
 });
 
 module.exports = mongoose.model('Room', roomSchema);
