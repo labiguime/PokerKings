@@ -13,6 +13,12 @@ coreController.startGame = async function (obj, socket, next) {
     console.log("Error: This room is empty but should have at least two players to start game. Room: "+obj.room_id);
     return;
   }
+
+  const room = await Room.find({_id: obj.room_id});
+  if(!room) {
+    console.log("Error: Room id "+obj.room_id+" does not exist.");
+    return;
+  }
   // draw cards
   const nPlayers = playerList.length;
   const cards = drawCards(NUMBER_CARDS_TABLE+nPlayers);
@@ -20,7 +26,7 @@ coreController.startGame = async function (obj, socket, next) {
   const roomCards = cards.slice(0, NUMBER_CARDS_TABLE);
   const userCards = cards.slice(NUMBER_CARDS_TABLE, (nPlayers*2)+NUMBER_CARDS_TABLE);
   // populate game room Database
-  gameState
+  
   // tell player 1 to play
   // set countdown on acknowledgment
 }

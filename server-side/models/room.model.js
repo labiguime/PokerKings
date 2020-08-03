@@ -28,39 +28,39 @@ const roomSchema = new Schema({
 	},
 
 	table_cards: [{
-		type: Integer,
+		type: Number,
 	}],
 
 	users_cards: [{
-		type: Integer,
+		type: Number,
 	}],
 
 	players_ids: [{
-		type: Integer,
+		type: Number,
 	}],
 
 	current_player: {
-		type: Integer,
+		type: Number,
 	},
 
 	game_stage: {
-		type: Integer,
+		type: Number,
 	},
 
 	current_minimum: {
-		type: Integer,
+		type: Number,
 	},
 
 	room_total_money: {
-		type: Integer,
+		type: Number,
 	},
 
 	round_total_money: {
-		type: Integer,
+		type: Number,
 	},
 
 	players_money: [{
-		type: Integer,
+		type: Number,
 	}]
 });
 
