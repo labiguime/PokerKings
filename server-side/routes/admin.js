@@ -24,7 +24,8 @@ router.get('/reset_room', async function (req, res) {
 		}
 		console.log("Admin: User table has been reset!");
 
-		const room = new require('../models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false});
+		const room = new require('../models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false, table_cards: null, users_cards: null,
+					players_ids: null, current_player: -1, game_stage: -1, current_minimum: 0, room_total_money: 0, round_total_money: 0, players_money: null});
 		result = await room.save();
 		if(!result) {
 			console.log('Admin: Cannot create room!');
