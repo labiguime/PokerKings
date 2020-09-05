@@ -155,6 +155,13 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        mSocket.on("getCompleteRoomData", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                initializeRoomData(args);
+            }
+        });
+
         return view;
     }
 
@@ -237,7 +244,11 @@ public class GameRoomFragment extends Fragment {
         updateUsersUi();
 
     }
+    private void initializeRoomData(final Object... args) {
+        Log.d("DEBUG", "This room is initialized");
+        return;
 
+    }
     private void getReady(final Object... args) {
         if(!isPlayerReady) {
             Log.d("DEBUG", "Player not ready");

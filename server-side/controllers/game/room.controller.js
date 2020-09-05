@@ -68,8 +68,11 @@ roomController.setReady = async function (obj, socket, next) {
 		const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
 		if(playerList.length == 0) { // Everybody is ready
 			data = {success: true, gameIsStarting: true, message: "The game is starting..."};
+			socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
+			const copySocket = socket;
 			core.startGame(obj, socket, next);
 		} else {
+			//core.startGame(obj, socket, next);
 			const indexOfLastElement = playerList.length-1;
 			var emitMessage = "Waiting for: ";
 			playerList.forEach((item, index) => {
@@ -82,6 +85,7 @@ roomController.setReady = async function (obj, socket, next) {
 				data = {success: true, gameIsStarting: false, message: emitMessage};
 			});
 		}
+		console.log(socket.getRequest);
 		socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 		console.log("Request successfully fulfilled!");
 		next();

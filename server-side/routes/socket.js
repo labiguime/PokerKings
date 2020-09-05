@@ -23,13 +23,14 @@ exports = module.exports = (io) => {
 		if(getRequest === undefined || getRequest.length == 0) next();
 		else {
 			getRequest.forEach((item, i) => {
+				console.log("item " + item);
 				const room = item.room;
 				const route = item.route;
 				const data = item.data;
 				io.in(room).emit(route, data);
 				console.log('-- GET route '+route+' has been broadcast on '+room);
 			});
-			socket.getRequest = null;
+			socket.getRequest = [];
 			return;
 		}
 	});
