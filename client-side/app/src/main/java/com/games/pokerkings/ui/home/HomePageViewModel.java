@@ -9,7 +9,7 @@ import com.games.pokerkings.repositories.HomePageRepository;
 public class HomePageViewModel extends ViewModel {
 
     private HomePageRepository homePageRepository;
-    private MutableLiveData<String> avatar;
+    private MutableLiveData<String> avatar = new MutableLiveData<>();
 
     public HomePageViewModel(HomePageRepository repository) {
         this.homePageRepository = repository;

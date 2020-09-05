@@ -1,5 +1,7 @@
 package com.games.pokerkings.repositories;
 
+import android.util.Log;
+
 import com.games.pokerkings.models.User;
 
 public class HomePageRepository {
@@ -19,11 +21,16 @@ public class HomePageRepository {
     }
 
     public String changeAvatar() {
+
         User user = dataSource.getUser();
-        Integer avatar = user.getAvatar();
+        Integer avatar = user.getAvatarId();
+
         avatar = ((avatar+1)%6);
-        user.setAvatar(avatar);
         String avatarFileName = "avatar" + (avatar+1);
+
+        user.setAvatarId(avatar);
+        user.setAvatar(avatarFileName);
+
         return avatarFileName;
     }
 }

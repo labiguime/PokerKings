@@ -5,14 +5,16 @@ public class User {
     private String roomId;
     private String spotId;
     private String name;
-    private Integer avatar;
+    private String avatar;
+    private Integer avatarId;
     private Integer money;
     private Boolean hasFolded;
     private Boolean ready;
 
     public User() {
         this.name = "Unknown";
-        this.avatar = 1;
+        this.avatar = "avatar1";
+        this.avatarId = 0;
         this.money = 10000;
         this.hasFolded = false;
         this.id = "";
@@ -20,7 +22,7 @@ public class User {
         this.ready = false;
     }
 
-    public User(String name, Integer avatar, String id, String roomId, String spotId, Boolean ready) {
+    public User(String name, String avatar, String id, String roomId, String spotId, Boolean ready) {
         this.name = name;
         this.avatar = avatar;
         this.money = 10000;
@@ -71,12 +73,20 @@ public class User {
         this.name = nickname;
     }
 
-    public Integer getAvatar() {
+    public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(Integer avatar) {
+    public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Integer getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(Integer avatarId) {
+        this.avatarId = avatarId;
     }
 
     public Integer getMoney() {

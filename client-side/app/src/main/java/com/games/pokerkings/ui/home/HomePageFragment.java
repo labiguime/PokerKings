@@ -7,6 +7,7 @@ import com.games.pokerkings.utils.SocketManager;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.text.Editable;
@@ -46,7 +47,7 @@ public class HomePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        homePageViewModel = new ViewModelProvider(this).get(HomePageViewModel.class);
+        homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
         mSocket = SocketManager.getInstance();
 
         // Load the views
@@ -88,6 +89,14 @@ public class HomePageFragment extends Fragment {
                 homePageViewModel.nameTextChanged();
             }
         });*/
+
+        homePageViewModel.getAvatar().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                int resID = getResources().getIdentifier(s, "drawable", "com.games.pokerkings");
+                homeAvatarPicture.setImageResource(resID);
+            }
+        });
 
         return view;
     }
