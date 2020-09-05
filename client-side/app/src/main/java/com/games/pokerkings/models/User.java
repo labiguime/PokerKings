@@ -1,4 +1,4 @@
-package com.games.pokerkings.classes;
+package com.games.pokerkings.models;
 
 public class User {
     private String id;

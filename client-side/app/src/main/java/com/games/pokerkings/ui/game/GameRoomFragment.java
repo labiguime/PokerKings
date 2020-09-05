@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.games.pokerkings.R;
-import com.games.pokerkings.classes.Game;
-import com.games.pokerkings.classes.User;
+import com.games.pokerkings.models.Game;
+import com.games.pokerkings.models.User;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;

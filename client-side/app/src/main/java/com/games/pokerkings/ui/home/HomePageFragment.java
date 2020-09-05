@@ -46,7 +46,7 @@ public class HomePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        //homePageViewModel = new ViewModelProvider(this).get(HomePageViewModel.class);
+        homePageViewModel = new ViewModelProvider(this).get(HomePageViewModel.class);
         mSocket = SocketManager.getInstance();
 
         // Load the views
@@ -67,8 +67,8 @@ public class HomePageFragment extends Fragment {
         changeAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onChangeAvatarButtonPressed();
-                //homePageViewModel.changeAvatar();
+                //onChangeAvatarButtonPressed();
+                homePageViewModel.changeAvatar();
             }
         });
 
