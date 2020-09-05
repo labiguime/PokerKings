@@ -8,13 +8,16 @@ import com.games.pokerkings.repositories.HomePageRepository;
 
 public class HomePageViewModel extends ViewModel {
 
+    private HomePageRepository homePageRepository;
     private MutableLiveData<String> avatar;
 
-    public HomePageViewModel() { }
+    public HomePageViewModel(HomePageRepository repository) {
+        this.homePageRepository = repository;
+    }
 
     LiveData<String> getAvatar() { return avatar; }
 
     public void changeAvatar() {
-        avatar.setValue(HomePageRepository.changeAvatar());
+        avatar.setValue(homePageRepository.changeAvatar());
     }
 }
