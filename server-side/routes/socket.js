@@ -23,7 +23,6 @@ exports = module.exports = (io) => {
 		if(getRequest === undefined || getRequest.length == 0) next();
 		else {
 			getRequest.forEach((item, i) => {
-				console.log("item " + item);
 				const room = item.room;
 				const route = item.route;
 				const data = item.data;

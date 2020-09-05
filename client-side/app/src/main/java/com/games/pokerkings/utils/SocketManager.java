@@ -1,6 +1,5 @@
 package com.games.pokerkings.utils;
 
-import android.provider.Settings;
 import android.util.Log;
 
 import com.github.nkzawa.socketio.client.IO;

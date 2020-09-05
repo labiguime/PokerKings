@@ -39,9 +39,9 @@ coreController.startGame = async function (obj, socket, next) {
       current_minimum: 0
     };
     // populate game room Database
-    const room = await Room.findOneAndUpdate({_id: obj.room_id}, roomUpdate);
+    const room = await Room.findOneAndUpdate({_id: obj.room_id}, roomUpdate, {new: true});
     // tell player 1 to play
-    socket.getRequest.push({room: "room/"+obj.room_id, route: "getCompleteRoomData", data: roomUpdate});
+    socket.getRequest.push({room: "room/"+obj.room_id, route: "getCompleteRoomData", data: room});
     next();
   } catch(e) {
     console.log("Error: "+ e);

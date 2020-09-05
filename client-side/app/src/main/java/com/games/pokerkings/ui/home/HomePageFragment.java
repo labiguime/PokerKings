@@ -1,10 +1,16 @@
-package com.games.pokerkings;
+package com.games.pokerkings.ui.home;
 
+import com.games.pokerkings.ui.game.GameRoomFragment;
+import com.games.pokerkings.R;
 import com.games.pokerkings.utils.SocketManager;
+
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +20,9 @@ import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class HomePageFragment extends Fragment {
 
@@ -31,11 +32,10 @@ public class HomePageFragment extends Fragment {
     ImageView homeAvatarPicture;
 
     Integer avatarId = 0;
-    Map<String, Boolean> freeSpots = new HashMap<>();
 
     Socket mSocket;
+    private HomePageViewModel homePageViewModel;
 
-    FirebaseDatabase database;
     public HomePageFragment() {
         // Required empty public constructor
     }
@@ -46,22 +46,8 @@ public class HomePageFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
-        //database = FirebaseDatabase.getInstance();
+        //homePageViewModel = new ViewModelProvider(this).get(HomePageViewModel.class);
         mSocket = SocketManager.getInstance();
-
-        // Setup freeSpots
-        /*DatabaseReference freeSpotsReference = database.getReference("game-1/free-spots");
-        freeSpots.put("0", true);
-        freeSpots.put("1", true);
-        freeSpots.put("2", true);
-        freeSpots.put("3", true);
-        freeSpotsReference.setValue(freeSpots);
-
-        freeSpots.clear();
-
-        // Reset variables (for debugging only)
-        FirebaseDatabase.getInstance().getReference("game-1/variables").child("readyUsers").setValue(0);
-        FirebaseDatabase.getInstance().getReference("game-1/variables").child("playingUsers").setValue(0);*/
 
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
@@ -74,6 +60,7 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onJoinGameButtonPressed();
+                //homePageViewModel.joinGame();
             }
         });
 
@@ -81,8 +68,26 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onChangeAvatarButtonPressed();
+                //homePageViewModel.changeAvatar();
             }
         });
+
+        /*nicknameTextBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                homePageViewModel.nameTextChanged();
+            }
+        });*/
 
         return view;
     }
