@@ -1,6 +1,4 @@
-package com.games.pokerkings.repositories;
-
-import android.util.Log;
+package com.games.pokerkings.repositories.home;
 
 import com.games.pokerkings.models.User;
 

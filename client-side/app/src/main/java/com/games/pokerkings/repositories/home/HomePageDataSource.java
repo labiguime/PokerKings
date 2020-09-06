@@ -1,4 +1,4 @@
-package com.games.pokerkings.repositories;
+package com.games.pokerkings.repositories.home;
 
 import com.games.pokerkings.models.User;
 

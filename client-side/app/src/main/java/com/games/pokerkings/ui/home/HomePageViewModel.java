@@ -1,10 +1,12 @@
 package com.games.pokerkings.ui.home;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.games.pokerkings.repositories.HomePageRepository;
+import com.games.pokerkings.repositories.home.HomePageRepository;
 
 public class HomePageViewModel extends ViewModel {
 
@@ -15,9 +17,9 @@ public class HomePageViewModel extends ViewModel {
         this.homePageRepository = repository;
     }
 
-    LiveData<String> getAvatar() { return avatar; }
-
+    public LiveData<String> getAvatar() { return avatar; }
     public void changeAvatar() {
+        Log.d("TEST", "Ok");
         avatar.setValue(homePageRepository.changeAvatar());
     }
 }

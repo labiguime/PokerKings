@@ -1,10 +1,14 @@
 package com.games.pokerkings.ui.home;
 
+import com.games.pokerkings.databinding.FragmentHomePageBinding;
+import com.games.pokerkings.models.User;
 import com.games.pokerkings.ui.game.GameRoomFragment;
 import com.games.pokerkings.R;
 import com.games.pokerkings.utils.SocketManager;
 
 import android.os.Bundle;
+
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -29,7 +33,7 @@ public class HomePageFragment extends Fragment {
 
     EditText nicknameTextBox;
     ImageView joinGameButton;
-    ImageView changeAvatarButton;
+    //ImageView changeAvatarButton;
     ImageView homeAvatarPicture;
 
     Integer avatarId = 0;
@@ -46,13 +50,16 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
-
+        FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
         homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
+
+        binding.setHomePageViewModel(homePageViewModel);
+
         mSocket = SocketManager.getInstance();
 
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
-        changeAvatarButton = view.findViewById(R.id.change_avatar_button);
+        //changeAvatarButton = view.findViewById(R.id.change_avatar_button);
         homeAvatarPicture = view.findViewById(R.id.home_avatar_picture);
         joinGameButton = view.findViewById(R.id.join_game_button);
 
@@ -65,13 +72,12 @@ public class HomePageFragment extends Fragment {
             }
         });
 
-        changeAvatarButton.setOnClickListener(new View.OnClickListener() {
+        /*changeAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //onChangeAvatarButtonPressed();
                 homePageViewModel.changeAvatar();
             }
-        });
+        });*/
 
         /*nicknameTextBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -86,7 +92,7 @@ public class HomePageFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                homePageViewModel.nameTextChanged();
+                homePageViewModel.usernameTextChanged();
             }
         });*/
 
@@ -98,7 +104,7 @@ public class HomePageFragment extends Fragment {
             }
         });
 
-        return view;
+        return binding.getRoot();
     }
 
     @Override
@@ -118,7 +124,7 @@ public class HomePageFragment extends Fragment {
         else {
             joinGameButton.setClickable(false);
             joinGameButton.setVisibility(View.GONE);
-            changeAvatarButton.setClickable(false);
+            //changeAvatarButton.setClickable(false);
             nicknameTextBox.setEnabled(false);
 
             JSONObject joinObject = new JSONObject();
@@ -164,7 +170,7 @@ public class HomePageFragment extends Fragment {
         if(!success) {
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             joinGameButton.setVisibility(View.VISIBLE);
-            changeAvatarButton.setClickable(true);
+            //changeAvatarButton.setClickable(true);
             nicknameTextBox.setEnabled(true);
             joinGameButton.setClickable(true);
         } else {

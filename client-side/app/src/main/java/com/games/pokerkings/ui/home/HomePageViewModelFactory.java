@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.games.pokerkings.repositories.HomePageDataSource;
-import com.games.pokerkings.repositories.HomePageRepository;
+import com.games.pokerkings.repositories.home.HomePageDataSource;
+import com.games.pokerkings.repositories.home.HomePageRepository;
 
 public class HomePageViewModelFactory implements ViewModelProvider.Factory {
     @NonNull
