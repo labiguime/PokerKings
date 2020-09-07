@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,12 +35,10 @@ public class HomePageFragment extends Fragment {
     EditText nicknameTextBox;
     ImageView joinGameButton;
     //ImageView changeAvatarButton;
-    ImageView homeAvatarPicture;
 
     Integer avatarId = 0;
 
     Socket mSocket;
-    private HomePageViewModel homePageViewModel;
 
     public HomePageFragment() {
         // Required empty public constructor
@@ -50,18 +49,24 @@ public class HomePageFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+
+        final HomePageViewModel homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
+
         FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
-        homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
         binding.setLifecycleOwner(HomePageFragment.this);
         binding.setHomePageViewModel(homePageViewModel);
 
-
         mSocket = SocketManager.getInstance();
+
+        homePageViewModel.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                homePageViewModel.setName(s);
+            }
+        });
 
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
-        //changeAvatarButton = view.findViewById(R.id.change_avatar_button);
-        homeAvatarPicture = view.findViewById(R.id.home_avatar_picture);
         joinGameButton = view.findViewById(R.id.join_game_button);
 
         // Setup the listeners
@@ -69,33 +74,8 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onJoinGameButtonPressed();
-                //homePageViewModel.joinGame();
             }
         });
-
-        /*changeAvatarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                homePageViewModel.changeAvatar();
-            }
-        });*/
-
-        /*nicknameTextBox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                homePageViewModel.usernameTextChanged();
-            }
-        });*/
 
         return binding.getRoot();
     }
@@ -136,13 +116,6 @@ public class HomePageFragment extends Fragment {
                 }
             });
         }
-    }
-
-    private void onChangeAvatarButtonPressed() {
-        avatarId = ((avatarId+1)%6);
-        String avatarFileName = "avatar" + (avatarId+1);
-        int resID = getResources().getIdentifier(avatarFileName, "drawable", "com.games.pokerkings");
-        homeAvatarPicture.setImageResource(resID);
     }
 
     private void joinRoom(Object... args) {

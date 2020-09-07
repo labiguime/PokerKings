@@ -18,6 +18,9 @@ public class HomePageRepository {
         return instance;
     }
 
+    public void setUsername(String u) {
+        dataSource.getUser().setName(u);
+    }
     public String changeAvatar() {
 
         User user = dataSource.getUser();
