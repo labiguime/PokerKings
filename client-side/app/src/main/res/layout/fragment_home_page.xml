@@ -108,7 +108,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="@{homePageViewModel.avatar}"
+                android:text="Your avatar"
                 android:gravity="center"
                 android:textColor="@color/common_google_signin_btn_text_dark"
                 app:layout_constraintBottom_toTopOf="@+id/home_avatar_picture"
@@ -130,6 +130,7 @@
                 app:layout_constraintHorizontal_bias="0.496"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                variable="@{homePageViewModel.avatar}"
                 app:srcCompat="@drawable/avatar1" />
 
 

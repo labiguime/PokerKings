@@ -52,8 +52,9 @@ public class HomePageFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
         FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
         homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
-
+        binding.setLifecycleOwner(HomePageFragment.this);
         binding.setHomePageViewModel(homePageViewModel);
+
 
         mSocket = SocketManager.getInstance();
 
@@ -95,14 +96,6 @@ public class HomePageFragment extends Fragment {
                 homePageViewModel.usernameTextChanged();
             }
         });*/
-
-        homePageViewModel.getAvatar().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                int resID = getResources().getIdentifier(s, "drawable", "com.games.pokerkings");
-                homeAvatarPicture.setImageResource(resID);
-            }
-        });
 
         return binding.getRoot();
     }
