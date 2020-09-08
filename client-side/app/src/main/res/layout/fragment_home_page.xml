@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="homePageViewModel"
             type="com.games.pokerkings.ui.home.HomePageViewModel" />
@@ -39,14 +40,29 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:visibility=""
-            android:clickable="true"
+            android:visibility="@{homePageViewModel.hasPlayerPressedJoin?View.GONE:View.VISIBLE}"
+            android:clickable="@{!homePageViewModel.hasPlayerPressedJoin}"
+            android:focusable="@{!homePageViewModel.hasPlayerPressedJoin}"
             android:onClick="@{()->homePageViewModel.onJoinGameButtonClicked()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/join_game_button" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar_home"
+            android:layout_width="158dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="@{!homePageViewModel.hasPlayerPressedJoin?View.GONE:View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/hp_app_logo"
@@ -70,6 +86,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:enabled="@{!homePageViewModel.hasPlayerPressedJoin}"
             android:background="@android:color/transparent"
             android:drawableLeft="@drawable/icon_username"
             android:text="@={homePageViewModel.name}"
@@ -145,7 +162,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                android:clickable="true"
+                android:clickable="@{!homePageViewModel.hasPlayerPressedJoin}"
                 android:focusable="true"
                 android:onClick="@{()->homePageViewModel.setAvatar()}"
                 app:layout_constraintBottom_toBottomOf="parent"
