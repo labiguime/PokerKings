@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.R;
 import com.games.pokerkings.data.DataSource;
-import com.games.pokerkings.data.models.User;
+import com.games.pokerkings.data.models.*;
 import com.games.pokerkings.utils.Result;
 import com.github.nkzawa.emitter.Emitter;
 
@@ -98,11 +98,9 @@ public class HomePageRepository {
             room = data.getString("room");
 
             if(!success) {
-
                 joinGame.postValue(new Result.Error(R.string.error_room_full));
             } else {
-                user.setRoomId(room);
-                user.setSpotId(spot);
+                user.setRoom(new Room(room, spot));
                 joinGame.postValue(new Result.Success<User>(user));
             }
 

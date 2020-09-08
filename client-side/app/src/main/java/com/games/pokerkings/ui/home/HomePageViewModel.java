@@ -13,7 +13,7 @@ public class HomePageViewModel extends ViewModel{
     private HomePageRepository homePageRepository;
 
     private MutableLiveData<String> avatar = new MutableLiveData<>();
-    private MutableLiveData<String> name = new MutableLiveData<>();
+    private MutableLiveData<String> name = new MutableLiveData<>("");
     private MutableLiveData<Boolean> hasPlayerPressedJoin = new MutableLiveData<>(false);
     private LiveData<Result<User>> onJoinGame;
 

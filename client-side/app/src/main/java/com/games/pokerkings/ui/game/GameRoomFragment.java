@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.games.pokerkings.R;
-import com.games.pokerkings.data.models.Game;
-import com.games.pokerkings.data.models.User;
+
+import com.games.pokerkings.data.models.*;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -121,11 +121,13 @@ public class GameRoomFragment extends Fragment {
 
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
+        User t;
         if (bundle != null) {
             name = bundle.getString("name");
             avatar = bundle.getString("avatar");
             spot = bundle.getString("spot");
             room = bundle.getString("room");
+            t = (User) bundle.getSerializable("user");
             hasPlayerJustJoinedTheRoom = true;
         }
 

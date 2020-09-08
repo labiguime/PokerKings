@@ -1,9 +1,11 @@
 package com.games.pokerkings.data.models;
 
-public class User {
+import androidx.annotation.Nullable;
+
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String id;
-    private String roomId;
-    private String spotId;
     private String name;
     private String avatar;
     private Integer avatarId;
@@ -11,26 +13,29 @@ public class User {
     private Boolean hasFolded;
     private Boolean ready;
 
+    @Nullable
+    private Room room;
+
     public User() {
-        this.name = "Unknown";
+        this.name = "";
         this.avatar = "avatar1";
         this.avatarId = 0;
         this.money = 10000;
         this.hasFolded = false;
         this.id = "";
-        this.roomId = "";
         this.ready = false;
+        this.room = null;
+
     }
 
-    public User(String name, String avatar, String id, String roomId, String spotId, Boolean ready) {
+    public User(String name, String avatar, String id, Boolean ready) {
         this.name = name;
         this.avatar = avatar;
         this.money = 10000;
         this.hasFolded = false;
         this.id = id;
-        this.roomId = roomId;
-        this.spotId = spotId;
         this.ready = ready;
+        this.room = null;
     }
 
     public Boolean getReady() {
@@ -39,22 +44,6 @@ public class User {
 
     public void setReady(Boolean ready) {
         this.ready = ready;
-    }
-
-    public String getSpotId() {
-        return spotId;
-    }
-
-    public void setSpotId(String spotId) {
-        this.spotId = spotId;
-    }
-
-    public String getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
     }
 
     public String getId() {
@@ -111,6 +100,14 @@ public class User {
 
     public void setHasFolded(Boolean hasFolded) {
         this.hasFolded = hasFolded;
+    }
+
+    private Room getRoom() {
+        return this.room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
 }

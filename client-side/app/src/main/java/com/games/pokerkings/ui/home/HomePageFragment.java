@@ -91,6 +91,7 @@ public class HomePageFragment extends Fragment {
         bundle.putString("name", u.getName());
         bundle.putString("spot", u.getSpotId());
         bundle.putString("room", u.getRoomId());
+        bundle.putSerializable("user", u);
         fragment.setArguments(bundle);
 
         // Move to the next fragment
