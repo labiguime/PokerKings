@@ -1,4 +1,4 @@
-package com.games.pokerkings.classes;
+package com.games.pokerkings.models;
 
 public class User {
     private String id;
@@ -6,6 +6,7 @@ public class User {
     private String spotId;
     private String name;
     private String avatar;
+    private Integer avatarId;
     private Integer money;
     private Boolean hasFolded;
     private Boolean ready;
@@ -13,6 +14,7 @@ public class User {
     public User() {
         this.name = "Unknown";
         this.avatar = "avatar1";
+        this.avatarId = 0;
         this.money = 10000;
         this.hasFolded = false;
         this.id = "";
@@ -77,6 +79,14 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Integer getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(Integer avatarId) {
+        this.avatarId = avatarId;
     }
 
     public Integer getMoney() {

@@ -36,11 +36,11 @@ const roomSchema = new Schema({
 	}],
 
 	players_ids: [{
-		type: Number,
+		type: String,
 	}],
 
 	current_player: {
-		type: Number,
+		type: String,
 	},
 
 	game_stage: {
@@ -61,7 +61,12 @@ const roomSchema = new Schema({
 
 	players_money: [{
 		type: Number,
-	}]
+	}],
+
+	first_to_start: {
+		type: Number,
+		default: 0
+	},
 });
 
 module.exports = mongoose.model('Room', roomSchema);

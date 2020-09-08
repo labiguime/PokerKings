@@ -29,7 +29,7 @@ exports = module.exports = (io) => {
 				io.in(room).emit(route, data);
 				console.log('-- GET route '+route+' has been broadcast on '+room);
 			});
-			socket.getRequest = null;
+			socket.getRequest = [];
 			return;
 		}
 	});

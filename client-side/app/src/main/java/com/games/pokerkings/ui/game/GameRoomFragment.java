@@ -1,21 +1,21 @@
-package com.games.pokerkings;
+package com.games.pokerkings.ui.game;
 
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.games.pokerkings.classes.Game;
-import com.games.pokerkings.classes.User;
+import com.games.pokerkings.R;
+import com.games.pokerkings.models.Game;
+import com.games.pokerkings.models.User;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -119,7 +119,6 @@ public class GameRoomFragment extends Fragment {
         gameVariables = new Game();
         mSocket = SocketManager.getInstance();
 
-        Log.d("DEBUG", "Reached here at least...");
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
         if (bundle != null) {
@@ -152,6 +151,13 @@ public class GameRoomFragment extends Fragment {
             @Override
             public void call(final Object... args) {
                 getReady(args);
+            }
+        });
+
+        mSocket.on("getCompleteRoomData", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                initializeRoomData(args);
             }
         });
 
@@ -237,7 +243,11 @@ public class GameRoomFragment extends Fragment {
         updateUsersUi();
 
     }
+    private void initializeRoomData(final Object... args) {
+        Log.d("DEBUG", "This room is initialized");
+        return;
 
+    }
     private void getReady(final Object... args) {
         if(!isPlayerReady) {
             Log.d("DEBUG", "Player not ready");

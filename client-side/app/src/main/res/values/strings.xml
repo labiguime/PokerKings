@@ -10,4 +10,8 @@
     <string name="default_current_bet">$0</string>
     <string name="current_minimum_text">Current minimum:</string>
     <string name="ready_up_text">Click when ready:</string>
+    <string name="error_name_too_short">This name is too short!</string>
+    <string name="error_name_too_long">This name is too long (more than 15 characters)!</string>
+    <string name="error_unknown">An unknown error has occured!</string>
+    <string name="error_room_full">You cannot join the room because a game is currently taking place!</string>
 </resources>

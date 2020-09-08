@@ -1,15 +1,13 @@
-package com.games.pokerkings;
+package com.games.pokerkings.ui;
 
 import android.content.pm.ActivityInfo;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-
-import java.net.URISyntaxException;
+import com.games.pokerkings.R;
+import com.games.pokerkings.ui.home.HomePageFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         // Call HomePageFragment by default
         HomePageFragment fragment = new HomePageFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_placeholder, fragment);
+        transaction.replace(R.id.fragment_placeholder, fragment);
         transaction.commit();
     }
 

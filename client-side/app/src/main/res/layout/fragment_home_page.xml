@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="homePageViewModel"
+            type="com.games.pokerkings.ui.home.HomePageViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:background="@drawable/background_home"
-        tools:context=".HomePageFragment">
+        tools:context=".ui.home.HomePageFragment">
 
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/home_central_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.5" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/home_top_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,12 +40,29 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:clickable="true"
+            android:visibility="@{homePageViewModel.hasPlayerPressedJoin?View.GONE:View.VISIBLE}"
+            android:clickable="@{!homePageViewModel.hasPlayerPressedJoin}"
+            android:focusable="@{!homePageViewModel.hasPlayerPressedJoin}"
+            android:onClick="@{()->homePageViewModel.onJoinGameButtonClicked()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/join_game_button" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar_home"
+            android:layout_width="158dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="@{!homePageViewModel.hasPlayerPressedJoin?View.GONE:View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/hp_app_logo"
@@ -60,8 +86,10 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:enabled="@{!homePageViewModel.hasPlayerPressedJoin}"
             android:background="@android:color/transparent"
             android:drawableLeft="@drawable/icon_username"
+            android:text="@={homePageViewModel.name}"
             android:ems="10"
             android:hint="@string/nickname_text"
             android:inputType="textPersonName"
@@ -74,7 +102,7 @@
             app:layout_constraintTop_toBottomOf="@+id/hp_app_logo" />
 
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="217dp"
             android:layout_height="177dp"
             android:layout_marginStart="16dp"
@@ -85,7 +113,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
 
-            <android.support.constraint.Guideline
+            <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/home_avatar_box_guideline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -100,7 +128,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="@string/your_avatar"
+                android:text="Your avatar"
                 android:gravity="center"
                 android:textColor="@color/common_google_signin_btn_text_dark"
                 app:layout_constraintBottom_toTopOf="@+id/home_avatar_picture"
@@ -122,6 +150,7 @@
                 app:layout_constraintHorizontal_bias="0.496"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                variable="@{homePageViewModel.avatar}"
                 app:srcCompat="@drawable/avatar1" />
 
 
@@ -133,13 +162,16 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
-                android:clickable="true"
+                android:clickable="@{!homePageViewModel.hasPlayerPressedJoin}"
+                android:focusable="true"
+                android:onClick="@{()->homePageViewModel.setAvatar()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/home_avatar_picture"
                 app:srcCompat="@drawable/change_avatar" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

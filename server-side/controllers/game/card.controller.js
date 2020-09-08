@@ -1,4 +1,4 @@
-require('../../controllers/utils/game_constants');
+var constants = require('../../controllers/utils/game_constants');
 
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
@@ -19,9 +19,9 @@ function shuffle(array) {
   return array;
 }
 
-async function drawCards(q) {
+module.exports.draw = async function(q) {
   var array = [];
-  for(var i = 0; i < NUMBER_CARDS_DECK; i++) {
+  for(var i = 0; i < constants.NUMBER_CARDS_DECK; i++) {
     array.push(i);
   }
   shuffle(array);
