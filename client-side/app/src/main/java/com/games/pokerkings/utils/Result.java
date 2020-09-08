@@ -46,7 +46,6 @@ public class Result<T> {
             } else {
                 this.error = error;
             }
-
         }
 
         public Integer getError() {
