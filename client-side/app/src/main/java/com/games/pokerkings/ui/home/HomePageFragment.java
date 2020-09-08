@@ -4,10 +4,12 @@ import com.games.pokerkings.databinding.FragmentHomePageBinding;
 import com.games.pokerkings.models.User;
 import com.games.pokerkings.ui.game.GameRoomFragment;
 import com.games.pokerkings.R;
+import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -33,12 +35,8 @@ import org.json.JSONObject;
 public class HomePageFragment extends Fragment {
 
     EditText nicknameTextBox;
-    ImageView joinGameButton;
-    //ImageView changeAvatarButton;
-
+    private HomePageViewModel homePageViewModel;
     Integer avatarId = 0;
-
-    Socket mSocket;
 
     public HomePageFragment() {
         // Required empty public constructor
@@ -48,37 +46,11 @@ public class HomePageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_home_page, container, false);
-
-        final HomePageViewModel homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
+        homePageViewModel = new ViewModelProvider(this, new HomePageViewModelFactory()).get(HomePageViewModel.class);
 
         FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(HomePageFragment.this);
         binding.setHomePageViewModel(homePageViewModel);
-
-        mSocket = SocketManager.getInstance();
-
-        homePageViewModel.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                homePageViewModel.setName(s);
-            }
-        });
-
-
-
-        // Load the views
-        nicknameTextBox = view.findViewById(R.id.nickname_text_box);
-        joinGameButton = view.findViewById(R.id.join_game_button);
-
-        // Setup the listeners
-        joinGameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onJoinGameButtonPressed();
-            }
-        });
-
         return binding.getRoot();
     }
 
@@ -87,6 +59,46 @@ public class HomePageFragment extends Fragment {
         super.onStart();
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        observeName();
+        observeOnJoinGame();
+    }
+
+    public void observeName() {
+        homePageViewModel.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                homePageViewModel.setName(s);
+            }
+        });
+    }
+
+    public void observeOnJoinGame() {
+        homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), new Observer<Result<User>>() {
+            @Override
+            public void onChanged(Result<User> userResult) {
+                if(userResult instanceof Result.Error) {
+                    homePageViewModel.setHasPlayerPressedJoin();
+                    Log.d("TESTT", "Progress");
+                    showErrorMessage(getString(((Result.Error) userResult).getError()));
+                } else if(userResult instanceof Result.Success) {
+                    homePageViewModel.setHasPlayerPressedJoin();
+                    launchGameRoomFragment(((Result.Success<User>)userResult).getData());
+                }
+            }
+        });
+    }
+
+    public void showErrorMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showProgressBar() {
+        homePageViewModel.setProgressBar
+    }
     private void onJoinGameButtonPressed() {
         String nickname = nicknameTextBox.getText().toString();
 
@@ -97,10 +109,9 @@ public class HomePageFragment extends Fragment {
             Toast.makeText(getActivity(),"Your nickname must contain less than 15 characters!", Toast.LENGTH_SHORT).show();
         }
         else {
-            joinGameButton.setClickable(false);
-            joinGameButton.setVisibility(View.GONE);
+            //joinGameButton.setClickable(false);
+            //joinGameButton.setVisibility(View.GONE);
             //changeAvatarButton.setClickable(false);
-            nicknameTextBox.setEnabled(false);
 
             JSONObject joinObject = new JSONObject();
             try {
@@ -110,13 +121,6 @@ public class HomePageFragment extends Fragment {
             } catch( JSONException e ) {
 
             }
-            mSocket.emit("room/POST:join", joinObject);
-            mSocket.on("joinRoom", new Emitter.Listener() {
-                @Override
-                public void call(final Object... args) {
-                    joinRoom(args);
-                }
-            });
         }
     }
 
@@ -137,10 +141,10 @@ public class HomePageFragment extends Fragment {
 
         if(!success) {
             Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-            joinGameButton.setVisibility(View.VISIBLE);
+            //joinGameButton.setVisibility(View.VISIBLE);
             //changeAvatarButton.setClickable(true);
             nicknameTextBox.setEnabled(true);
-            joinGameButton.setClickable(true);
+            //joinGameButton.setClickable(true);
         } else {
             GameRoomFragment fragment = new GameRoomFragment();
             Bundle bundle = new Bundle();

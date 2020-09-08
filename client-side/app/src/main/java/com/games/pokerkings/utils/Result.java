@@ -9,18 +9,6 @@ public class Result<T> {
     private Result() {
     }
 
-    @Override
-    public String toString() {
-        if (this instanceof Result.Success) {
-            Result.Success success = (Result.Success) this;
-            return success.getData().toString();
-        } else if (this instanceof Result.Error) {
-            Result.Error error = (Result.Error) this;
-            return error.getError().toString();
-        }
-        return "";
-    }
-
     // Success sub-class
     public final static class Success<T> extends Result {
         private T data;
@@ -31,6 +19,19 @@ public class Result<T> {
 
         public T getData() {
             return this.data;
+        }
+    }
+
+    // Progress sub-class
+    public final static class Progress extends Result {
+        private boolean isResultInProgress;
+
+        public Progress(boolean isResultInProgress) {
+            this.isResultInProgress = isResultInProgress;
+        }
+
+        public boolean getResultInProgress() {
+            return this.isResultInProgress;
         }
     }
 

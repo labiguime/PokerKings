@@ -1,7 +1,6 @@
 package com.games.pokerkings.ui.home;
 
-import android.graphics.Paint;
-
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -18,16 +17,31 @@ public class HomePageViewModel extends ViewModel{
 
     private MutableLiveData<String> avatar = new MutableLiveData<>();
     private MutableLiveData<String> name = new MutableLiveData<>("");
-    private MutableLiveData<JoinGameResult> joinGameResult = new MutableLiveData<>();
+    private MutableLiveData<Boolean> hasPlayerPressedJoin = new MutableLiveData<>(false);
+
+    private LiveData<Result<User>> onJoinGame;
 
     public HomePageViewModel(HomePageRepository repository) {
         this.homePageRepository = repository;
+        this.onJoinGame = homePageRepository.getJoinGame();
     }
 
     public LiveData<String> getAvatar() { return avatar; }
 
     public MutableLiveData<String> getName() {
         return name;
+    }
+
+    public LiveData<Result<User>> getOnJoinGame() {
+        return onJoinGame;
+    }
+
+    public LiveData<Boolean> getHasPlayerPressedJoin() {
+        return hasPlayerPressedJoin;
+    }
+
+    public void setHasPlayerPressedJoin() {
+        hasPlayerPressedJoin.setValue(!hasPlayerPressedJoin.getValue());
     }
 
     public void setName(String s) {
@@ -38,33 +52,9 @@ public class HomePageViewModel extends ViewModel{
         avatar.setValue(homePageRepository.changeAvatar());
     }
 
-    public void joinGame() {
-        @Nullable
-        Integer usernameCheckResult = isUsernameValid();
-        if(usernameCheckResult != null) {
-            joinGameResult.setValue(new JoinGameResult(usernameCheckResult));
-        } else {
-            Result<User> queryResult = homePageRepository.joinGame();
-            if(queryResult instanceof Result.Success) {
-                User data = ((Result.Success<User>) queryResult).getData();
-                joinGameResult.setValue(new JoinGameResult(true, data));
-            } else {
-                Integer error = ((Result.Error) queryResult).getError();
-                joinGameResult.setValue(new JoinGameResult(error));
-            }
-        }
-
+    public void onJoinGameButtonClicked() {
+        setHasPlayerPressedJoin();
+        homePageRepository.joinGame();
     }
 
-    @Nullable
-    public Integer isUsernameValid() {
-        String nameToCheck = name.getValue();
-        if(nameToCheck.length() < 1) {
-            return R.string.error_name_too_short;
-        } else if(nameToCheck.length() > 15) {
-            return R.string.error_name_too_long;
-        } else {
-            return null;
-        }
-    }
 }
