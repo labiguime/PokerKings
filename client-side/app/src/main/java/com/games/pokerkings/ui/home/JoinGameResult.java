@@ -2,7 +2,7 @@ package com.games.pokerkings.ui.home;
 
 import androidx.annotation.Nullable;
 
-import com.games.pokerkings.models.User;
+import com.games.pokerkings.data.models.User;
 
 public class JoinGameResult {
     @Nullable

@@ -1,7 +1,7 @@
 package com.games.pokerkings.ui.home;
 
 import com.games.pokerkings.databinding.FragmentHomePageBinding;
-import com.games.pokerkings.models.User;
+import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.ui.game.GameRoomFragment;
 import com.games.pokerkings.R;
 import com.games.pokerkings.utils.Result;

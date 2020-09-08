@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.games.pokerkings.models.User;
-import com.games.pokerkings.repositories.home.HomePageRepository;
+import com.games.pokerkings.data.models.User;
+import com.games.pokerkings.data.home.HomePageRepository;
 import com.games.pokerkings.utils.Result;
 
 public class HomePageViewModel extends ViewModel{

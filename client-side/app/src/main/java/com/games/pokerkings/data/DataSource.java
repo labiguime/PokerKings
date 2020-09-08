@@ -1,17 +1,16 @@
-package com.games.pokerkings.repositories.home;
+package com.games.pokerkings.data;
 
-import com.games.pokerkings.models.User;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONObject;
 
-public class HomePageDataSource {
+public class DataSource {
 
     private Socket mSocket;
 
-    public HomePageDataSource() {
+    public DataSource() {
         mSocket = SocketManager.getInstance();
     }
 

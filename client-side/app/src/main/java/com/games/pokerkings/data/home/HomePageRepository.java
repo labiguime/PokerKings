@@ -1,11 +1,12 @@
-package com.games.pokerkings.repositories.home;
+package com.games.pokerkings.data.home;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.R;
-import com.games.pokerkings.models.User;
+import com.games.pokerkings.data.DataSource;
+import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.Result;
 import com.github.nkzawa.emitter.Emitter;
 
@@ -16,16 +17,16 @@ public class HomePageRepository {
 
 
     private static volatile HomePageRepository instance;
-    private HomePageDataSource dataSource;
+    private DataSource dataSource;
     private MutableLiveData<Result<User>> joinGame = new MutableLiveData<>();
     private User user;
 
-    public HomePageRepository(HomePageDataSource dataSource) {
+    public HomePageRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
     }
 
-    public static HomePageRepository getInstance(HomePageDataSource dataSource) {
+    public static HomePageRepository getInstance(DataSource dataSource) {
         if (instance == null) {
             instance = new HomePageRepository(dataSource);
         }
