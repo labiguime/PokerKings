@@ -1,18 +1,13 @@
 package com.games.pokerkings.repositories.home;
 
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.R;
 import com.games.pokerkings.models.User;
-import com.games.pokerkings.ui.home.JoinGameResult;
 import com.games.pokerkings.utils.Result;
-import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,9 +18,11 @@ public class HomePageRepository {
     private static volatile HomePageRepository instance;
     private HomePageDataSource dataSource;
     private MutableLiveData<Result<User>> joinGame = new MutableLiveData<>();
+    private User user;
 
     public HomePageRepository(HomePageDataSource dataSource) {
         this.dataSource = dataSource;
+        this.user = new User();
     }
 
     public static HomePageRepository getInstance(HomePageDataSource dataSource) {
@@ -35,13 +32,11 @@ public class HomePageRepository {
         return instance;
     }
 
-    public void setUsername(String u) {
-        dataSource.getUser().setName(u);
+    public void setUsername(String name) {
+        user.setName(name);
     }
 
     public String changeAvatar() {
-
-        User user = dataSource.getUser();
         Integer avatar = user.getAvatarId();
         avatar = incrementAvatar(avatar);
 
@@ -55,11 +50,8 @@ public class HomePageRepository {
 
     public void joinGame() {
 
-        /** Construct an object that we will post to socket.io **/
-
-        User user = dataSource.getUser();
+        /* Construct an object that we will post to socket.io */
         JSONObject joinObject = new JSONObject();
-
         @Nullable
         Integer usernameCheckResult = isUsernameValid(user);
         if(usernameCheckResult != null) {
@@ -86,7 +78,6 @@ public class HomePageRepository {
         });
 
         joinGame.setValue(new Result.Progress(true));
-        Log.d("TESTT", "sa travaille");
     }
 
     public LiveData<Result<User>> getJoinGame() {
@@ -106,12 +97,12 @@ public class HomePageRepository {
             room = data.getString("room");
 
             if(!success) {
+
                 joinGame.postValue(new Result.Error(R.string.error_room_full));
             } else {
-                User u = dataSource.getUser();
-                u.setRoomId(room);
-                u.setSpotId(spot);
-                joinGame.postValue(new Result.Success<User>(u));
+                user.setRoomId(room);
+                user.setSpotId(spot);
+                joinGame.postValue(new Result.Success<User>(user));
             }
 
         } catch (JSONException e) {

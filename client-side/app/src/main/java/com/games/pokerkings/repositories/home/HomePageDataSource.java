@@ -9,16 +9,10 @@ import org.json.JSONObject;
 
 public class HomePageDataSource {
 
-    private User user;
     private Socket mSocket;
 
     public HomePageDataSource() {
-        this.user = new User();
         mSocket = SocketManager.getInstance();
-    }
-
-    public User getUser() {
-        return this.user;
     }
 
     public void postRequest(String req, JSONObject obj) {

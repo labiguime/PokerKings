@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         // Call HomePageFragment by default
         HomePageFragment fragment = new HomePageFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_placeholder, fragment);
+        transaction.replace(R.id.fragment_placeholder, fragment);
         transaction.commit();
     }
 
