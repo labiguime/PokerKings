@@ -65,6 +65,8 @@ public class HomePageFragment extends Fragment {
             }
         });
 
+
+
         // Load the views
         nicknameTextBox = view.findViewById(R.id.nickname_text_box);
         joinGameButton = view.findViewById(R.id.join_game_button);
@@ -92,7 +94,7 @@ public class HomePageFragment extends Fragment {
             Toast.makeText(getActivity(),"You must choose a nickname!",Toast.LENGTH_SHORT).show();
         }
         else if(nickname.length() > 15) {
-            Toast.makeText(getActivity(),"Your nickname must contain less than 15 characters!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(),"Your nickname must contain less than 15 characters!", Toast.LENGTH_SHORT).show();
         }
         else {
             joinGameButton.setClickable(false);
