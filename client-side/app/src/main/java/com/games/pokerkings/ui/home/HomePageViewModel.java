@@ -1,11 +1,14 @@
 package com.games.pokerkings.ui.home;
 
+import android.graphics.Paint;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.games.pokerkings.R;
+import com.games.pokerkings.models.User;
 import com.games.pokerkings.repositories.home.HomePageRepository;
 import com.games.pokerkings.utils.Result;
 
@@ -41,8 +44,14 @@ public class HomePageViewModel extends ViewModel{
         if(usernameCheckResult != null) {
             joinGameResult.setValue(new JoinGameResult(usernameCheckResult));
         } else {
-            /*Result<>
-            joinGameResult.setValue(homePageRepository.joinGame());*/
+            Result<User> queryResult = homePageRepository.joinGame();
+            if(queryResult instanceof Result.Success) {
+                User data = ((Result.Success<User>) queryResult).getData();
+                joinGameResult.setValue(new JoinGameResult(true, data));
+            } else {
+                Integer error = ((Result.Error) queryResult).getError();
+                joinGameResult.setValue(new JoinGameResult(error));
+            }
         }
 
     }
