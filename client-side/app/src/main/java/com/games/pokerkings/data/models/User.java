@@ -5,6 +5,11 @@ import androidx.annotation.Nullable;
 import java.io.Serializable;
 
 public class User implements Serializable {
+
+    public final static String NOT_FOLDED = "_notfolded";
+    public final static String FOLDED = "_folded";
+    public final static String YOUR_TURN = "_yourturn";
+
     private String id;
     private String name;
     private String avatar;

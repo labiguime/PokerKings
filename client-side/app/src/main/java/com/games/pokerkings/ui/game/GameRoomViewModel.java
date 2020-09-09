@@ -1,11 +1,13 @@
 package com.games.pokerkings.ui.game;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
 
@@ -23,13 +25,13 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<List<String>> name;
     private LiveData<List<String>> money;
 
-    public GameRoomViewModel(GameRoomRepository gameRoomRepository) {
-        this.gameRoomRepository = gameRoomRepository;
+    public GameRoomViewModel() {
+        this.gameRoomRepository = GameRoomRepository.getInstance();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
-        this.avatarType = gameRoomRepository.getAvatarType();
-        this.avatar = gameRoomRepository.getAvatar();
-        this.name = gameRoomRepository.getName();
-        this.money = gameRoomRepository.getMoney();
+        this.avatarType = gameRoomRepository.getAvatarTypeList();
+        this.avatar = gameRoomRepository.getAvatarList();
+        this.name = gameRoomRepository.getNameList();
+        this.money = gameRoomRepository.getMoneyList();
     }
 
     public LiveData<Boolean> getIsReadyButtonVisible() {

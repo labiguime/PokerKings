@@ -1,6 +1,5 @@
 package com.games.pokerkings.utils;
 
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,7 +18,7 @@ public class BindingAdapters {
     @BindingAdapter("text_attribute")
     public static void setText(TextView textView, Object text) {
         if(text != null) {
-            textView.setText(text.toString());//etImageResource(imageView.getResources().getIdentifier(variable.toString(), "drawable", "com.games.pokerkings"));
+            textView.setText(text.toString());
         }
     }
 

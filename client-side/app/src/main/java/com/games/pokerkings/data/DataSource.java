@@ -1,5 +1,7 @@
 package com.games.pokerkings.data;
 
+import android.util.Log;
+
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -11,7 +13,9 @@ public class DataSource {
     private Socket mSocket;
 
     public DataSource() {
+        Log.d("DEBUG", "Create");
         mSocket = SocketManager.getInstance();
+        Log.d("DEBUG", "Finish");
     }
 
     public void postRequest(String req, JSONObject obj) {

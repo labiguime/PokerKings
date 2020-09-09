@@ -78,7 +78,7 @@ public class GameRoomFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        gameRoomViewModel = new ViewModelProvider(this, new GameRoomViewModelFactory()).get(GameRoomViewModel.class);
+        gameRoomViewModel = new ViewModelProvider(this).get(GameRoomViewModel.class);
 
         FragmentGameRoomBinding binding = FragmentGameRoomBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(GameRoomFragment.this);
@@ -263,7 +263,7 @@ public class GameRoomFragment extends Fragment {
 
 
 
-    private void getPlayers(Object... args) {
+    /*private void getPlayers(Object... args) {
         JSONObject data = (JSONObject) args[0];
         try {
             JSONArray array = data.getJSONArray("players");
@@ -286,8 +286,8 @@ public class GameRoomFragment extends Fragment {
         }
         updateUsersUi();
 
-    }
-    private void initializeRoomData(final Object... args) {
+    }*/
+  /*  private void initializeRoomData(final Object... args) {
         Log.d("DEBUG", "This room is initialized");
         return;
 
@@ -320,9 +320,9 @@ public class GameRoomFragment extends Fragment {
                 }
             }
         });
-    }
+    }*/
 
-    private void setupNotReadyUiFor(String recipient, final String playerName, final String playerAvatar) {
+    /*private void setupNotReadyUiFor(String recipient, final String playerName, final String playerAvatar) {
         final int index;
         if (recipient.equals("top")) {
             index = 0;
@@ -408,6 +408,6 @@ public class GameRoomFragment extends Fragment {
 
     private void startGame() {
 
-    }
+    }*/
 
 }
