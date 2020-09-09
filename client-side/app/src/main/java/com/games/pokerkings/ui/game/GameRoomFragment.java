@@ -99,12 +99,12 @@ public class GameRoomFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        gameRoomViewModel.getHasUserInterfaceLoaded().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-
+        gameRoomViewModel.getHasUserInterfaceLoaded().observe(getViewLifecycleOwner(), aBoolean -> {
+            if(!aBoolean) {
+                //gameRoomViewModel.reloadUserInterface();
             }
         });
+
 
     }
 

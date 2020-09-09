@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.games.pokerkings.R;
 import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.models.*;
+import com.games.pokerkings.utils.Constants;
 import com.games.pokerkings.utils.Result;
 import com.github.nkzawa.emitter.Emitter;
 
@@ -54,7 +55,7 @@ public class HomePageRepository {
         /* Construct an object that we will post to socket.io */
         JSONObject joinObject = new JSONObject();
         @Nullable
-        Integer usernameCheckResult = isUsernameValid(user);
+        String usernameCheckResult = isUsernameValid(user);
         if(usernameCheckResult != null) {
             joinGame.setValue(new Result.Error(usernameCheckResult));
             return;
@@ -70,12 +71,9 @@ public class HomePageRepository {
         }
 
         dataSource.postRequest("room/POST:join", joinObject);
-        dataSource.getRequest("joinRoom", new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                JSONObject data = (JSONObject) args[0];
-                onJoinGame(data);
-            }
+        dataSource.getRequest("joinRoom", args -> {
+            JSONObject data = (JSONObject) args[0];
+            onJoinGame(data);
         });
 
         joinGame.setValue(new Result.Progress(true));
@@ -98,25 +96,26 @@ public class HomePageRepository {
             room = data.getString("room");
 
             if(!success) {
-                joinGame.postValue(new Result.Error(R.string.error_room_full));
+                joinGame.postValue(new Result.Error(message));
             } else {
                 user.setRoom(new Room(room, spot));
                 joinGame.postValue(new Result.Success<User>(user));
             }
 
         } catch (JSONException e) {
-            joinGame.postValue(new Result.Error(null));
+            //e.getMessage()
+            joinGame.postValue(new Result.Error(e.getMessage()));
             return;
         }
     }
 
     @Nullable
-    public Integer isUsernameValid(User u) {
+    public String isUsernameValid(User u) {
         String nameToCheck = u.getName();
         if(nameToCheck.length() < 1) {
-            return R.string.error_name_too_short;
+            return Constants.ERROR_NAME_TOO_SHORT;
         } else if(nameToCheck.length() > 15) {
-            return R.string.error_name_too_long;
+            return Constants.ERROR_NAME_TOO_LONG;
         } else {
             return null;
         }

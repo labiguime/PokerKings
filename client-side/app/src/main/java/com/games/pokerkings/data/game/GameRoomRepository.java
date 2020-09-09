@@ -4,10 +4,9 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
-import com.games.pokerkings.R;
 import com.games.pokerkings.data.DataSource;
-import com.games.pokerkings.data.models.Room;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.*;
 import com.github.nkzawa.emitter.Emitter;
@@ -103,6 +102,15 @@ public class GameRoomRepository {
                 onGetPlayers(data);
             }
         });
+    }
+
+    public LiveData<Boolean> getGetOnReady() {
+        return Transformations.map(avatar, data -> onPlayerReady(data));
+    }
+
+    public Boolean onPlayerReady(Object data) {
+
+        return null;
     }
 
     public void alertPlayerReady() {
