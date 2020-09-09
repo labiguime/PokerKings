@@ -106,15 +106,16 @@ public class GameRoomRepository {
     }
 
     public void alertPlayerReady() {
+        isPlayerReady.setValue(true);
         String roomId;
         JSONObject object = new JSONObject();
-
         try {
             roomId = user.getRoom().getName();
         } catch (NullPointerException e) {
             return;
         }
 
+        // TODO: This request should take user id or spot id instead of name
         try {
             object.put("room_id", roomId);
             object.put("name", user.getName());
@@ -123,6 +124,7 @@ public class GameRoomRepository {
         }
 
         dataSource.postRequest("room/POST:ready", object);
+        ListManipulation.set(money, 0, "READY", false);
 
     }
 

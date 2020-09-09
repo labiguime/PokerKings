@@ -22,6 +22,13 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("ready_text")
+    public static void setReadyText(TextView textView, Boolean value) {
+        if(value) {
+            textView.setText("Waiting for the others...");
+        }
+    }
+
     @BindingAdapter({"avatar_attribute", "avatar_type"})
     public static void setAvatar(ConstraintLayout imageView, Object avatar, Object type) {
         if(avatar != null && type != null) {

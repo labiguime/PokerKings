@@ -24,6 +24,16 @@ roomController.joinRoom = async function (obj, socket, next) {
 			return;
 		}
 
+		const isNameTaken = await User.findOne({room_id: room._id, name: obj._name});
+		console.log(isNameTaken);
+		if(isNameTaken != null) {
+			success = false;
+			message = "This username is already taken!";
+			socket.emit('joinRoom', {success: success, message: message});
+			console.log({success: success, message: message});
+			return;
+		}
+
 		const spot = await Spot.findOneAndUpdate({room_id: room._id, player_id: 'None'}, {player_id: socket.id});
 		if(!spot) {
 			success = false;
@@ -65,13 +75,19 @@ roomController.setReady = async function (obj, socket, next) {
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
 		var data = {};
 		socket.getRequest = [];
+
 		const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
 		if(playerList.length == 0) { // Everybody is ready
-			data = {success: true, gameIsStarting: true, message: "The game is starting..."};
-			socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
+			//data = {success: true, gameIsStarting: true, message: "The game is starting..."};
+			//socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 			const copySocket = socket;
 			core.startGame(obj, socket, next);
 		} else {
+			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+			socket.getRequest = [];
+			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+		}
+		/* else {
 			//core.startGame(obj, socket, next);
 			const indexOfLastElement = playerList.length-1;
 			var emitMessage = "Waiting for: ";
@@ -84,9 +100,9 @@ roomController.setReady = async function (obj, socket, next) {
 				}
 				data = {success: true, gameIsStarting: false, message: emitMessage};
 			});
-		}
-		console.log(socket.getRequest);
-		socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
+		}*/
+		//console.log(socket.getRequest);
+		//socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 		console.log("Request successfully fulfilled!");
 		next();
 	} catch {

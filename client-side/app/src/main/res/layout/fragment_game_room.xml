@@ -699,6 +699,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="1"
+                    ready_text="@{gameRoomViewModel.isPlayerReady}"
                     android:text="@string/ready_up_text"
                     android:textColor="@color/common_google_signin_btn_text_dark_default"
                     android:textSize="11dp" />
@@ -709,7 +710,7 @@
                     android:layout_height="81dp"
                     android:layout_gravity="center"
                     android:visibility="@{(gameRoomViewModel.isPlayerReady == false) ? View.VISIBLE:View.GONE}"
-                    android:clickable="true"
+                    android:clickable="@{(!gameRoomViewModel.isPlayerReady)}"
                     android:onClick="@{()->gameRoomViewModel.onReadyButtonClicked()}"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/ready_button" />
