@@ -21,7 +21,7 @@ public class ListManipulation {
         assert copy != null;
         if(copy.get(index) != null) {
             copy.set(index, s);
-            original.setValue(copy);
+            original.postValue(copy);
         }
     }
 }

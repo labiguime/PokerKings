@@ -48,9 +48,9 @@ roomController.joinRoom = async function (obj, socket, next) {
 		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join(roomRoute);
 
-		const roomPlayers = await User.find({room_id: room._id});
+		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, _id: 1});
 		socket.getRequest = [];
-		socket.getRequest.push({room: roomRoute, route: "getPlayers", data: {players: roomPlayers}});
+		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 		console.log("Request successfully fulfilled!");
 		next();
 
@@ -95,15 +95,15 @@ roomController.setReady = async function (obj, socket, next) {
 	}
 };
 
-roomController.getPlayers = async function (obj, socket, next) {
+roomController.getPreGamePlayerList = async function (obj, socket, next) {
 	try {
-		const roomPlayers = await User.find({room_id: obj.room_id});
-		socket.emit('getPlayers', {players: roomPlayers});
+		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, _id: 1});
+		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 		console.log("Request successfully fulfilled!");
 		return;
 	} catch {
 		console.log("Cannot retrieve players!");
-		socket.emit('getPlayers', {players: roomPlayers});
+		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 	}
 };
 

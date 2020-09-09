@@ -33,15 +33,19 @@ public class User implements Serializable {
 
     }
 
-    public User(String name, String avatar, String id, Boolean ready) {
+    public User(String name, String avatar) {
         this.name = name;
         this.avatar = avatar;
-        this.money = 10000;
-        this.hasFolded = false;
-        this.id = id;
-        this.ready = ready;
-        this.room = null;
     }
+
+   /* public User(String name, String avatar, Integer money, String spotId, Boolean ready, Boolean hasFolded, Boolean isPlayerTurn) {
+        this.name = name;
+        this.avatar = avatar;
+        this.money = money;
+        this.room.setSpot(spotId);
+        this.hasFolded = false;
+        this.ready = ready;
+    }*/
 
     public Boolean getReady() {
         return ready;
