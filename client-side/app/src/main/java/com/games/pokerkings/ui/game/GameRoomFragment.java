@@ -353,8 +353,6 @@ public class GameRoomFragment extends Fragment {
         }
     }
     private void onReadyButtonPressed() {
-        Integer readyUsers = gameVariables.getReadyUsers()+1;
-        Integer playingUsers = gameVariables.getPlayingUsers()+1;
         isPlayerReady = true;
         readyButton.setVisibility(View.INVISIBLE);
         JSONObject object = new JSONObject();
@@ -364,10 +362,6 @@ public class GameRoomFragment extends Fragment {
         } catch(JSONException e) {
         }
         mSocket.emit("room/POST:ready", object);
-        /*ReadyImplementation.addReadyPlayer("game-1", readyUsers);
-        if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
-            startGame();
-        }*/
     }
 
     private void startGame() {

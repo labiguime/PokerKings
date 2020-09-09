@@ -102,7 +102,7 @@ public class User implements Serializable {
         this.hasFolded = hasFolded;
     }
 
-    private Room getRoom() {
+    public Room getRoom() {
         return this.room;
     }
 
