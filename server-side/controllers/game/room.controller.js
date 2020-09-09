@@ -48,7 +48,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join(roomRoute);
 
-		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, _id: 1});
+		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
 		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 		console.log("Request successfully fulfilled!");
@@ -97,7 +97,7 @@ roomController.setReady = async function (obj, socket, next) {
 
 roomController.getPreGamePlayerList = async function (obj, socket, next) {
 	try {
-		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, _id: 1});
+		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 		console.log("Request successfully fulfilled!");
 		return;

@@ -20,6 +20,7 @@ public class GameRoomViewModel extends ViewModel {
     private GameRoomRepository gameRoomRepository;
     private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
     private LiveData<Boolean> hasUserInterfaceLoaded;
+    private LiveData<Boolean> hasGameStarted;
     private LiveData<List<String>> avatarType;
     private LiveData<List<String>> avatar;
     private LiveData<List<String>> name;
@@ -28,6 +29,7 @@ public class GameRoomViewModel extends ViewModel {
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
+        this.hasGameStarted = gameRoomRepository.getHasGameStarted();
         this.avatarType = gameRoomRepository.getAvatarTypeList();
         this.avatar = gameRoomRepository.getAvatarList();
         this.name = gameRoomRepository.getNameList();
@@ -40,6 +42,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<Boolean> getHasUserInterfaceLoaded() {
         return hasUserInterfaceLoaded;
+    }
+
+    public LiveData<Boolean> getHasGameStarted() {
+        return hasGameStarted;
     }
 
     public LiveData<List<String>> getAvatar() {

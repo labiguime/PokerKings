@@ -33,9 +33,10 @@ public class User implements Serializable {
 
     }
 
-    public User(String name, String avatar) {
+    public User(String name, String avatar, Boolean ready) {
         this.name = name;
         this.avatar = avatar;
+        this.ready = ready;
     }
 
    /* public User(String name, String avatar, Integer money, String spotId, Boolean ready, Boolean hasFolded, Boolean isPlayerTurn) {

@@ -26,6 +26,7 @@ public class GameRoomRepository {
     private DataSource dataSource;
     private User user;
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
     private MutableLiveData<List<String>> avatarType = new MutableLiveData<>();
     private MutableLiveData<List<String>> avatar = new MutableLiveData<>();
     private MutableLiveData<List<String>> name = new MutableLiveData<>();
@@ -42,7 +43,6 @@ public class GameRoomRepository {
             ListManipulation.append(name, "");
             ListManipulation.append(money, "");
         }
-
     }
 
     public static GameRoomRepository getInstance() {
@@ -72,9 +72,13 @@ public class GameRoomRepository {
         return hasUserInterfaceLoaded;
     }
 
+    public LiveData<Boolean> getHasGameStarted() {
+        return hasGameStarted;
+    }
+
     public void loadGamePageComponents(User user) {
         this.user = user;
-        setDefaultLiveDataForUser(0, user);
+        setDefaultLiveDataForUser(0, user, false);
         JSONObject object = new JSONObject();
         try {
             object.put("room_id", user.getRoom().getName());
@@ -89,7 +93,6 @@ public class GameRoomRepository {
                 onGetPlayers(data);
             }
         });
-        hasUserInterfaceLoaded.setValue(false);
     }
 
     public void alertPlayerReady() {
@@ -117,10 +120,10 @@ public class GameRoomRepository {
         try {
             HashMap<String, User> fetchedUsers = new HashMap<>();
             JSONArray array = data.getJSONArray("players");
-            Log.d(TAG, "Ici");
+
             for(int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
-                fetchedUsers.put(obj.getString("_id"), new User(obj.getString("name"), obj.getString("avatar")));
+                fetchedUsers.put(obj.getString("spot_id"), new User(obj.getString("name"), obj.getString("avatar"), obj.getBoolean("ready")));
             }
 
             TreeMap<String, User> sortUsers = new TreeMap<>(fetchedUsers);
@@ -131,7 +134,6 @@ public class GameRoomRepository {
 
             if(size > 1) {
                 for(TreeMap.Entry<String, User> entry : sortUsers.entrySet()) {
-
                     playerIndex++;
                     if (entry.getKey().equals(user.getRoom().getSpot())) {
                         break;
@@ -142,29 +144,27 @@ public class GameRoomRepository {
                     Log.d(TAG, entry.getValue().getName());
                     index++;
                     if (entry.getKey().equals(user.getRoom().getSpot())) {
-                        setDefaultLiveDataForUser(0, entry.getValue());
                         continue;
                     }
                     Integer position = getLayoutForId(playerIndex, index, size);
-                    setDefaultLiveDataForUser(position, entry.getValue());
+                    setDefaultLiveDataForUser(position, entry.getValue(), true);
                 }
             }
 
-            /*if(!hasUserInterfaceLoaded.getValue()) {
-                hasUserInterfaceLoaded.setValue(true);
-            }*/
+            if(!hasUserInterfaceLoaded.getValue()) {
+                hasUserInterfaceLoaded.postValue(true);
+            }
 
         } catch (JSONException e) {
             return;
         }
     }
 
-    public void setDefaultLiveDataForUser(Integer index, User u) {
-        Log.d("TAG", "name "+ u.getName() + " avatar "+u.getAvatar());
-        ListManipulation.set(avatar, index, u.getAvatar());
-        ListManipulation.set(name, index, u.getName());
-        ListManipulation.set(money, index, "10000");
-        ListManipulation.set(avatarType, index, User.NOT_FOLDED);
+    public void setDefaultLiveDataForUser(Integer index, User u, Boolean isRemote) {
+        ListManipulation.set(avatar, index, u.getAvatar(), isRemote);
+        ListManipulation.set(name, index, u.getName(), isRemote);
+        ListManipulation.set(money, index, (u.getReady()?"READY":"NOT READY"), isRemote);
+        ListManipulation.set(avatarType, index, User.NOT_FOLDED, isRemote);
     }
 
     private Integer getLayoutForId(int playerIndex, int id, int size) {

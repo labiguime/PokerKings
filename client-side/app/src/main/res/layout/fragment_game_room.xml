@@ -214,6 +214,7 @@
                     android:layout_height="49dp"
                     android:layout_gravity="center"
                     android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(0) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     tools:layout_editor_absoluteX="219dp"
                     tools:layout_editor_absoluteY="168dp">
 
@@ -329,6 +330,7 @@
                     android:layout_height="47dp"
                     android:layout_gravity="center"
                     android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(2) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     tools:layout_editor_absoluteX="219dp"
                     tools:layout_editor_absoluteY="168dp">
 
@@ -433,6 +435,7 @@
                 android:layout_marginEnd="30dp"
                 android:layout_marginBottom="88dp"
                 android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(3) != ``) ? View.VISIBLE:View.INVISIBLE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -557,12 +560,14 @@
                     android:layout_height="49dp"
                     android:layout_gravity="center"
                     android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(1) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     tools:layout_editor_absoluteX="219dp"
                     tools:layout_editor_absoluteY="168dp">
 
                     <ImageView
                         android:id="@+id/top_player_card_2"
                         android:layout_width="wrap_content"
+
                         android:layout_height="40dp"
                         android:layout_gravity="center"
                         android:layout_weight="1"

@@ -16,12 +16,17 @@ public class ListManipulation {
         original.setValue(copy);
     }
 
-    public static <T> void set(MutableLiveData<List<T>> original, Integer index, T s) {
+    public static <T> void set(MutableLiveData<List<T>> original, Integer index, T s, Boolean isRemote) {
         List<T> copy = original.getValue();
         assert copy != null;
         if(copy.get(index) != null) {
             copy.set(index, s);
-            original.postValue(copy);
+            if(isRemote) {
+                original.postValue(copy);
+            } else {
+                original.setValue(copy);
+            }
+
         }
     }
 }
