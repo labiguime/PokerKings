@@ -9,19 +9,51 @@ import androidx.lifecycle.ViewModel;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameRoomViewModel extends ViewModel {
 
     private GameRoomRepository gameRoomRepository;
     private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
-    private LiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<Boolean>(false);
+    private LiveData<Boolean> hasUserInterfaceLoaded;
+    private LiveData<List<String>> avatarType;
+    private LiveData<List<String>> avatar;
+    private LiveData<List<String>> name;
+    private LiveData<List<String>> money;
 
     public GameRoomViewModel(GameRoomRepository gameRoomRepository) {
         this.gameRoomRepository = gameRoomRepository;
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
+        this.avatarType = gameRoomRepository.getAvatarType();
+        this.avatar = gameRoomRepository.getAvatar();
+        this.name = gameRoomRepository.getName();
+        this.money = gameRoomRepository.getMoney();
     }
 
     public LiveData<Boolean> getIsReadyButtonVisible() {
         return isReadyButtonVisible;
+    }
+
+    public LiveData<Boolean> getHasUserInterfaceLoaded() {
+        return hasUserInterfaceLoaded;
+    }
+
+    public LiveData<List<String>> getAvatar() {
+        return avatar;
+    }
+
+    public LiveData<List<String>> getAvatarType() {
+        return avatarType;
+    }
+
+    public LiveData<List<String>> getMoney() {
+        return money;
+    }
+
+    public LiveData<List<String>> getName() {
+        return name;
     }
 
     public void setUserInterfaceForUser(User u) {

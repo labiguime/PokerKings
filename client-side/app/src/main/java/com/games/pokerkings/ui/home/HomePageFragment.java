@@ -86,11 +86,7 @@ public class HomePageFragment extends Fragment {
         GameRoomFragment fragment = new GameRoomFragment();
         Bundle bundle = new Bundle();
 
-        // Put variables into bundle to pass them to the next fragment
-        bundle.putString("avatar", u.getAvatar());
-        bundle.putString("name", u.getName());
-        bundle.putString("spot", u.getSpotId());
-        bundle.putString("room", u.getRoomId());
+        // Put User class into bundle to pass it to the next fragment
         bundle.putSerializable("user", u);
         fragment.setArguments(bundle);
 

@@ -1,8 +1,14 @@
 package com.games.pokerkings.ui.game;
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +22,11 @@ import android.widget.TextView;
 import com.games.pokerkings.R;
 
 import com.games.pokerkings.data.models.*;
+import com.games.pokerkings.databinding.FragmentGameRoomBinding;
+import com.games.pokerkings.databinding.FragmentHomePageBinding;
+import com.games.pokerkings.ui.home.HomePageFragment;
+import com.games.pokerkings.ui.home.HomePageViewModel;
+import com.games.pokerkings.ui.home.HomePageViewModelFactory;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -28,6 +39,8 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 public class GameRoomFragment extends Fragment {
+
+    private GameRoomViewModel gameRoomViewModel;
 
     LinearLayout totalBetLayout;
     LinearLayout currentBetLayout;
@@ -62,6 +75,40 @@ public class GameRoomFragment extends Fragment {
     }
 
     @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        gameRoomViewModel = new ViewModelProvider(this, new GameRoomViewModelFactory()).get(GameRoomViewModel.class);
+
+        FragmentGameRoomBinding binding = FragmentGameRoomBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(GameRoomFragment.this);
+        binding.setGameRoomViewModel(gameRoomViewModel);
+
+        // Recover variables from previous fragment
+        Bundle bundle = this.getArguments();
+
+        // TODO: Implement steps to take if bundle transfer fails
+        if(bundle == null) {
+            return null;
+        }
+        gameRoomViewModel.setUserInterfaceForUser((User)bundle.getSerializable("user"));
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        gameRoomViewModel.getHasUserInterfaceLoaded().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+
+            }
+        });
+
+    }
+
+    /*@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_room, container, false);
@@ -119,17 +166,7 @@ public class GameRoomFragment extends Fragment {
         gameVariables = new Game();
         mSocket = SocketManager.getInstance();
 
-        // Recover variables from previous fragment
-        Bundle bundle = this.getArguments();
-        User t;
-        if (bundle != null) {
-            name = bundle.getString("name");
-            avatar = bundle.getString("avatar");
-            spot = bundle.getString("spot");
-            room = bundle.getString("room");
-            t = (User) bundle.getSerializable("user");
-            hasPlayerJustJoinedTheRoom = true;
-        }
+
 
         // Setup UI
         setupNotReadyUiForPlayer();
@@ -163,8 +200,13 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
-        return view;
-    }
+        gameRoomViewModel = new ViewModelProvider(this, new GameRoomViewModelFactory()).get(GameRoomViewModel.class);
+
+        FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(GameRoomFragment.this);
+        binding.setGameRoomViewModel(gameRoomViewModel);
+        return binding.getRoot();
+    }*/
 
     private void setupNotReadyUiForPlayer() {
         totalBetLayout.setVisibility(View.INVISIBLE);
