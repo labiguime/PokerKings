@@ -34,6 +34,7 @@
                 android:layout_marginTop="56dp"
                 android:layout_marginEnd="8dp"
                 android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
                 app:layout_constraintEnd_toEndOf="@+id/game_room_main_constraint_layout"
                 app:layout_constraintHorizontal_bias="0.901"
                 app:layout_constraintStart_toStartOf="@+id/game_room_main_constraint_layout"
@@ -74,6 +75,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.956"
                 app:layout_constraintStart_toStartOf="parent"
@@ -121,6 +123,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
                 app:layout_constraintBottom_toTopOf="@+id/layout_player_0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -435,7 +438,6 @@
                 android:layout_marginEnd="30dp"
                 android:layout_marginBottom="88dp"
                 android:orientation="horizontal"
-                android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(3) != ``) ? View.VISIBLE:View.INVISIBLE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -446,6 +448,7 @@
                     android:layout_height="47dp"
                     android:layout_gravity="center"
                     android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(3) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     tools:layout_editor_absoluteX="219dp"
                     tools:layout_editor_absoluteY="168dp">
 
@@ -665,6 +668,24 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
+                android:visibility="@{(gameRoomViewModel.hasUserInterfaceLoaded == false &amp;&amp; gameRoomViewModel.hasGameStarted == false) ? View.VISIBLE:View.GONE}"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <ProgressBar
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="88dp"
+                android:layout_height="93dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{(gameRoomViewModel.hasUserInterfaceLoaded == true &amp;&amp; gameRoomViewModel.hasGameStarted == false) ? View.VISIBLE:View.INVISIBLE}"
                 android:id="@+id/ready_box"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -687,6 +708,7 @@
                     android:layout_width="59dp"
                     android:layout_height="81dp"
                     android:layout_gravity="center"
+                    android:visibility="@{(gameRoomViewModel.isPlayerReady == false) ? View.VISIBLE:View.GONE}"
                     android:clickable="true"
                     android:onClick="@{()->gameRoomViewModel.onReadyButtonClicked()}"
                     android:layout_weight="1"
@@ -702,6 +724,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:visibility="@{(gameRoomViewModel.isPlayerTurn == true &amp;&amp; gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/game_room_main_constraint_layout"
             tools:layout_editor_absoluteX="8dp">
@@ -771,8 +794,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="-50dp"
-                android:clickable="@{gameRoomViewModel.isReadyButtonVisible}"
-                android:visibility="@{gameRoomViewModel.isReadyButtonVisible?View.VISIBLE:View.INVISIBLE}"
+                android:clickable="true"
                 android:layout_marginRight="50dp"
                 android:layout_weight="2"
                 app:srcCompat="@drawable/raise_button" />

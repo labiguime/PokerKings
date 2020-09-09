@@ -27,6 +27,8 @@ public class GameRoomRepository {
     private User user;
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isPlayerTurn = new MutableLiveData<>(false);
     private MutableLiveData<List<String>> avatarType = new MutableLiveData<>();
     private MutableLiveData<List<String>> avatar = new MutableLiveData<>();
     private MutableLiveData<List<String>> name = new MutableLiveData<>();
@@ -66,6 +68,14 @@ public class GameRoomRepository {
 
     public LiveData<List<String>> getNameList() {
         return name;
+    }
+
+    public LiveData<Boolean> getIsPlayerReady() {
+        return isPlayerReady;
+    }
+
+    public LiveData<Boolean> getIsPlayerTurn() {
+        return isPlayerTurn;
     }
 
     public LiveData<Boolean> getHasUserInterfaceLoaded() {

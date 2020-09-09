@@ -18,9 +18,10 @@ import java.util.List;
 public class GameRoomViewModel extends ViewModel {
 
     private GameRoomRepository gameRoomRepository;
-    private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
+    private LiveData<Boolean> isPlayerReady;
+    private LiveData<Boolean> isPlayerTurn;
     private LiveData<List<String>> avatarType;
     private LiveData<List<String>> avatar;
     private LiveData<List<String>> name;
@@ -30,14 +31,21 @@ public class GameRoomViewModel extends ViewModel {
         this.gameRoomRepository = GameRoomRepository.getInstance();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
+        this.isPlayerReady = gameRoomRepository.getIsPlayerReady();
+        this.isPlayerTurn = gameRoomRepository.getIsPlayerTurn();
+
         this.avatarType = gameRoomRepository.getAvatarTypeList();
         this.avatar = gameRoomRepository.getAvatarList();
         this.name = gameRoomRepository.getNameList();
         this.money = gameRoomRepository.getMoneyList();
     }
 
-    public LiveData<Boolean> getIsReadyButtonVisible() {
-        return isReadyButtonVisible;
+    public LiveData<Boolean> getIsPlayerReady() {
+        return isPlayerReady;
+    }
+
+    public LiveData<Boolean> getIsPlayerTurn() {
+        return isPlayerTurn;
     }
 
     public LiveData<Boolean> getHasUserInterfaceLoaded() {
@@ -69,7 +77,6 @@ public class GameRoomViewModel extends ViewModel {
     }
 
     public void onReadyButtonClicked() {
-        isReadyButtonVisible.setValue(false);
         gameRoomRepository.alertPlayerReady();
     }
 }
