@@ -88,6 +88,23 @@ public class GameRoomFragment extends Fragment {
         binding.setLifecycleOwner(GameRoomFragment.this);
         binding.setGameRoomViewModel(gameRoomViewModel);
 
+        layoutPlayer[0] = binding.getRoot().findViewById(R.id.layout_player_0);
+        layoutPlayer[1] = binding.getRoot().findViewById(R.id.layout_player_1);
+        layoutPlayer[2] = binding.getRoot().findViewById(R.id.layout_player_2);
+        layoutPlayer[3] = binding.getRoot().findViewById(R.id.layout_player_3);
+
+        playerCardImage[0][0] = binding.getRoot().findViewById(R.id.top_player_card_1);
+        playerCardImage[0][1] = binding.getRoot().findViewById(R.id.top_player_card_2);
+
+        playerCardImage[1][0] = binding.getRoot().findViewById(R.id.left_player_card_1);
+        playerCardImage[1][1] = binding.getRoot().findViewById(R.id.left_player_card_2);
+
+        playerCardImage[2][0] = binding.getRoot().findViewById(R.id.right_player_card_1);
+        playerCardImage[2][1] = binding.getRoot().findViewById(R.id.right_player_card_2);
+
+        userCard[0] = binding.getRoot().findViewById(R.id.user_card_1);
+        userCard[1] = binding.getRoot().findViewById(R.id.user_card_2);
+
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
 
@@ -126,7 +143,21 @@ public class GameRoomFragment extends Fragment {
         });
 
         gameRoomViewModel.onReceiveInitialGameData().observe(getViewLifecycleOwner(), initialGameDataResult -> {
+            if(initialGameDataResult.isDataValid() && initialGameDataResult.getError() == null) {
+                Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                userCard[0].startAnimation(fade_in);
+                userCard[1].startAnimation(fade_in);
 
+                for(int i = 0; i < 3; i++) {
+                    if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
+                        playerCardImage[i][0].setVisibility(View.VISIBLE);
+                        playerCardImage[i][1].setVisibility(View.VISIBLE);
+
+                        playerCardImage[i][0].startAnimation(fade_in);
+                        playerCardImage[i][1].startAnimation(fade_in);
+                    }
+                }
+            }
         });
 
 
@@ -273,6 +304,7 @@ public class GameRoomFragment extends Fragment {
         userCard[0].setVisibility(View.VISIBLE);
         userCard[1].setVisibility(View.VISIBLE);
 
+        //Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
         userCard[0].startAnimation(fade_in);
         userCard[1].startAnimation(fade_in);
 
