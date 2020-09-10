@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +58,7 @@ public class HomePageFragment extends Fragment {
     }
 
     public void observeOnJoinGame() {
+
         homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), userResult -> {
             if(userResult instanceof Result.Error) {
                 homePageViewModel.setHasPlayerPressedJoin();
@@ -67,7 +67,7 @@ public class HomePageFragment extends Fragment {
             } else if(userResult instanceof Result.Success) {
                 homePageViewModel.setHasPlayerPressedJoin();
                 User joiningUser = ((Result.Success<User>)userResult).getData();
-                //launchGameRoomFragment(joiningUser);
+                launchGameRoomFragment(joiningUser);
             }
         });
     }
@@ -83,7 +83,6 @@ public class HomePageFragment extends Fragment {
         // Put User class into bundle to pass it to the next fragment
         bundle.putSerializable("user", u);
         fragment.setArguments(bundle);
-
         // Move to the next fragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);

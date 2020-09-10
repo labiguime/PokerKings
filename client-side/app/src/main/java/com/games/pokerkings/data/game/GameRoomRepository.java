@@ -1,21 +1,16 @@
 package com.games.pokerkings.data.game;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.*;
-import com.github.nkzawa.emitter.Emitter;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -33,17 +28,26 @@ public class GameRoomRepository {
     private MutableLiveData<List<String>> name = new MutableLiveData<>();
     private MutableLiveData<List<String>> money = new MutableLiveData<>();
 
+    private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
+
     public static final String TAG = "LOG_GAME_ROOM";
 
     public GameRoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
+
         for(int i = 0; i < 4; i++) {
             ListManipulation.append(avatarType, "");
             ListManipulation.append(avatar, "");
             ListManipulation.append(name, "");
             ListManipulation.append(money, "");
         }
+
+        preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
+    }
+
+    public LiveData<Boolean> onReceivePreGamePlayerList() {
+        return preGamePlayerListListener;
     }
 
     public static GameRoomRepository getInstance() {
@@ -86,8 +90,11 @@ public class GameRoomRepository {
     }
 
     public void loadGamePageComponents(User user) {
+        /* Set the user variable and UI */
         this.user = user;
         setDefaultLiveDataForUser(0, user, false);
+
+        /* Construct an object that we will post to socket.io */
         JSONObject object = new JSONObject();
         try {
             object.put("room_id", user.getRoom().getName());
@@ -95,26 +102,11 @@ public class GameRoomRepository {
 
         }
         dataSource.postRequest("room/GET:preGamePlayerList", object);
-        dataSource.getRequest("getPreGamePlayerList", new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                JSONObject data = (JSONObject) args[0];
-                onGetPlayers(data);
-            }
-        });
-    }
 
-    public LiveData<Boolean> getGetOnReady() {
-        return Transformations.map(avatar, data -> onPlayerReady(data));
-    }
-
-    public Boolean onPlayerReady(Object data) {
-
-        return null;
     }
 
     public void alertPlayerReady() {
-        isPlayerReady.setValue(true);
+        /*isPlayerReady.setValue(true);
         String roomId;
         JSONObject object = new JSONObject();
         try {
@@ -132,52 +124,42 @@ public class GameRoomRepository {
         }
 
         dataSource.postRequest("room/POST:ready", object);
-        ListManipulation.set(money, 0, "READY", false);
+        ListManipulation.set(money, 0, "READY", false);*/
 
     }
 
-    private void onGetPlayers(JSONObject data) {
-        try {
-            HashMap<String, User> fetchedUsers = new HashMap<>();
-            JSONArray array = data.getJSONArray("players");
-
-            for(int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                fetchedUsers.put(obj.getString("spot_id"), new User(obj.getString("name"), obj.getString("avatar"), obj.getBoolean("ready")));
-            }
-
-            TreeMap<String, User> sortUsers = new TreeMap<>(fetchedUsers);
-
-            int size = sortUsers.size();
-            int index = -1;
-            int playerIndex = -1;
-
-            if(size > 1) {
-                for(TreeMap.Entry<String, User> entry : sortUsers.entrySet()) {
-                    playerIndex++;
-                    if (entry.getKey().equals(user.getRoom().getSpot())) {
-                        break;
-                    }
-                }
-
-                for(TreeMap.Entry<String, User> entry : sortUsers.entrySet()) {
-                    Log.d(TAG, entry.getValue().getName());
-                    index++;
-                    if (entry.getKey().equals(user.getRoom().getSpot())) {
-                        continue;
-                    }
-                    Integer position = getLayoutForId(playerIndex, index, size);
-                    setDefaultLiveDataForUser(position, entry.getValue(), true);
-                }
-            }
-
-            if(!hasUserInterfaceLoaded.getValue()) {
-                hasUserInterfaceLoaded.postValue(true);
-            }
-
-        } catch (JSONException e) {
+    private void processPreGamePlayerList(Result<TreeMap<String, User>> data) {
+        if(data instanceof Result.Error || data instanceof  Result.Progress) {
+            preGamePlayerListListener.setValue(false);
             return;
         }
+        TreeMap<String, User> fetchedUsers = (TreeMap<String, User>) ((Result.Success) data).getData();
+
+        int size = fetchedUsers.size();
+        int index = -1;
+        int playerIndex = -1;
+
+        if(size > 1) {
+            for(TreeMap.Entry<String, User> entry : fetchedUsers.entrySet()) {
+                playerIndex++;
+                if (entry.getKey().equals(user.getRoom().getSpot())) {
+                    break;
+                }
+            }
+
+            for(TreeMap.Entry<String, User> entry : fetchedUsers.entrySet()) {
+                index++;
+                if (entry.getKey().equals(user.getRoom().getSpot())) {
+                    continue;
+                }
+                Integer position = getLayoutForId(playerIndex, index, size);
+                setDefaultLiveDataForUser(position, entry.getValue(), true);
+            }
+        }
+        if(!hasUserInterfaceLoaded.getValue()) {
+            hasUserInterfaceLoaded.setValue(true);
+        }
+        preGamePlayerListListener.setValue(true);
     }
 
     public void setDefaultLiveDataForUser(Integer index, User u, Boolean isRemote) {

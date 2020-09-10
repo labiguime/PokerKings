@@ -11,7 +11,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!room) {
 			success = false;
 			message = "This room doesn't exist.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -19,7 +19,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if (room.is_in_game == true) {
 			success = false;
 			message = "A game is currently being played in this room.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -29,7 +29,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(isNameTaken != null) {
 			success = false;
 			message = "This username is already taken!";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -38,7 +38,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!spot) {
 			success = false;
 			message = "This room is full.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -47,7 +47,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!user) {
 			success = false;
 			message = "There are too many players connected to PokerKings.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -55,7 +55,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		success = true;
 		message = "Joining the room...";
 		const roomRoute = "room/"+room._id;
-		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
+		socket.emit('getJoinRoomAuthorization', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join(roomRoute);
 
 		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});

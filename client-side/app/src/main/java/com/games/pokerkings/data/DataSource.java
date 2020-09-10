@@ -1,7 +1,5 @@
 package com.games.pokerkings.data;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -23,9 +21,9 @@ public class DataSource {
 
     private Socket mSocket;
 
-    public static final String GET_JOIN_GAME_AUTHORIZATION = "joinRoom";
-    public static final String GET_PRE_GAME_PLAYER_LIST = "a";
-    public static final String GET_READY_PLAYER_AUTHORIZATION = "w";
+    public static final String GET_JOIN_GAME_AUTHORIZATION = "getJoinRoomAuthorization";
+    public static final String GET_PRE_GAME_PLAYER_LIST = "getPreGamePlayerList";
+    public static final String GET_READY_PLAYER_AUTHORIZATION = "getReadyPlayerAuthorization";
 
     private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
@@ -58,7 +56,6 @@ public class DataSource {
         });
 
         mSocket.on(GET_JOIN_GAME_AUTHORIZATION, args -> {
-            Log.d("DEBUG", "GOT A RESPONSE");
             JSONObject data = (JSONObject) args[0];
             try {
                 Boolean success;
@@ -83,30 +80,27 @@ public class DataSource {
                 Result.Error result = new Result.Error(e.getMessage());
                 joinGameAuthorizationLiveData.postValue(result);
             }
-            Log.d("DEBUG", "RESPONSE PROCESSED");
-
         });
 
     }
 
     public void postRequest(String req, JSONObject obj) {
         mSocket.emit(req, obj);
-        Log.d("DEBUG", "POSTED");
     }
 
     public void getRequest(String req, Emitter.Listener listener) {
         mSocket.on(req, listener);
     }
 
-    public LiveData<Result<TreeMap<String, User>>> onGetPreGamePlayerList() {
+    public LiveData<Result<TreeMap<String, User>>> onReceivePreGamePlayerList() {
         return preGamePlayerListLiveData;
     }
 
-    public LiveData<Result<Room>> onGetJoinGameAuthorization() {
+    public LiveData<Result<Room>> onReceiveJoinGameAuthorization() {
         return joinGameAuthorizationLiveData;
     }
 
-    public LiveData<Result<Boolean>> onGetReadyPlayerAuthorization() {
+    public LiveData<Result<Boolean>> onReceiveReadyPlayerAuthorization() {
         return readyPlayerAuthorizationLiveData;
     }
 

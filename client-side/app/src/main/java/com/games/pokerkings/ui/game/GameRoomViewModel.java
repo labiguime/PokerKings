@@ -1,23 +1,17 @@
 package com.games.pokerkings.ui.game;
 
-import android.util.Log;
-import android.view.View;
-
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GameRoomViewModel extends ViewModel {
 
     private GameRoomRepository gameRoomRepository;
+    private LiveData<Boolean> receivePreGamePlayerList;
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerReady;
@@ -30,6 +24,7 @@ public class GameRoomViewModel extends ViewModel {
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
+        this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
         this.isPlayerReady = gameRoomRepository.getIsPlayerReady();
         this.isPlayerTurn = gameRoomRepository.getIsPlayerTurn();
@@ -50,6 +45,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<Boolean> getHasUserInterfaceLoaded() {
         return hasUserInterfaceLoaded;
+    }
+
+    public LiveData<Boolean> onReceivePreGamePlayerList() {
+        return receivePreGamePlayerList;
     }
 
     public LiveData<Boolean> getHasGameStarted() {

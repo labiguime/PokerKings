@@ -1,12 +1,9 @@
 package com.games.pokerkings.data.home;
 
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.models.*;
@@ -23,32 +20,32 @@ public class HomePageRepository {
     private DataSource dataSource;
     private User user;
 
-    private MediatorLiveData<Result<User>> onJoinGameAuthorizationListener = new MediatorLiveData<>();
-    private MutableLiveData<Result.Error> onJoinGameError = new MutableLiveData<>();
+    private MediatorLiveData<Result<User>> joinGameAuthorizationListener = new MediatorLiveData<>();
+    private MutableLiveData<Result.Error> notifyJoinGameError = new MutableLiveData<>();
 
     public HomePageRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
 
-        this.onJoinGameAuthorizationListener.addSource(dataSource.onGetJoinGameAuthorization(), this::processJoinGameAuthorization);
-        this.onJoinGameAuthorizationListener.addSource(onJoinGameError, value -> onJoinGameAuthorizationListener.setValue(value));
+        this.joinGameAuthorizationListener.addSource(dataSource.onReceiveJoinGameAuthorization(), this::processJoinGameAuthorization);
+        this.joinGameAuthorizationListener.addSource(notifyJoinGameError, value -> joinGameAuthorizationListener.setValue(value));
     }
 
     public void processJoinGameAuthorization(Result<Room> data) {
         if(data instanceof Result.Error) {
-            onJoinGameAuthorizationListener.setValue(new Result.Error(((Result.Error) data).getError()));
+            joinGameAuthorizationListener.setValue(new Result.Error(((Result.Error) data).getError()));
         }
         else if(data instanceof  Result.Success){
             Room room = (Room) ((Result.Success) data).getData();
             user.setRoom(room);
-            onJoinGameAuthorizationListener.setValue(new Result.Success<User>(user));
+            joinGameAuthorizationListener.setValue(new Result.Success<User>(user));
         } else {
-            onJoinGameAuthorizationListener.setValue(new Result.Progress(true));
+            joinGameAuthorizationListener.setValue(new Result.Progress(true));
         }
     }
 
     public LiveData<Result<User>> onReceiveJoinGameAuthorization() {
-        return onJoinGameAuthorizationListener;
+        return joinGameAuthorizationListener;
     }
 
     public static HomePageRepository getInstance(DataSource dataSource) {
@@ -79,7 +76,7 @@ public class HomePageRepository {
         @Nullable
         String usernameCheckResult = isUsernameValid(user);
         if(usernameCheckResult != null) {
-            onJoinGameError.setValue(new Result.Error(usernameCheckResult));
+            notifyJoinGameError.setValue(new Result.Error(usernameCheckResult));
             return;
         }
 
@@ -90,7 +87,7 @@ public class HomePageRepository {
             joinObject.put("name", user.getName());
             joinObject.put("avatar", avatarToString(user.getAvatarId()));
         } catch( JSONException e ) {
-            onJoinGameError.setValue(new Result.Error(e.getMessage()));
+            notifyJoinGameError.setValue(new Result.Error(e.getMessage()));
             return;
         }
         dataSource.postRequest("room/POST:join", joinObject);

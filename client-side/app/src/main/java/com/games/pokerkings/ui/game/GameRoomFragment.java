@@ -105,6 +105,12 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        gameRoomViewModel.onReceivePreGamePlayerList().observe(getViewLifecycleOwner(), aBoolean -> {
+            if(!aBoolean) {
+
+            }
+        });
+
 
     }
 
