@@ -3,10 +3,14 @@ package com.games.pokerkings.ui.game;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -32,6 +36,7 @@ import com.games.pokerkings.databinding.FragmentHomePageBinding;
 import com.games.pokerkings.ui.home.HomePageFragment;
 import com.games.pokerkings.ui.home.HomePageViewModel;
 import com.games.pokerkings.ui.home.HomePageViewModelFactory;
+import com.games.pokerkings.utils.CardManipulation;
 import com.games.pokerkings.utils.Constants;
 import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
@@ -42,7 +47,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 public class GameRoomFragment extends Fragment {
@@ -150,7 +158,9 @@ public class GameRoomFragment extends Fragment {
                 Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
                 userCard[0].startAnimation(fade_in);
                 userCard[1].startAnimation(fade_in);
-
+                List<Integer> cards = Arrays.asList(initialGameDataResult.getCard1(), initialGameDataResult.getCard2());
+                List<ImageView> imageList = Arrays.asList(userCard[0], userCard[1]);
+                CardManipulation.revealCards(getActivity(), getResources(), imageList, cards, 0);
                 for(int i = 0; i < 3; i++) {
                     if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
                         playerCardImage[i][0].setVisibility(View.VISIBLE);
@@ -162,16 +172,21 @@ public class GameRoomFragment extends Fragment {
                 }
             }
         });
-
-
     }
 
     public void showErrorMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
-    /*private void revealCard(final ImageView imageid, final String cardName) {
-        AnimatorSet set = new AnimatorSet();
+    /*private void revealCardsPlayer() {
+
+        userCard1View.setVisibility(View.VISIBLE);
+        userCard2View.setVisibility(View.VISIBLE);
+
+        Animation fade_in1 = AnimationUtils.loadAnimation(GamePage.this, R.anim.fade_in);
+        Animation fade_in2 = AnimationUtils.loadAnimation(GamePage.this, R.anim.fade_in);
+
+        final AnimatorSet set = new AnimatorSet();
         Animator animator1 = AnimatorInflater.loadAnimator(GamePage.this,
                 R.animator.flip_out);
         Animator animator2 = AnimatorInflater.loadAnimator(GamePage.this,
@@ -184,7 +199,8 @@ public class GameRoomFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                imageid.setImageDrawable(getDrawable(cardName));
+                userCard1View.setImageDrawable(getDrawable(returnCardName(user.getCard1())));
+                revealCard(userCard2View, returnCardName(user.getCard2()));
             }
 
             @Override
@@ -198,10 +214,32 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+
         set.playSequentially(animator1, animator2);
-        set.setTarget(imageid);
-        set.start();
+        set.setTarget(userCard1View);
+
+        userCard1View.startAnimation(fade_in1);
+        userCard2View.startAnimation(fade_in2);
+        fade_in1.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                revealCard();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }*/
+
+
+
 
     /*@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
