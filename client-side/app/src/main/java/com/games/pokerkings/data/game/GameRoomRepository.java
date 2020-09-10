@@ -5,12 +5,14 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.data.DataSource;
+import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -22,39 +24,30 @@ public class GameRoomRepository {
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isPlayerTurn = new MutableLiveData<>(false);
-    private MutableLiveData<List<String>> avatarType = new MutableLiveData<>();
-    private MutableLiveData<List<String>> avatar = new MutableLiveData<>();
-    private MutableLiveData<List<String>> name = new MutableLiveData<>();
-    private MutableLiveData<List<String>> money = new MutableLiveData<>();
-
-    private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
+    private MutableLiveData<List<String>> avatarType = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+    private MutableLiveData<List<String>> avatar = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+    private MutableLiveData<List<String>> name = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+    private MutableLiveData<List<String>> money = new MutableLiveData<>(Arrays.asList("", "", "", ""));
     private MutableLiveData<Result.Error> notifyReadyPlayerError = new MutableLiveData<>();
-
+    private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
+    private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
+    private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
+
+    private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
+    private MutableLiveData<List<Integer>> tableCards = new MutableLiveData<>(Arrays.asList(-1, -1, -1, -1, -1));
+    private MutableLiveData<List<Integer>> playerCards = new MutableLiveData<>(Arrays.asList(-1, -1));
 
     public static final String TAG = "LOG_GAME_ROOM";
 
     public GameRoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
-
-        for(int i = 0; i < 4; i++) {
-            ListManipulation.append(avatarType, "");
-            ListManipulation.append(avatar, "");
-            ListManipulation.append(name, "");
-            ListManipulation.append(money, "");
-        }
-
         this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
-
-        this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), value -> {
-            if(value instanceof Result.Success) {
-                ListManipulation.set(money, 0, "READY", false);
-            }
-            readyPlayerAuthorizationListener.setValue(value);
-        });
-
+        this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
+        this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
+
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -65,39 +58,15 @@ public class GameRoomRepository {
         return readyPlayerAuthorizationListener;
     }
 
+    public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
+        return initialGameDataListener;
+    }
+
     public static GameRoomRepository getInstance() {
         if (instance == null) {
             instance = new GameRoomRepository(new DataSource());
         }
         return instance;
-    }
-
-    public LiveData<List<String>> getAvatarList() {
-        return avatar;
-    }
-
-    public LiveData<List<String>> getAvatarTypeList() {
-        return avatarType;
-    }
-
-    public LiveData<List<String>> getMoneyList() {
-        return money;
-    }
-
-    public LiveData<List<String>> getNameList() {
-        return name;
-    }
-
-    public LiveData<Boolean> getIsPlayerTurn() {
-        return isPlayerTurn;
-    }
-
-    public LiveData<Boolean> getHasUserInterfaceLoaded() {
-        return hasUserInterfaceLoaded;
-    }
-
-    public LiveData<Boolean> getHasGameStarted() {
-        return hasGameStarted;
     }
 
     public void loadGamePageComponents(User user) {
@@ -140,12 +109,46 @@ public class GameRoomRepository {
 
     }
 
+    private void processInitialGameData(Result<InitialGameDataResult> data) {
+        if(data instanceof Result.Success) {
+            InitialGameDataResult res = ((Result.Success<InitialGameDataResult>) data).getData();
+            for(int i = 0; i < 4; i++) {
+                ListManipulation.set(money, i, "$"+res.getStartMoney().toString(), false);
+            }
+            ListManipulation.set(playerCards, 0, res.getCard1(),false);
+            ListManipulation.set(playerCards, 1, res.getCard2(),false);
+            ListManipulation.set(tableCards, 0, res.getTable1(),false);
+            ListManipulation.set(tableCards, 1, res.getTable2(),false);
+            ListManipulation.set(tableCards, 2, res.getTable3(),false);
+
+            if(res.getUserIndex() != res.getCurrentPlayerIndex()) {
+                Integer startingPlayerIndex = getLayoutForId(res.getUserIndex(), res.getCurrentPlayerIndex(), res.getNumberOfPlayers());
+                ListManipulation.set(avatarType, startingPlayerIndex, User.YOUR_TURN,false);
+            } else {
+                ListManipulation.set(avatarType, 0, User.YOUR_TURN,false);
+            }
+            currentMinimum.setValue(res.getCurrentMinimum());
+            totalMoney.setValue(0);
+            initialGameDataListener.setValue(((Result.Success<InitialGameDataResult>) data).getData());
+        } else {
+            initialGameDataListener.setValue(new InitialGameDataResult(((Result.Error)data).getError()));
+        }
+
+    }
+
+    private void processReadyPlayerAuthorization(Result<Boolean> data) {
+        if(data instanceof Result.Success) {
+            ListManipulation.set(money, 0, "READY", false);
+        }
+        readyPlayerAuthorizationListener.setValue(data);
+    }
+
     private void processPreGamePlayerList(Result<TreeMap<String, User>> data) {
         if(data instanceof Result.Error || data instanceof  Result.Progress) {
             preGamePlayerListListener.setValue(false);
             return;
         }
-        TreeMap<String, User> fetchedUsers = (TreeMap<String, User>) ((Result.Success) data).getData();
+        TreeMap<String, User> fetchedUsers = ((Result.Success<TreeMap<String, User>>) data).getData();
 
         int size = fetchedUsers.size();
         int index = -1;
@@ -191,6 +194,50 @@ public class GameRoomRepository {
         } else {
             return 3;
         }
+    }
+
+    public LiveData<List<String>> getAvatarList() {
+        return avatar;
+    }
+
+    public LiveData<List<String>> getAvatarTypeList() {
+        return avatarType;
+    }
+
+    public LiveData<List<String>> getMoneyList() {
+        return money;
+    }
+
+    public LiveData<List<String>> getNameList() {
+        return name;
+    }
+
+    public LiveData<Boolean> getIsPlayerTurn() {
+        return isPlayerTurn;
+    }
+
+    public LiveData<Boolean> getHasUserInterfaceLoaded() {
+        return hasUserInterfaceLoaded;
+    }
+
+    public LiveData<Boolean> getHasGameStarted() {
+        return hasGameStarted;
+    }
+
+    public LiveData<Integer> getTotalMoney() {
+        return totalMoney;
+    }
+
+    public LiveData<Integer> getCurrentMinimum() {
+        return currentMinimum;
+    }
+
+    public LiveData<List<Integer>> getTableCards() {
+        return tableCards;
+    }
+
+    public LiveData<List<Integer>> getPlayerCards() {
+        return playerCards;
     }
 
 }
