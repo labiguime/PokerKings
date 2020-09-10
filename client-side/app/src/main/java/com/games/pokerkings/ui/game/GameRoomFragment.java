@@ -1,5 +1,8 @@
 package com.games.pokerkings.ui.game;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -166,6 +169,39 @@ public class GameRoomFragment extends Fragment {
     public void showErrorMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
+
+    /*private void revealCard(final ImageView imageid, final String cardName) {
+        AnimatorSet set = new AnimatorSet();
+        Animator animator1 = AnimatorInflater.loadAnimator(GamePage.this,
+                R.animator.flip_out);
+        Animator animator2 = AnimatorInflater.loadAnimator(GamePage.this,
+                R.animator.flip_in);
+
+        animator1.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                imageid.setImageDrawable(getDrawable(cardName));
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        set.playSequentially(animator1, animator2);
+        set.setTarget(imageid);
+        set.start();
+    }*/
 
     /*@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
