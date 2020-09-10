@@ -1,750 +1,806 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".ui.game.GameRoomFragment"
-android:background="@drawable/background_gradient">
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/game_room_main_constraint_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/poker_table"
-    app:layout_constraintBottom_toTopOf="@id/game_buttons_layout"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="1.0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
-
-    <LinearLayout
-        android:id="@+id/total_bet_layout"
-        android:layout_width="124dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="56dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@+id/game_room_main_constraint_layout"
-        app:layout_constraintHorizontal_bias="0.901"
-        app:layout_constraintStart_toStartOf="@+id/game_room_main_constraint_layout"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:layout_width="4dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/total_text"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="11dp" />
-
-        <ImageView
-            android:layout_width="5dp"
-            android:layout_height="34dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/gambling_chip" />
-
-        <TextView
-            android:id="@+id/total_bet_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/default_total_bet"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="10dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/current_bet_layout"
-        android:layout_width="159dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.956"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/total_bet_layout">
-
-        <TextView
-            android:layout_width="20dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/current_minimum_text"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="10dp" />
-
-        <ImageView
-            android:layout_width="5dp"
-            android:layout_height="34dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/gambling_chip" />
-
-        <TextView
-            android:id="@+id/current_bet_text"
-            android:layout_width="45dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/default_current_bet"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="10dp" />
-    </LinearLayout>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/game_room_central_guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5" />
-
-
-    <LinearLayout
-        android:id="@+id/table_cards_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/layout_player_0"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_player_1">
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="90dp"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/table_card_5"
-                android:layout_width="40dp"
-                android:layout_height="55dp"
-                android:layout_marginTop="20dp"
-                android:layout_gravity="center"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="90dp"
-            android:layout_marginLeft="7dp"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/table_card_1"
-                android:layout_width="40dp"
-                android:layout_height="55dp"
-                android:layout_marginTop="20dp"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="90dp"
-            android:layout_marginLeft="7dp"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/table_card_2"
-                android:layout_width="40dp"
-                android:layout_height="55dp"
-                android:layout_marginTop="20dp"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="90dp"
-            android:layout_marginLeft="7dp"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/table_card_3"
-                android:layout_width="40dp"
-                android:layout_height="55dp"
-                android:layout_marginTop="20dp"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="40dp"
-            android:layout_height="90dp"
-            android:layout_marginLeft="7dp"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/table_card_4"
-                android:layout_width="40dp"
-                android:layout_height="55dp"
-                android:layout_marginTop="20dp"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_player_0"
-        android:layout_width="220dp"
-        android:layout_height="97dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.476"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:layout_width="70dp"
-            android:layout_height="49dp"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="219dp"
-            tools:layout_editor_absoluteY="168dp">
-
-            <ImageView
-                android:id="@+id/user_card_2"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-
-            <ImageView
-                android:id="@+id/user_card_1"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/user_avatar"
-            android:layout_width="130dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:background="@drawable/avatar1_notfolded"
-            tools:layout_editor_absoluteX="289dp"
-            tools:layout_editor_absoluteY="162dp">
-
-            <TextView
-                android:id="@+id/user_nickname_text"
-                android:layout_width="68dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_nickname"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="9sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                android:id="@+id/user_money_text"
-                android:layout_width="68dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_money"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="9sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.25" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.5" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.75" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.42" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/layout_player_2"
-        android:layout_width="177dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="92dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.015"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="61dp"
-            android:layout_height="47dp"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="219dp"
-            tools:layout_editor_absoluteY="168dp">
-
-            <ImageView
-                android:id="@+id/left_player_card_2"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-
-            <ImageView
-                android:id="@+id/left_player_card_1"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/left_player_avatar"
-            android:layout_width="120dp"
-            android:layout_height="45dp"
-            android:layout_gravity="center"
-            android:background="@drawable/avatar1_folded"
-            tools:layout_editor_absoluteX="289dp"
-            tools:layout_editor_absoluteY="162dp">
-
-            <TextView
-                android:id="@+id/left_player_nickname_text"
-                android:layout_width="64dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_nickname"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="8sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                android:id="@+id/left_player_money_text"
-                android:layout_width="64dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_money"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="8sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.25" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.5" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.75" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.39" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_player_3"
-        android:layout_width="175dp"
-        android:layout_height="57dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="88dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:layout_width="61dp"
-            android:layout_height="47dp"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="219dp"
-            tools:layout_editor_absoluteY="168dp">
-
-            <ImageView
-                android:id="@+id/right_player_card_2"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-
-            <ImageView
-                android:id="@+id/right_player_card_1"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/right_player_avatar"
-            android:layout_width="120dp"
-            android:layout_height="45dp"
-            android:layout_gravity="center"
-            android:background="@drawable/avatar1_folded"
-            tools:layout_editor_absoluteX="289dp"
-            tools:layout_editor_absoluteY="162dp">
-
-            <TextView
-                android:id="@+id/right_player_nickname_text"
-                android:layout_width="64dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_nickname"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="8sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                android:id="@+id/right_player_money_text"
-                android:layout_width="64dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_money"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="8sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.25" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.5" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.75" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.39" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_player_1"
-        android:layout_width="211dp"
-        android:layout_height="90dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.526"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="70dp"
-            android:layout_height="49dp"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteX="219dp"
-            tools:layout_editor_absoluteY="168dp">
-
-            <ImageView
-                android:id="@+id/top_player_card_2"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-
-            <ImageView
-                android:id="@+id/top_player_card_1"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/backside_old" />
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/top_player_avatar"
-            android:layout_width="130dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:background="@drawable/avatar1_notfolded"
-            tools:layout_editor_absoluteX="289dp"
-            tools:layout_editor_absoluteY="162dp">
-
-            <TextView
-                android:id="@+id/top_player_nickname_text"
-                android:layout_width="68dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_nickname"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="9sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                android:id="@+id/top_player_money_text"
-                android:layout_width="68dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/default_user_money"
-                android:textColor="@color/common_google_signin_btn_text_dark_default"
-                android:textSize="9sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.25" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.5" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.75" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.39" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="88dp"
-        android:layout_height="93dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:id="@+id/ready_box"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/readyMessageTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/ready_up_text"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="11dp" />
-
-        <ImageView
-            android:id="@+id/ready_button"
-            android:layout_width="59dp"
-            android:layout_height="81dp"
-            android:layout_gravity="center"
-            android:clickable="true"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ready_button" />
-
-    </LinearLayout>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-
-<LinearLayout
-    android:id="@+id/game_buttons_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/game_room_main_constraint_layout"
-    tools:layout_editor_absoluteX="8dp">
-
-    <ImageView
-        android:id="@+id/fold_button"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="gameRoomViewModel"
+            type="com.games.pokerkings.ui.game.GameRoomViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:clickable="true"
-        android:layout_weight="2"
-        app:srcCompat="@drawable/fold_button" />
+        tools:context=".ui.game.GameRoomFragment"
+        android:background="@drawable/background_gradient">
 
-    <ImageView
-        android:id="@+id/check_button"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
-        android:clickable="true"
-        android:layout_marginRight="10dp"
-        android:layout_weight="2"
-        app:srcCompat="@drawable/check_button" />
-
-    <ImageView
-        android:id="@+id/decrease_button"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_gravity="center"
-        android:layout_marginLeft="70dp"
-        android:clickable="true"
-        android:layout_weight="2"
-        app:srcCompat="@drawable/minus_button" />
-
-    <LinearLayout
-        android:layout_width="62dp"
-        android:id="@+id/raise_layout"
-        android:layout_height="56dp"
-        android:background="@drawable/bet_screen_image"
-        android:orientation="horizontal"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="162dp">
-
-        <TextView
-            android:id="@+id/raise_text"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/game_room_main_constraint_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textSize="12sp"
-            android:text="0"
-            android:textColor="@color/common_google_signin_btn_text_dark_default" />
-    </LinearLayout>
+            android:background="@drawable/poker_table"
+            app:layout_constraintBottom_toTopOf="@id/game_buttons_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/increase_button"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_gravity="center"
-        android:layout_marginRight="70dp"
-        android:clickable="true"
-        android:layout_weight="2"
-        app:srcCompat="@drawable/plus_button" />
+            <LinearLayout
+                android:id="@+id/total_bet_layout"
+                android:layout_width="124dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="56dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
+                app:layout_constraintEnd_toEndOf="@+id/game_room_main_constraint_layout"
+                app:layout_constraintHorizontal_bias="0.901"
+                app:layout_constraintStart_toStartOf="@+id/game_room_main_constraint_layout"
+                app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/raise_button"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="-50dp"
-        android:clickable="true"
-        android:layout_marginRight="50dp"
-        android:layout_weight="2"
-        app:srcCompat="@drawable/raise_button" />
+                <TextView
+                    android:layout_width="4dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/total_text"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default"
+                    android:textSize="11dp" />
 
-</LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <ImageView
+                    android:layout_width="5dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/gambling_chip" />
+
+                <TextView
+                    android:id="@+id/total_bet_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/default_total_bet"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default"
+                    android:textSize="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/current_bet_layout"
+                android:layout_width="159dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.956"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/total_bet_layout">
+
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/current_minimum_text"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default"
+                    android:textSize="10dp" />
+
+                <ImageView
+                    android:layout_width="5dp"
+                    android:layout_height="34dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/gambling_chip" />
+
+                <TextView
+                    android:id="@+id/current_bet_text"
+                    android:layout_width="45dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/default_current_bet"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default"
+                    android:textSize="10dp" />
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/game_room_central_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.5" />
+
+
+            <LinearLayout
+                android:id="@+id/table_cards_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                android:visibility="@{(gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
+                app:layout_constraintBottom_toTopOf="@+id/layout_player_0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layout_player_1">
+
+                <LinearLayout
+                    android:layout_width="40dp"
+                    android:layout_height="90dp"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/table_card_5"
+                        android:layout_width="40dp"
+                        android:layout_height="55dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="40dp"
+                    android:layout_height="90dp"
+                    android:layout_marginLeft="7dp"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/table_card_1"
+                        android:layout_width="40dp"
+                        android:layout_height="55dp"
+                        android:layout_marginTop="20dp"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="40dp"
+                    android:layout_height="90dp"
+                    android:layout_marginLeft="7dp"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/table_card_2"
+                        android:layout_width="40dp"
+                        android:layout_height="55dp"
+                        android:layout_marginTop="20dp"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="40dp"
+                    android:layout_height="90dp"
+                    android:layout_marginLeft="7dp"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/table_card_3"
+                        android:layout_width="40dp"
+                        android:layout_height="55dp"
+                        android:layout_marginTop="20dp"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="40dp"
+                    android:layout_height="90dp"
+                    android:layout_marginLeft="7dp"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/table_card_4"
+                        android:layout_width="40dp"
+                        android:layout_height="55dp"
+                        android:layout_marginTop="20dp"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_player_0"
+                android:layout_width="220dp"
+                android:layout_height="97dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.476"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <LinearLayout
+                    android:layout_width="70dp"
+                    android:layout_height="49dp"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(0) != ``) ? View.VISIBLE:View.INVISIBLE}"
+                    tools:layout_editor_absoluteX="219dp"
+                    tools:layout_editor_absoluteY="168dp">
+
+                    <ImageView
+                        android:id="@+id/user_card_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+
+                    <ImageView
+                        android:id="@+id/user_card_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/user_avatar"
+                    android:layout_width="130dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/avatar1_notfolded"
+                    avatar_attribute="@{gameRoomViewModel.avatar.get(0)}"
+                    avatar_type="@{gameRoomViewModel.avatarType.get(0)}"
+                    tools:layout_editor_absoluteX="289dp"
+                    tools:layout_editor_absoluteY="162dp">
+
+                    <TextView
+                        android:id="@+id/user_nickname_text"
+                        android:layout_width="68dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_nickname"
+                        text_attribute="@{gameRoomViewModel.name.get(0)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="9sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/user_money_text"
+                        android:layout_width="68dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_money"
+                        text_attribute="@{gameRoomViewModel.money.get(0)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="9sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="1.0" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.25" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.5" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.75" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.42" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/layout_player_2"
+                android:layout_width="177dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="92dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.015"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="61dp"
+                    android:layout_height="47dp"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(2) != ``) ? View.VISIBLE:View.INVISIBLE}"
+                    tools:layout_editor_absoluteX="219dp"
+                    tools:layout_editor_absoluteY="168dp">
+
+                    <ImageView
+                        android:id="@+id/left_player_card_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+
+                    <ImageView
+                        android:id="@+id/left_player_card_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/left_player_avatar"
+                    android:layout_width="120dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    avatar_attribute="@{gameRoomViewModel.avatar.get(2)}"
+                    avatar_type="@{gameRoomViewModel.avatarType.get(2)}"
+                    android:background="@drawable/avatar1_folded"
+                    tools:layout_editor_absoluteX="289dp"
+                    tools:layout_editor_absoluteY="162dp">
+
+                    <TextView
+                        android:id="@+id/left_player_nickname_text"
+                        android:layout_width="64dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_nickname"
+                        text_attribute="@{gameRoomViewModel.name.get(2)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="8sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/left_player_money_text"
+                        android:layout_width="64dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        text_attribute="@{gameRoomViewModel.money.get(2)}"
+                        android:text="@string/default_user_money"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="8sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="1.0" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.25" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.5" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.75" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.39" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_player_3"
+                android:layout_width="175dp"
+                android:layout_height="57dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="88dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <LinearLayout
+                    android:layout_width="61dp"
+                    android:layout_height="47dp"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(3) != ``) ? View.VISIBLE:View.INVISIBLE}"
+                    tools:layout_editor_absoluteX="219dp"
+                    tools:layout_editor_absoluteY="168dp">
+
+                    <ImageView
+                        android:id="@+id/right_player_card_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+
+                    <ImageView
+                        android:id="@+id/right_player_card_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/right_player_avatar"
+                    android:layout_width="120dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    avatar_attribute="@{gameRoomViewModel.avatar.get(3)}"
+                    avatar_type="@{gameRoomViewModel.avatarType.get(3)}"
+                    android:background="@drawable/avatar1_folded"
+                    tools:layout_editor_absoluteX="289dp"
+                    tools:layout_editor_absoluteY="162dp">
+
+                    <TextView
+                        android:id="@+id/right_player_nickname_text"
+                        android:layout_width="64dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_nickname"
+                        text_attribute="@{gameRoomViewModel.name.get(3)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="8sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/right_player_money_text"
+                        android:layout_width="64dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_money"
+                        text_attribute="@{gameRoomViewModel.money.get(3)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="8sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="1.0" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.25" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.5" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.75" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.39" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_player_1"
+                android:layout_width="211dp"
+                android:layout_height="90dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.526"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="70dp"
+                    android:layout_height="49dp"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="@{(gameRoomViewModel.hasGameStarted == true &amp;&amp; gameRoomViewModel.avatarType.get(1) != ``) ? View.VISIBLE:View.INVISIBLE}"
+                    tools:layout_editor_absoluteX="219dp"
+                    tools:layout_editor_absoluteY="168dp">
+
+                    <ImageView
+                        android:id="@+id/top_player_card_2"
+                        android:layout_width="wrap_content"
+
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+
+                    <ImageView
+                        android:id="@+id/top_player_card_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:srcCompat="@drawable/backside_old" />
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/top_player_avatar"
+                    android:layout_width="130dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/avatar1_notfolded"
+                    avatar_attribute="@{gameRoomViewModel.avatar.get(1)}"
+                    avatar_type="@{gameRoomViewModel.avatarType.get(1)}"
+                    tools:layout_editor_absoluteX="289dp"
+                    tools:layout_editor_absoluteY="162dp">
+
+                    <TextView
+                        android:id="@+id/top_player_nickname_text"
+                        android:layout_width="68dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_nickname"
+                        text_attribute="@{gameRoomViewModel.name.get(1)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="9sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/top_player_money_text"
+                        android:layout_width="68dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/default_user_money"
+                        text_attribute="@{gameRoomViewModel.money.get(1)}"
+                        android:textColor="@color/common_google_signin_btn_text_dark_default"
+                        android:textSize="9sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="1.0" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.25" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.5" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintGuide_percent="0.75" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_percent="0.39" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="88dp"
+                android:layout_height="93dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{(gameRoomViewModel.hasUserInterfaceLoaded == false &amp;&amp; gameRoomViewModel.hasGameStarted == false) ? View.VISIBLE:View.GONE}"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <ProgressBar
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="88dp"
+                android:layout_height="93dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{(gameRoomViewModel.hasUserInterfaceLoaded == true &amp;&amp; gameRoomViewModel.hasGameStarted == false) ? View.VISIBLE:View.INVISIBLE}"
+                android:id="@+id/ready_box"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/readyMessageTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    ready_text="@{gameRoomViewModel.isPlayerReady}"
+                    android:text="@string/ready_up_text"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default"
+                    android:textSize="11dp" />
+
+                <ImageView
+                    android:id="@+id/ready_button"
+                    android:layout_width="59dp"
+                    android:layout_height="81dp"
+                    android:layout_gravity="center"
+                    android:visibility="@{(gameRoomViewModel.isPlayerReady == false) ? View.VISIBLE:View.GONE}"
+                    android:clickable="@{(!gameRoomViewModel.isPlayerReady &amp;&amp; gameRoomViewModel.isReadyButtonVisible )}"
+                    android:focusable="@{(!gameRoomViewModel.isPlayerReady &amp;&amp; gameRoomViewModel.isReadyButtonVisible )}"
+                    android:onClick="@{()->gameRoomViewModel.onReadyButtonClicked()}"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/ready_button" />
+
+            </LinearLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/game_buttons_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="@{(gameRoomViewModel.isPlayerTurn == true &amp;&amp; gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/game_room_main_constraint_layout"
+            tools:layout_editor_absoluteX="8dp">
+
+            <ImageView
+                android:id="@+id/fold_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:clickable="true"
+                android:layout_weight="2"
+                app:srcCompat="@drawable/fold_button" />
+
+            <ImageView
+                android:id="@+id/check_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:clickable="true"
+                android:layout_marginRight="10dp"
+                android:layout_weight="2"
+                app:srcCompat="@drawable/check_button" />
+
+            <ImageView
+                android:id="@+id/decrease_button"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="70dp"
+                android:clickable="true"
+                android:layout_weight="2"
+                app:srcCompat="@drawable/minus_button" />
+
+            <LinearLayout
+                android:layout_width="62dp"
+                android:id="@+id/raise_layout"
+                android:layout_height="56dp"
+                android:background="@drawable/bet_screen_image"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="162dp">
+
+                <TextView
+                    android:id="@+id/raise_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textSize="12sp"
+                    android:text="0"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/increase_button"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="70dp"
+                android:clickable="true"
+                android:layout_weight="2"
+                app:srcCompat="@drawable/plus_button" />
+
+            <ImageView
+                android:id="@+id/raise_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="-50dp"
+                android:clickable="true"
+                android:layout_marginRight="50dp"
+                android:layout_weight="2"
+                app:srcCompat="@drawable/raise_button" />
+
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

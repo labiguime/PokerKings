@@ -1,4 +1,4 @@
-package com.games.pokerkings.models;
+package com.games.pokerkings.data.models;
 
 import java.util.ArrayList;
 import java.util.List;

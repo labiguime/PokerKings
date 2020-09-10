@@ -11,7 +11,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!room) {
 			success = false;
 			message = "This room doesn't exist.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -19,7 +19,16 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if (room.is_in_game == true) {
 			success = false;
 			message = "A game is currently being played in this room.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
+			console.log({success: success, message: message});
+			return;
+		}
+
+		const isNameTaken = await User.find({room_id: room._id, name: obj.name});
+		if(isNameTaken.length == 1) {
+			success = false;
+			message = "This username is already taken!";
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -28,7 +37,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!spot) {
 			success = false;
 			message = "This room is full.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -37,7 +46,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!user) {
 			success = false;
 			message = "There are too many players connected to PokerKings.";
-			socket.emit('joinRoom', {success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
 			console.log({success: success, message: message});
 			return;
 		}
@@ -45,12 +54,12 @@ roomController.joinRoom = async function (obj, socket, next) {
 		success = true;
 		message = "Joining the room...";
 		const roomRoute = "room/"+room._id;
-		socket.emit('joinRoom', {success: success, message: message, spot: spot._id, room: room._id});
+		socket.emit('getJoinRoomAuthorization', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join(roomRoute);
 
-		const roomPlayers = await User.find({room_id: room._id});
+		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
-		socket.getRequest.push({room: roomRoute, route: "getPlayers", data: {players: roomPlayers}});
+		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 		console.log("Request successfully fulfilled!");
 		next();
 
@@ -63,15 +72,33 @@ roomController.setReady = async function (obj, socket, next) {
 	try {
 		// Must check for edge cases
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
-		var data = {};
+		//var data = {};
+		//socket.getRequest = [];
+
+		//const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
+
+		socket.emit('getReadyPlayerAuthorization', {success: true});
+
+		const roomRoute = "room/"+obj.room_id;
+		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
-		const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
-		if(playerList.length == 0) { // Everybody is ready
-			data = {success: true, gameIsStarting: true, message: "The game is starting..."};
-			socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
+		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+
+		/*if(playerList.length == 0) { // Everybody is ready
+
+			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+			socket.getRequest = [];
+			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+
 			const copySocket = socket;
 			core.startGame(obj, socket, next);
 		} else {
+
+			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+			socket.getRequest = [];
+			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+		}*/
+		/* else {
 			//core.startGame(obj, socket, next);
 			const indexOfLastElement = playerList.length-1;
 			var emitMessage = "Waiting for: ";
@@ -84,26 +111,26 @@ roomController.setReady = async function (obj, socket, next) {
 				}
 				data = {success: true, gameIsStarting: false, message: emitMessage};
 			});
-		}
-		console.log(socket.getRequest);
-		socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
+		}*/
+		//console.log(socket.getRequest);
+		//socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 		console.log("Request successfully fulfilled!");
 		next();
 	} catch {
 		console.log("Cannot retrieve ready players!");
-		socket.emit('getReady', {success: false, gameIsStarting: false, message: null});
+		socket.emit('getReadyPlayerAuthorization', {success: false});
 	}
 };
 
-roomController.getPlayers = async function (obj, socket, next) {
+roomController.getPreGamePlayerList = async function (obj, socket, next) {
 	try {
-		const roomPlayers = await User.find({room_id: obj.room_id});
-		socket.emit('getPlayers', {players: roomPlayers});
+		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 		console.log("Request successfully fulfilled!");
 		return;
 	} catch {
 		console.log("Cannot retrieve players!");
-		socket.emit('getPlayers', {players: roomPlayers});
+		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 	}
 };
 

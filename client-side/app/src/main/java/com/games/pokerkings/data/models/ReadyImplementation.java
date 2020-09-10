@@ -1,4 +1,4 @@
-package com.games.pokerkings.models;
+package com.games.pokerkings.data.models;
 
 import com.google.firebase.database.FirebaseDatabase;
 

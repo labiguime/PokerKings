@@ -1,8 +1,14 @@
 package com.games.pokerkings.ui.game;
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +18,18 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.games.pokerkings.R;
-import com.games.pokerkings.models.Game;
-import com.games.pokerkings.models.User;
+
+import com.games.pokerkings.data.models.*;
+import com.games.pokerkings.databinding.FragmentGameRoomBinding;
+import com.games.pokerkings.databinding.FragmentHomePageBinding;
+import com.games.pokerkings.ui.home.HomePageFragment;
+import com.games.pokerkings.ui.home.HomePageViewModel;
+import com.games.pokerkings.ui.home.HomePageViewModelFactory;
+import com.games.pokerkings.utils.Constants;
+import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -28,6 +42,8 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 public class GameRoomFragment extends Fragment {
+
+    private GameRoomViewModel gameRoomViewModel;
 
     LinearLayout totalBetLayout;
     LinearLayout currentBetLayout;
@@ -62,6 +78,60 @@ public class GameRoomFragment extends Fragment {
     }
 
     @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        gameRoomViewModel = new ViewModelProvider(this).get(GameRoomViewModel.class);
+
+        FragmentGameRoomBinding binding = FragmentGameRoomBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(GameRoomFragment.this);
+        binding.setGameRoomViewModel(gameRoomViewModel);
+
+        // Recover variables from previous fragment
+        Bundle bundle = this.getArguments();
+
+        // TODO: Implement steps to take if bundle transfer fails
+        if(bundle == null) {
+            return null;
+        }
+        gameRoomViewModel.setUserInterfaceForUser((User)bundle.getSerializable("user"));
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        gameRoomViewModel.getHasUserInterfaceLoaded().observe(getViewLifecycleOwner(), aBoolean -> {
+            if(!aBoolean) {
+                //gameRoomViewModel.reloadUserInterface();
+            }
+        });
+
+        gameRoomViewModel.onReceivePreGamePlayerList().observe(getViewLifecycleOwner(), aBoolean -> {
+            if(!aBoolean) {
+
+            }
+        });
+
+        gameRoomViewModel.onReceiveReadyPlayerAuthorization().observe(getViewLifecycleOwner(), booleanResult -> {
+            if(booleanResult instanceof Result.Error) {
+                showErrorMessage(((Result.Error) booleanResult).getError());
+            } else if(booleanResult instanceof Result.Success) {
+                if(!((Result.Success<Boolean>) booleanResult).getData()) {
+                    showErrorMessage(Constants.ERROR_UNKNOWN);
+                }
+            }
+        });
+
+
+    }
+
+    public void showErrorMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    /*@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_room, container, false);
@@ -119,15 +189,7 @@ public class GameRoomFragment extends Fragment {
         gameVariables = new Game();
         mSocket = SocketManager.getInstance();
 
-        // Recover variables from previous fragment
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-            name = bundle.getString("name");
-            avatar = bundle.getString("avatar");
-            spot = bundle.getString("spot");
-            room = bundle.getString("room");
-            hasPlayerJustJoinedTheRoom = true;
-        }
+
 
         // Setup UI
         setupNotReadyUiForPlayer();
@@ -161,8 +223,13 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
-        return view;
-    }
+        gameRoomViewModel = new ViewModelProvider(this, new GameRoomViewModelFactory()).get(GameRoomViewModel.class);
+
+        FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
+        binding.setLifecycleOwner(GameRoomFragment.this);
+        binding.setGameRoomViewModel(gameRoomViewModel);
+        return binding.getRoot();
+    }*/
 
     private void setupNotReadyUiForPlayer() {
         totalBetLayout.setVisibility(View.INVISIBLE);
@@ -219,7 +286,7 @@ public class GameRoomFragment extends Fragment {
 
 
 
-    private void getPlayers(Object... args) {
+    /*private void getPlayers(Object... args) {
         JSONObject data = (JSONObject) args[0];
         try {
             JSONArray array = data.getJSONArray("players");
@@ -242,8 +309,8 @@ public class GameRoomFragment extends Fragment {
         }
         updateUsersUi();
 
-    }
-    private void initializeRoomData(final Object... args) {
+    }*/
+  /*  private void initializeRoomData(final Object... args) {
         Log.d("DEBUG", "This room is initialized");
         return;
 
@@ -276,9 +343,9 @@ public class GameRoomFragment extends Fragment {
                 }
             }
         });
-    }
+    }*/
 
-    private void setupNotReadyUiFor(String recipient, final String playerName, final String playerAvatar) {
+    /*private void setupNotReadyUiFor(String recipient, final String playerName, final String playerAvatar) {
         final int index;
         if (recipient.equals("top")) {
             index = 0;
@@ -351,8 +418,6 @@ public class GameRoomFragment extends Fragment {
         }
     }
     private void onReadyButtonPressed() {
-        Integer readyUsers = gameVariables.getReadyUsers()+1;
-        Integer playingUsers = gameVariables.getPlayingUsers()+1;
         isPlayerReady = true;
         readyButton.setVisibility(View.INVISIBLE);
         JSONObject object = new JSONObject();
@@ -362,14 +427,10 @@ public class GameRoomFragment extends Fragment {
         } catch(JSONException e) {
         }
         mSocket.emit("room/POST:ready", object);
-        /*ReadyImplementation.addReadyPlayer("game-1", readyUsers);
-        if(ReadyImplementation.isGameReadyToStart(readyUsers, playingUsers)) {
-            startGame();
-        }*/
     }
 
     private void startGame() {
 
-    }
+    }*/
 
 }

@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.games.pokerkings.models.User;
-import com.games.pokerkings.repositories.home.HomePageRepository;
+import com.games.pokerkings.data.models.User;
+import com.games.pokerkings.data.home.HomePageRepository;
 import com.games.pokerkings.utils.Result;
 
 public class HomePageViewModel extends ViewModel{
@@ -13,13 +13,13 @@ public class HomePageViewModel extends ViewModel{
     private HomePageRepository homePageRepository;
 
     private MutableLiveData<String> avatar = new MutableLiveData<>();
-    private MutableLiveData<String> name = new MutableLiveData<>();
+    private MutableLiveData<String> name = new MutableLiveData<>("");
     private MutableLiveData<Boolean> hasPlayerPressedJoin = new MutableLiveData<>(false);
     private LiveData<Result<User>> onJoinGame;
 
     public HomePageViewModel(HomePageRepository repository) {
         this.homePageRepository = repository;
-        this.onJoinGame = homePageRepository.getJoinGame();
+        this.onJoinGame = homePageRepository.onReceiveJoinGameAuthorization();
     }
 
     public LiveData<String> getAvatar() { return avatar; }

@@ -1,7 +1,7 @@
 package com.games.pokerkings.ui.home;
 
 import com.games.pokerkings.databinding.FragmentHomePageBinding;
-import com.games.pokerkings.models.User;
+import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.ui.game.GameRoomFragment;
 import com.games.pokerkings.R;
 import com.games.pokerkings.utils.Result;
@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
@@ -55,25 +54,20 @@ public class HomePageFragment extends Fragment {
     }
 
     public void observeName() {
-        homePageViewModel.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                homePageViewModel.setName(s);
-            }
-        });
+        homePageViewModel.getName().observe(getViewLifecycleOwner(), s -> homePageViewModel.setName(s));
     }
 
     public void observeOnJoinGame() {
-        homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), new Observer<Result<User>>() {
-            @Override
-            public void onChanged(Result<User> userResult) {
-                if(userResult instanceof Result.Error) {
-                    homePageViewModel.setHasPlayerPressedJoin();
-                    showErrorMessage(getString(((Result.Error) userResult).getError()));
-                } else if(userResult instanceof Result.Success) {
-                    homePageViewModel.setHasPlayerPressedJoin();
-                    launchGameRoomFragment(((Result.Success<User>)userResult).getData());
-                }
+
+        homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), userResult -> {
+            if(userResult instanceof Result.Error) {
+                homePageViewModel.setHasPlayerPressedJoin();
+                String errorMessage = ((Result.Error) userResult).getError();
+                showErrorMessage(errorMessage);
+            } else if(userResult instanceof Result.Success) {
+                homePageViewModel.setHasPlayerPressedJoin();
+                User joiningUser = ((Result.Success<User>)userResult).getData();
+                launchGameRoomFragment(joiningUser);
             }
         });
     }
@@ -86,13 +80,9 @@ public class HomePageFragment extends Fragment {
         GameRoomFragment fragment = new GameRoomFragment();
         Bundle bundle = new Bundle();
 
-        // Put variables into bundle to pass them to the next fragment
-        bundle.putString("avatar", u.getAvatar());
-        bundle.putString("name", u.getName());
-        bundle.putString("spot", u.getSpotId());
-        bundle.putString("room", u.getRoomId());
+        // Put User class into bundle to pass it to the next fragment
+        bundle.putSerializable("user", u);
         fragment.setArguments(bundle);
-
         // Move to the next fragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);

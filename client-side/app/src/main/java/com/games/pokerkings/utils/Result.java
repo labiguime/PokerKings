@@ -38,18 +38,17 @@ public class Result<T> {
     // Error sub-class
     public final static class Error extends Result {
 
-        private Integer error;
+        private String error;
 
-        public Error(Integer error) {
+        public Error(String error) {
             if(error == null) {
-                this.error = R.string.error_unknown;
+                this.error = Constants.ERROR_UNKNOWN;
             } else {
                 this.error = error;
             }
-
         }
 
-        public Integer getError() {
+        public String getError() {
             return this.error;
         }
     }
