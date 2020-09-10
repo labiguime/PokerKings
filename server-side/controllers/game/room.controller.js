@@ -84,43 +84,13 @@ roomController.setReady = async function (obj, socket, next) {
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 
+		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+
 		if(playerList.length == 0) {
 			const copySocket = socket;
 			core.startGame(obj, socket, next);
-		} else {
-			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 		}
 
-		/*if(playerList.length == 0) { // Everybody is ready
-
-			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
-			socket.getRequest = [];
-			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
-
-			const copySocket = socket;
-			core.startGame(obj, socket, next);
-		} else {
-
-			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
-			socket.getRequest = [];
-			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
-		}*/
-		/* else {
-			//core.startGame(obj, socket, next);
-			const indexOfLastElement = playerList.length-1;
-			var emitMessage = "Waiting for: ";
-			playerList.forEach((item, index) => {
-				emitMessage += item.name;
-				if(index != indexOfLastElement) {
-					emitMessage += ", ";
-				} else {
-					emitMessage += "...";
-				}
-				data = {success: true, gameIsStarting: false, message: emitMessage};
-			});
-		}*/
-		//console.log(socket.getRequest);
-		//socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 		console.log("Request successfully fulfilled!");
 		next();
 	} catch {

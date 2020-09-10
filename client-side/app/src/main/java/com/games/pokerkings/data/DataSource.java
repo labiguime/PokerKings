@@ -1,6 +1,5 @@
 package com.games.pokerkings.data;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -118,9 +117,9 @@ public class DataSource {
                 Integer table1 = data.getInt("table_card_1");
                 Integer table2 = data.getInt("table_card_2");
                 Integer table3 = data.getInt("table_card_3");
-
                 Result.Success<InitialGameDataResult> result = new Result.Success<>(new InitialGameDataResult(true, userIndex, numberOfPlayers, currentMinimum, currentPlayerIndex, startMoney, card1, card2, table1, table2, table3));
                 initialRoomDataLiveData.postValue(result);
+
 
             } catch (JSONException e) {
                 Result.Error result = new Result.Error(e.getMessage());

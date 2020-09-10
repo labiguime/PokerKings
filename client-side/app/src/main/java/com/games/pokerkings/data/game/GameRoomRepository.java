@@ -147,6 +147,7 @@ public class GameRoomRepository {
     }
 
     private void processPreGamePlayerList(Result<TreeMap<String, User>> data) {
+        if(hasGameStarted.getValue()) return;
         if(data instanceof Result.Error || data instanceof  Result.Progress) {
             preGamePlayerListListener.setValue(false);
             return;

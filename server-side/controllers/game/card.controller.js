@@ -19,7 +19,7 @@ function shuffle(array) {
   return array;
 }
 
-module.exports.draw = async function(q) {
+module.exports.draw = function(q) {
   var array = [];
   for(var i = 0; i < constants.NUMBER_CARDS_DECK; i++) {
     array.push(i);

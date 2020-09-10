@@ -18,9 +18,8 @@ coreController.startGame = async function (obj, socket, next) {
 
     var players_ids = [];
     playerList.forEach((item, i) => {
-      players_ids.push(item._id);
+      players_ids.push(item.spot_id);
     });
-
     players_ids.sort();
 
     // draw cards
@@ -36,14 +35,13 @@ coreController.startGame = async function (obj, socket, next) {
       round_total_money: 0,
       room_total_money: 0,
       players_ids: players_ids,
+      players_in_room: nPlayers,
       current_player: 0,
       game_stage: 0,
       current_minimum: constants.START_MINIMUM_BET
     };
     // populate game room Database
     const room = await Room.findOneAndUpdate({_id: obj.room_id}, roomUpdate, {new: true});
-    // tell player 1 to play
-    //socket.getRequest.push({room: "room/"+obj.room_id, route: "getCompleteRoomData", data: {number_players: nPlayers, current_player, current_minimum, start_money: 10000}});
 
     players_ids.forEach((item, i) => {
       socket.getRequest.push({room: "spot/"+item, route: "getInitialRoomData", data: {my_index: i, number_of_players: nPlayers, current_minimum: constants.START_MINIMUM_BET, current_player: 0, start_money: constants.START_MONEY, card_1: userCards[0+i*2], card_2: userCards[0+i*2+1], table_card_1: roomCards[0], table_card_2: roomCards[1], table_card_3: roomCards[2]}});
