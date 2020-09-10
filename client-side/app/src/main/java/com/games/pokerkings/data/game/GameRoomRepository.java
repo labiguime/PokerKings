@@ -139,7 +139,9 @@ public class GameRoomRepository {
 
     private void processReadyPlayerAuthorization(Result<Boolean> data) {
         if(data instanceof Result.Success) {
-            ListManipulation.set(money, 0, "READY", false);
+            if(((Result.Success<Boolean>) data).getData()) {
+                ListManipulation.set(money, 0, "READY", false);
+            }
         }
         readyPlayerAuthorizationListener.setValue(data);
     }
