@@ -63,6 +63,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:text="@string/default_total_bet"
+                    text_attribute="@{gameRoomViewModel.totalMoney.toString()}"
                     android:textColor="@color/common_google_signin_btn_text_dark_default"
                     android:textSize="10dp" />
             </LinearLayout>
@@ -104,6 +105,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:text="@string/default_current_bet"
+                    text_attribute="@{gameRoomViewModel.currentMinimum.toString()}"
                     android:textColor="@color/common_google_signin_btn_text_dark_default"
                     android:textSize="10dp" />
             </LinearLayout>
@@ -244,6 +246,7 @@
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:background="@drawable/avatar1_notfolded"
+                    android:visibility="@{(gameRoomViewModel.avatarType.get(0) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     avatar_attribute="@{gameRoomViewModel.avatar.get(0)}"
                     avatar_type="@{gameRoomViewModel.avatarType.get(0)}"
                     tools:layout_editor_absoluteX="289dp"
@@ -359,6 +362,7 @@
                     android:layout_width="120dp"
                     android:layout_height="45dp"
                     android:layout_gravity="center"
+                    android:visibility="@{(gameRoomViewModel.avatarType.get(2) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     avatar_attribute="@{gameRoomViewModel.avatar.get(2)}"
                     avatar_type="@{gameRoomViewModel.avatarType.get(2)}"
                     android:background="@drawable/avatar1_folded"
@@ -474,6 +478,7 @@
                     android:layout_width="120dp"
                     android:layout_height="45dp"
                     android:layout_gravity="center"
+                    android:visibility="@{(gameRoomViewModel.avatarType.get(3) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     avatar_attribute="@{gameRoomViewModel.avatar.get(3)}"
                     avatar_type="@{gameRoomViewModel.avatarType.get(3)}"
                     android:background="@drawable/avatar1_folded"
@@ -540,7 +545,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_percent="0.39" />
+                        app:layout_constraintGuide_begin="47dp" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
@@ -590,6 +595,7 @@
                     android:layout_width="130dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
+                    android:visibility="@{(gameRoomViewModel.avatarType.get(1) != ``) ? View.VISIBLE:View.INVISIBLE}"
                     android:background="@drawable/avatar1_notfolded"
                     avatar_attribute="@{gameRoomViewModel.avatar.get(1)}"
                     avatar_type="@{gameRoomViewModel.avatarType.get(1)}"

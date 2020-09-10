@@ -33,7 +33,6 @@ public class GameRoomRepository {
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
-
     private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
     private MutableLiveData<List<Integer>> tableCards = new MutableLiveData<>(Arrays.asList(-1, -1, -1, -1, -1));
     private MutableLiveData<List<Integer>> playerCards = new MutableLiveData<>(Arrays.asList(-1, -1));
@@ -126,6 +125,7 @@ public class GameRoomRepository {
                 ListManipulation.set(avatarType, startingPlayerIndex, User.YOUR_TURN,false);
             } else {
                 ListManipulation.set(avatarType, 0, User.YOUR_TURN,false);
+                isPlayerTurn.setValue(true);
             }
             currentMinimum.setValue(res.getCurrentMinimum());
             totalMoney.setValue(0);
