@@ -54,8 +54,10 @@ roomController.joinRoom = async function (obj, socket, next) {
 		success = true;
 		message = "Joining the room...";
 		const roomRoute = "room/"+room._id;
+		const privateRoute = "spot/"+spot._id;
 		socket.emit('getJoinRoomAuthorization', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join(roomRoute);
+		socket.join(privateRoute);
 
 		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
@@ -82,8 +84,14 @@ roomController.setReady = async function (obj, socket, next) {
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
-		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 
+		if(playerList.length == 0) {
+			const copySocket = socket;
+			core.startGame(obj, socket, next);
+		} else {
+			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+		}
+		
 		/*if(playerList.length == 0) { // Everybody is ready
 
 			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});

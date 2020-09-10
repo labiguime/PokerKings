@@ -40,7 +40,7 @@ const roomSchema = new Schema({
 	}],
 
 	current_player: {
-		type: String,
+		type: Number,
 	},
 
 	game_stage: {

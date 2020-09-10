@@ -21,6 +21,8 @@ coreController.startGame = async function (obj, socket, next) {
       players_ids.push(item._id);
     });
 
+    players_ids.sort();
+
     // draw cards
     const nPlayers = playerList.length;
     const cards = Array.from(Cards.draw(constants.NUMBER_CARDS_TABLE+nPlayers));
@@ -30,18 +32,22 @@ coreController.startGame = async function (obj, socket, next) {
     const roomUpdate = {
       users_cards: userCards,
       table_cards: roomCards,
-      players_money: [10000, 10000, 10000, 10000],
+      players_money: [constants.START_MONEY, constants.START_MONEY, constants.START_MONEY, constants.START_MONEY],
       round_total_money: 0,
       room_total_money: 0,
       players_ids: players_ids,
-      current_player: players_ids[0],
+      current_player: 0,
       game_stage: 0,
-      current_minimum: 0
+      current_minimum: constants.START_MINIMUM_BET
     };
     // populate game room Database
     const room = await Room.findOneAndUpdate({_id: obj.room_id}, roomUpdate, {new: true});
     // tell player 1 to play
-    socket.getRequest.push({room: "room/"+obj.room_id, route: "getCompleteRoomData", data: room});
+    //socket.getRequest.push({room: "room/"+obj.room_id, route: "getCompleteRoomData", data: {number_players: nPlayers, current_player, current_minimum, start_money: 10000}});
+
+    players_ids.forEach((item, i) => {
+      socket.getRequest.push({room: "spot/"+item, route: "getInitialRoomData", data: {my_index: i, number_of_players: nPlayers, current_minimum: constants.START_MINIMUM_BET, current_player: 0, start_money: constants.START_MONEY, card_1: userCards[0+i*2], card_2: userCards[0+i*2+1], table_card_1: roomCards[0], table_card_2: roomCards[1], table_card_3: roomCards[2]}});
+    });
     next();
   } catch(e) {
     console.log("Error: "+ e);
