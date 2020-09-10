@@ -19,7 +19,7 @@ public class HomePageViewModel extends ViewModel{
 
     public HomePageViewModel(HomePageRepository repository) {
         this.homePageRepository = repository;
-        this.onJoinGame = homePageRepository.getJoinGame();
+        this.onJoinGame = homePageRepository.onReceiveJoinGameAuthorization();
     }
 
     public LiveData<String> getAvatar() { return avatar; }

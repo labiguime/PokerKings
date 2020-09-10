@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,25 +55,19 @@ public class HomePageFragment extends Fragment {
     }
 
     public void observeName() {
-        homePageViewModel.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                homePageViewModel.setName(s);
-            }
-        });
+        homePageViewModel.getName().observe(getViewLifecycleOwner(), s -> homePageViewModel.setName(s));
     }
 
     public void observeOnJoinGame() {
-        homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), new Observer<Result<User>>() {
-            @Override
-            public void onChanged(Result<User> userResult) {
-                if(userResult instanceof Result.Error) {
-                    homePageViewModel.setHasPlayerPressedJoin();
-                    showErrorMessage(getString(((Result.Error) userResult).getError()));
-                } else if(userResult instanceof Result.Success) {
-                    homePageViewModel.setHasPlayerPressedJoin();
-                    launchGameRoomFragment(((Result.Success<User>)userResult).getData());
-                }
+        homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), userResult -> {
+            if(userResult instanceof Result.Error) {
+                homePageViewModel.setHasPlayerPressedJoin();
+                String errorMessage = ((Result.Error) userResult).getError();
+                showErrorMessage(errorMessage);
+            } else if(userResult instanceof Result.Success) {
+                homePageViewModel.setHasPlayerPressedJoin();
+                User joiningUser = ((Result.Success<User>)userResult).getData();
+                //launchGameRoomFragment(joiningUser);
             }
         });
     }

@@ -1,4 +1,4 @@
-package com.games.pokerkings.ui.home;
+package com.games.pokerkings.data;
 
 import androidx.annotation.Nullable;
 

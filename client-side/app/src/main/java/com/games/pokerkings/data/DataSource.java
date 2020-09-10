@@ -1,8 +1,11 @@
 package com.games.pokerkings.data;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.games.pokerkings.data.models.Room;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
@@ -20,12 +23,12 @@ public class DataSource {
 
     private Socket mSocket;
 
-    public static final String GET_JOIN_GAME_AUTHORIZATION = "d";
+    public static final String GET_JOIN_GAME_AUTHORIZATION = "joinRoom";
     public static final String GET_PRE_GAME_PLAYER_LIST = "a";
     public static final String GET_READY_PLAYER_AUTHORIZATION = "w";
 
     private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<User>> joinGameAuthorizationLiveData = new MutableLiveData<>();
+    private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
 
     public DataSource() {
@@ -48,40 +51,47 @@ public class DataSource {
                 preGamePlayerListLiveData.postValue(result);
 
             } catch (JSONException e) {
-                Result.Error result = new Result.Error(-1);
+                Result.Error result = new Result.Error(e.getMessage());
                 preGamePlayerListLiveData.postValue(result);
             }
 
         });
 
-        /*mSocket.on(GET_READY_PLAYER_AUTHORIZATION, args -> {
+        mSocket.on(GET_JOIN_GAME_AUTHORIZATION, args -> {
+            Log.d("DEBUG", "GOT A RESPONSE");
             JSONObject data = (JSONObject) args[0];
-            data.getBoolean()
-            HashMap<String, User> fetchedUsers = new HashMap<>();
             try {
-                JSONArray array = data.getJSONArray("players");
+                Boolean success;
+                String message;
+                String spot;
+                String room;
 
-                for(int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(i);
-                    fetchedUsers.put(obj.getString("spot_id"), new User(obj.getString("name"), obj.getString("avatar"), obj.getBoolean("ready")));
+                success = data.getBoolean("success");
+                message = data.getString("message");
+                spot = data.getString("spot");
+                room = data.getString("room");
+
+                if(!success) {
+                    Result.Error result = new Result.Error(message);
+                    joinGameAuthorizationLiveData.postValue(result);
+                } else {
+                    Result.Success<Room> result = new Result.Success<>(new Room(room, spot));
+                    joinGameAuthorizationLiveData.postValue(result);
                 }
 
-                TreeMap<String, User> sortUsers = new TreeMap<>(fetchedUsers);
-
-                Result.Success<TreeMap<String, User>> result = new Result.Success<>(sortUsers);
-                preGamePlayerListLiveData.postValue(result);
-
             } catch (JSONException e) {
-                Result.Error result = new Result.Error(-1);
-                preGamePlayerListLiveData.postValue(result);
+                Result.Error result = new Result.Error(e.getMessage());
+                joinGameAuthorizationLiveData.postValue(result);
             }
+            Log.d("DEBUG", "RESPONSE PROCESSED");
 
-        });*/
+        });
 
     }
 
     public void postRequest(String req, JSONObject obj) {
         mSocket.emit(req, obj);
+        Log.d("DEBUG", "POSTED");
     }
 
     public void getRequest(String req, Emitter.Listener listener) {
@@ -92,7 +102,7 @@ public class DataSource {
         return preGamePlayerListLiveData;
     }
 
-    public LiveData<Result<User>> onGetJoinGameAuthorization() {
+    public LiveData<Result<Room>> onGetJoinGameAuthorization() {
         return joinGameAuthorizationLiveData;
     }
 
