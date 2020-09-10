@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.data.models.Room;
 import com.games.pokerkings.data.models.User;
+import com.games.pokerkings.utils.Constants;
 import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
@@ -79,6 +80,24 @@ public class DataSource {
             } catch (JSONException e) {
                 Result.Error result = new Result.Error(e.getMessage());
                 joinGameAuthorizationLiveData.postValue(result);
+            }
+        });
+
+        mSocket.on(GET_READY_PLAYER_AUTHORIZATION, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Boolean success = data.getBoolean("success");
+                if(success) {
+                    Result.Success<Boolean> result = new Result.Success<>(success);
+                    readyPlayerAuthorizationLiveData.postValue(result);
+                } else {
+                    Result.Error result = new Result.Error(Constants.ERROR_UNKNOWN);
+                    readyPlayerAuthorizationLiveData.postValue(result);
+                }
+
+            } catch (JSONException e) {
+                Result.Error result = new Result.Error(e.getMessage());
+                readyPlayerAuthorizationLiveData.postValue(result);
             }
         });
 

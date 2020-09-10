@@ -21,12 +21,14 @@ public class GameRoomRepository {
     private User user;
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
-    private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isPlayerTurn = new MutableLiveData<>(false);
     private MutableLiveData<List<String>> avatarType = new MutableLiveData<>();
     private MutableLiveData<List<String>> avatar = new MutableLiveData<>();
     private MutableLiveData<List<String>> name = new MutableLiveData<>();
     private MutableLiveData<List<String>> money = new MutableLiveData<>();
+
+    private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
+    private MutableLiveData<Result.Error> notifyReadyPlayerError = new MutableLiveData<>();
 
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
 
@@ -43,11 +45,24 @@ public class GameRoomRepository {
             ListManipulation.append(money, "");
         }
 
-        preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
+        this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
+
+        this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), value -> {
+            if(value instanceof Result.Success) {
+                ListManipulation.set(money, 0, "READY", false);
+            }
+            readyPlayerAuthorizationListener.setValue(value);
+        });
+
+        this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
         return preGamePlayerListListener;
+    }
+
+    public LiveData<Result<Boolean>> onReceiveReadyPlayerAuthorization() {
+        return readyPlayerAuthorizationListener;
     }
 
     public static GameRoomRepository getInstance() {
@@ -71,10 +86,6 @@ public class GameRoomRepository {
 
     public LiveData<List<String>> getNameList() {
         return name;
-    }
-
-    public LiveData<Boolean> getIsPlayerReady() {
-        return isPlayerReady;
     }
 
     public LiveData<Boolean> getIsPlayerTurn() {
@@ -106,12 +117,13 @@ public class GameRoomRepository {
     }
 
     public void alertPlayerReady() {
-        /*isPlayerReady.setValue(true);
+
         String roomId;
         JSONObject object = new JSONObject();
         try {
             roomId = user.getRoom().getName();
         } catch (NullPointerException e) {
+            notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
             return;
         }
 
@@ -120,11 +132,11 @@ public class GameRoomRepository {
             object.put("room_id", roomId);
             object.put("name", user.getName());
         } catch(JSONException e) {
+            notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
             return;
         }
 
         dataSource.postRequest("room/POST:ready", object);
-        ListManipulation.set(money, 0, "READY", false);*/
 
     }
 

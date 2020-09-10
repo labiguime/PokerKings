@@ -18,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.games.pokerkings.R;
 
@@ -27,6 +28,8 @@ import com.games.pokerkings.databinding.FragmentHomePageBinding;
 import com.games.pokerkings.ui.home.HomePageFragment;
 import com.games.pokerkings.ui.home.HomePageViewModel;
 import com.games.pokerkings.ui.home.HomePageViewModelFactory;
+import com.games.pokerkings.utils.Constants;
+import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -111,7 +114,21 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        gameRoomViewModel.onReceiveReadyPlayerAuthorization().observe(getViewLifecycleOwner(), booleanResult -> {
+            if(booleanResult instanceof Result.Error) {
+                showErrorMessage(((Result.Error) booleanResult).getError());
+            } else if(booleanResult instanceof Result.Success) {
+                if(!((Result.Success<Boolean>) booleanResult).getData()) {
+                    showErrorMessage(Constants.ERROR_UNKNOWN);
+                }
+            }
+        });
 
+
+    }
+
+    public void showErrorMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     /*@Override

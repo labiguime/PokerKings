@@ -24,7 +24,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 			return;
 		}
 
-		const isNameTaken = await User.findOne({room_id: room._id, name: obj._name});
+		const isNameTaken = await User.find({room_id: room._id, name: obj._name});
 		console.log(isNameTaken);
 		if(isNameTaken != null) {
 			success = false;
@@ -76,17 +76,28 @@ roomController.setReady = async function (obj, socket, next) {
 		var data = {};
 		socket.getRequest = [];
 
-		const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
-		if(playerList.length == 0) { // Everybody is ready
-			//data = {success: true, gameIsStarting: true, message: "The game is starting..."};
-			//socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
-			const copySocket = socket;
-			core.startGame(obj, socket, next);
-		} else {
+		//const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
+		
+		socket.emit('getReadyPlayerAuthorizationToken', {success: true});
+
+		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+		socket.getRequest = [];
+		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+
+		/*if(playerList.length == 0) { // Everybody is ready
+
 			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 			socket.getRequest = [];
 			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
-		}
+
+			const copySocket = socket;
+			core.startGame(obj, socket, next);
+		} else {
+
+			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+			socket.getRequest = [];
+			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+		}*/
 		/* else {
 			//core.startGame(obj, socket, next);
 			const indexOfLastElement = playerList.length-1;
@@ -107,7 +118,7 @@ roomController.setReady = async function (obj, socket, next) {
 		next();
 	} catch {
 		console.log("Cannot retrieve ready players!");
-		socket.emit('getReady', {success: false, gameIsStarting: false, message: null});
+		socket.emit('getReadyPlayerAuthorizationToken', {success: false});
 	}
 };
 

@@ -710,7 +710,8 @@
                     android:layout_height="81dp"
                     android:layout_gravity="center"
                     android:visibility="@{(gameRoomViewModel.isPlayerReady == false) ? View.VISIBLE:View.GONE}"
-                    android:clickable="@{(!gameRoomViewModel.isPlayerReady)}"
+                    android:clickable="@{(!gameRoomViewModel.isPlayerReady &amp;&amp; gameRoomViewModel.isReadyButtonVisible )}"
+                    android:focusable="@{(!gameRoomViewModel.isPlayerReady &amp;&amp; gameRoomViewModel.isReadyButtonVisible )}"
                     android:onClick="@{()->gameRoomViewModel.onReadyButtonClicked()}"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/ready_button" />
