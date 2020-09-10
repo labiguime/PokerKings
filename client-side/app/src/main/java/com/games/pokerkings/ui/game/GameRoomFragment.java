@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.games.pokerkings.R;
 
+import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.models.*;
 import com.games.pokerkings.databinding.FragmentGameRoomBinding;
 import com.games.pokerkings.databinding.FragmentHomePageBinding;
@@ -122,6 +123,10 @@ public class GameRoomFragment extends Fragment {
                     showErrorMessage(Constants.ERROR_UNKNOWN);
                 }
             }
+        });
+
+        gameRoomViewModel.onReceiveInitialGameData().observe(getViewLifecycleOwner(), initialGameDataResult -> {
+
         });
 
 

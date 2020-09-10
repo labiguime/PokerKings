@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.Result;
@@ -15,13 +16,8 @@ import java.util.List;
 public class GameRoomViewModel extends ViewModel {
 
     private GameRoomRepository gameRoomRepository;
-    private LiveData<Boolean> receivePreGamePlayerList;
-
-    private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
-
     private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
-
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerTurn;
@@ -29,6 +25,9 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<List<String>> avatar;
     private LiveData<List<String>> name;
     private LiveData<List<String>> money;
+    private LiveData<Boolean> receivePreGamePlayerList;
+    private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
+    private LiveData<InitialGameDataResult> receiveInitialGameData;
 
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
@@ -45,7 +44,7 @@ public class GameRoomViewModel extends ViewModel {
         });
 
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
-
+        this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
         this.isPlayerTurn = gameRoomRepository.getIsPlayerTurn();
@@ -77,6 +76,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<Result<Boolean>> onReceiveReadyPlayerAuthorization() {
         return receiveReadyPlayerAuthorization;
+    }
+
+    public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
+        return receiveInitialGameData;
     }
 
     public LiveData<Boolean> getHasGameStarted() {

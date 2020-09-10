@@ -129,6 +129,7 @@ public class GameRoomRepository {
             }
             currentMinimum.setValue(res.getCurrentMinimum());
             totalMoney.setValue(0);
+            hasGameStarted.setValue(true);
             initialGameDataListener.setValue(((Result.Success<InitialGameDataResult>) data).getData());
         } else {
             initialGameDataListener.setValue(new InitialGameDataResult(((Result.Error)data).getError()));
