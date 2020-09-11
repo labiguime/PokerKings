@@ -54,8 +54,10 @@ roomController.joinRoom = async function (obj, socket, next) {
 		success = true;
 		message = "Joining the room...";
 		const roomRoute = "room/"+room._id;
+		const privateRoute = "spot/"+spot._id;
 		socket.emit('getJoinRoomAuthorization', {success: success, message: message, spot: spot._id, room: room._id});
 		socket.join(roomRoute);
+		socket.join(privateRoute);
 
 		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
@@ -72,48 +74,23 @@ roomController.setReady = async function (obj, socket, next) {
 	try {
 		// Must check for edge cases
 		const result = await User.findOneAndUpdate({room_id: obj.room_id, name: obj.name}, {ready: true});
-		//var data = {};
-		//socket.getRequest = [];
 
-		//const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
+		var data = {};
+		socket.getRequest = [];
+		const playerList = await User.find({room_id: obj.room_id, ready: false}, {name: 1});
 
 		socket.emit('getReadyPlayerAuthorization', {success: true});
 
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
-		socket.getRequest = [];
+
 		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 
-		/*if(playerList.length == 0) { // Everybody is ready
-
-			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
-			socket.getRequest = [];
-			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
-
+		if(playerList.length == 0) {
 			const copySocket = socket;
 			core.startGame(obj, socket, next);
-		} else {
+		}
 
-			const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
-			socket.getRequest = [];
-			socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
-		}*/
-		/* else {
-			//core.startGame(obj, socket, next);
-			const indexOfLastElement = playerList.length-1;
-			var emitMessage = "Waiting for: ";
-			playerList.forEach((item, index) => {
-				emitMessage += item.name;
-				if(index != indexOfLastElement) {
-					emitMessage += ", ";
-				} else {
-					emitMessage += "...";
-				}
-				data = {success: true, gameIsStarting: false, message: emitMessage};
-			});
-		}*/
-		//console.log(socket.getRequest);
-		//socket.getRequest.push({room: "room/"+obj.room_id, route: "getReady", data: data});
 		console.log("Request successfully fulfilled!");
 		next();
 	} catch {

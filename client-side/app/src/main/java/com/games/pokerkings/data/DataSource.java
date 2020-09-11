@@ -25,10 +25,13 @@ public class DataSource {
     public static final String GET_JOIN_GAME_AUTHORIZATION = "getJoinRoomAuthorization";
     public static final String GET_PRE_GAME_PLAYER_LIST = "getPreGamePlayerList";
     public static final String GET_READY_PLAYER_AUTHORIZATION = "getReadyPlayerAuthorization";
+    public static final String GET_INITIAL_ROOM_DATA = "getInitialRoomData";
+
 
     private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
+    private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
 
     public DataSource() {
         mSocket = SocketManager.getInstance();
@@ -101,6 +104,29 @@ public class DataSource {
             }
         });
 
+        mSocket.on(GET_INITIAL_ROOM_DATA, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Integer userIndex = data.getInt("my_index");
+                Integer numberOfPlayers = data.getInt("number_of_players");
+                Integer currentMinimum = data.getInt("current_minimum");
+                Integer currentPlayerIndex = data.getInt("current_player");
+                Integer startMoney = data.getInt("start_money");
+                Integer card1 = data.getInt("card_1");
+                Integer card2 = data.getInt("card_2");
+                Integer table1 = data.getInt("table_card_1");
+                Integer table2 = data.getInt("table_card_2");
+                Integer table3 = data.getInt("table_card_3");
+                Result.Success<InitialGameDataResult> result = new Result.Success<>(new InitialGameDataResult(true, userIndex, numberOfPlayers, currentMinimum, currentPlayerIndex, startMoney, card1, card2, table1, table2, table3));
+                initialRoomDataLiveData.postValue(result);
+
+
+            } catch (JSONException e) {
+                Result.Error result = new Result.Error(e.getMessage());
+                initialRoomDataLiveData.postValue(result);
+            }
+        });
+
     }
 
     public void postRequest(String req, JSONObject obj) {
@@ -121,6 +147,10 @@ public class DataSource {
 
     public LiveData<Result<Boolean>> onReceiveReadyPlayerAuthorization() {
         return readyPlayerAuthorizationLiveData;
+    }
+
+    public LiveData<Result<InitialGameDataResult>> onReceiveInitialRoomData() {
+        return initialRoomDataLiveData;
     }
 
 

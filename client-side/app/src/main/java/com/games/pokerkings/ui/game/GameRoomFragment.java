@@ -1,9 +1,16 @@
 package com.games.pokerkings.ui.game;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -22,12 +29,14 @@ import android.widget.Toast;
 
 import com.games.pokerkings.R;
 
+import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.models.*;
 import com.games.pokerkings.databinding.FragmentGameRoomBinding;
 import com.games.pokerkings.databinding.FragmentHomePageBinding;
 import com.games.pokerkings.ui.home.HomePageFragment;
 import com.games.pokerkings.ui.home.HomePageViewModel;
 import com.games.pokerkings.ui.home.HomePageViewModelFactory;
+import com.games.pokerkings.utils.CardManipulation;
 import com.games.pokerkings.utils.Constants;
 import com.games.pokerkings.utils.Result;
 import com.games.pokerkings.utils.SocketManager;
@@ -38,7 +47,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 public class GameRoomFragment extends Fragment {
@@ -58,6 +70,7 @@ public class GameRoomFragment extends Fragment {
     TextView[] playerNameText = new TextView[3];
     ConstraintLayout[] playerAvatarImage = new ConstraintLayout[3];
     ImageView[][] playerCardImage = new ImageView[4][2];
+    ImageView[] tableCardImage = new ImageView[5];
     LinearLayout gameButtonsLayout;
     TextView userNicknameText;
     TextView readyMessage;
@@ -86,6 +99,29 @@ public class GameRoomFragment extends Fragment {
         FragmentGameRoomBinding binding = FragmentGameRoomBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(GameRoomFragment.this);
         binding.setGameRoomViewModel(gameRoomViewModel);
+
+        layoutPlayer[0] = binding.getRoot().findViewById(R.id.layout_player_0);
+        layoutPlayer[1] = binding.getRoot().findViewById(R.id.layout_player_1);
+        layoutPlayer[2] = binding.getRoot().findViewById(R.id.layout_player_2);
+        layoutPlayer[3] = binding.getRoot().findViewById(R.id.layout_player_3);
+
+        playerCardImage[0][0] = binding.getRoot().findViewById(R.id.top_player_card_1);
+        playerCardImage[0][1] = binding.getRoot().findViewById(R.id.top_player_card_2);
+
+        playerCardImage[1][0] = binding.getRoot().findViewById(R.id.left_player_card_1);
+        playerCardImage[1][1] = binding.getRoot().findViewById(R.id.left_player_card_2);
+
+        playerCardImage[2][0] = binding.getRoot().findViewById(R.id.right_player_card_1);
+        playerCardImage[2][1] = binding.getRoot().findViewById(R.id.right_player_card_2);
+
+        userCard[0] = binding.getRoot().findViewById(R.id.user_card_1);
+        userCard[1] = binding.getRoot().findViewById(R.id.user_card_2);
+
+        tableCardImage[0] = binding.getRoot().findViewById(R.id.table_card_1);
+        tableCardImage[1] = binding.getRoot().findViewById(R.id.table_card_2);
+        tableCardImage[2] = binding.getRoot().findViewById(R.id.table_card_3);
+        tableCardImage[3] = binding.getRoot().findViewById(R.id.table_card_4);
+        tableCardImage[4] = binding.getRoot().findViewById(R.id.table_card_5);
 
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
@@ -124,12 +160,139 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+        gameRoomViewModel.onReceiveInitialGameData().observe(getViewLifecycleOwner(), initialGameDataResult -> {
+            if(initialGameDataResult.isDataValid() && initialGameDataResult.getError() == null) {
+                Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                Animation triggerChangesAfterFadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                userCard[0].startAnimation(triggerChangesAfterFadeIn);
+                userCard[1].startAnimation(fadeIn);
+                triggerChangesAfterFadeIn.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
 
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        List<Integer> cards = Arrays.asList(initialGameDataResult.getCard1(), initialGameDataResult.getCard2());
+                        List<ImageView> imageList = Arrays.asList(userCard[0], userCard[1]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, cards, 0);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+
+                Animation fromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+
+                fromTop.setStartOffset(2000);
+                triggerChangesAfterFromTop.setStartOffset(2000);
+
+                triggerChangesAfterFromTop.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        tableCardImage[0].setVisibility(View.VISIBLE);
+                        tableCardImage[1].setVisibility(View.VISIBLE);
+                        tableCardImage[2].setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        List<Integer> tableCards = Arrays.asList(initialGameDataResult.getTable1(), initialGameDataResult.getTable2(), initialGameDataResult.getTable3());
+                        List<ImageView> imageList = Arrays.asList(tableCardImage[0], tableCardImage[1], tableCardImage[2]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                tableCardImage[0].startAnimation(triggerChangesAfterFromTop);
+                tableCardImage[1].startAnimation(fromTop);
+                tableCardImage[2].startAnimation(fromTop);
+
+                for(int i = 0; i < 3; i++) {
+                    if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
+                        playerCardImage[i][0].setVisibility(View.VISIBLE);
+                        playerCardImage[i][1].setVisibility(View.VISIBLE);
+
+                        playerCardImage[i][0].startAnimation(fadeIn);
+                        playerCardImage[i][1].startAnimation(fadeIn);
+                    }
+                }
+            }
+        });
     }
 
     public void showErrorMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
+
+    /*private void revealCardsPlayer() {
+
+        userCard1View.setVisibility(View.VISIBLE);
+        userCard2View.setVisibility(View.VISIBLE);
+
+        Animation fade_in1 = AnimationUtils.loadAnimation(GamePage.this, R.anim.fade_in);
+        Animation fade_in2 = AnimationUtils.loadAnimation(GamePage.this, R.anim.fade_in);
+
+        final AnimatorSet set = new AnimatorSet();
+        Animator animator1 = AnimatorInflater.loadAnimator(GamePage.this,
+                R.animator.flip_out);
+        Animator animator2 = AnimatorInflater.loadAnimator(GamePage.this,
+                R.animator.flip_in);
+
+        animator1.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                userCard1View.setImageDrawable(getDrawable(returnCardName(user.getCard1())));
+                revealCard(userCard2View, returnCardName(user.getCard2()));
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+
+        set.playSequentially(animator1, animator2);
+        set.setTarget(userCard1View);
+
+        userCard1View.startAnimation(fade_in1);
+        userCard2View.startAnimation(fade_in2);
+        fade_in1.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                revealCard();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }*/
+
+
+
 
     /*@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -268,6 +431,7 @@ public class GameRoomFragment extends Fragment {
         userCard[0].setVisibility(View.VISIBLE);
         userCard[1].setVisibility(View.VISIBLE);
 
+        //Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
         userCard[0].startAnimation(fade_in);
         userCard[1].startAnimation(fade_in);
 

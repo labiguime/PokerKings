@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android" >
     <alpha
-        android:duration="900"
-        android:fromAlpha="0"
+        android:duration="300"
+        android:fromAlpha="0.3"
         android:toAlpha="1"/>
     <translate
-        android:duration="900"
-        android:fromXDelta="-255"
+        android:duration="300"
+        android:fromXDelta="-5"
         android:toXDelta="0" />
 </set>
