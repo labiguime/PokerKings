@@ -41,7 +41,6 @@ public class CardManipulation {
     }
 
     private static String returnCardRank(int card) {
-
         String cardRank;
         int rank = (card)%13;
         if(rank == 0) {
@@ -76,7 +75,6 @@ public class CardManipulation {
                 R.animator.flip_out);
         Animator animator2 = AnimatorInflater.loadAnimator(context,
                 R.animator.flip_in);
-
         animator1.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {

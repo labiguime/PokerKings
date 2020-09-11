@@ -70,6 +70,7 @@ public class GameRoomFragment extends Fragment {
     TextView[] playerNameText = new TextView[3];
     ConstraintLayout[] playerAvatarImage = new ConstraintLayout[3];
     ImageView[][] playerCardImage = new ImageView[4][2];
+    ImageView[] tableCardImage = new ImageView[5];
     LinearLayout gameButtonsLayout;
     TextView userNicknameText;
     TextView readyMessage;
@@ -116,6 +117,12 @@ public class GameRoomFragment extends Fragment {
         userCard[0] = binding.getRoot().findViewById(R.id.user_card_1);
         userCard[1] = binding.getRoot().findViewById(R.id.user_card_2);
 
+        tableCardImage[0] = binding.getRoot().findViewById(R.id.table_card_1);
+        tableCardImage[1] = binding.getRoot().findViewById(R.id.table_card_2);
+        tableCardImage[2] = binding.getRoot().findViewById(R.id.table_card_3);
+        tableCardImage[3] = binding.getRoot().findViewById(R.id.table_card_4);
+        tableCardImage[4] = binding.getRoot().findViewById(R.id.table_card_5);
+
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
 
@@ -155,19 +162,63 @@ public class GameRoomFragment extends Fragment {
 
         gameRoomViewModel.onReceiveInitialGameData().observe(getViewLifecycleOwner(), initialGameDataResult -> {
             if(initialGameDataResult.isDataValid() && initialGameDataResult.getError() == null) {
-                Animation fade_in = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
-                userCard[0].startAnimation(fade_in);
-                userCard[1].startAnimation(fade_in);
-                List<Integer> cards = Arrays.asList(initialGameDataResult.getCard1(), initialGameDataResult.getCard2());
-                List<ImageView> imageList = Arrays.asList(userCard[0], userCard[1]);
-                CardManipulation.revealCards(getActivity(), getResources(), imageList, cards, 0);
+                Animation fadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                Animation triggerChangesAfterFadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                userCard[0].startAnimation(triggerChangesAfterFadeIn);
+                userCard[1].startAnimation(fadeIn);
+                triggerChangesAfterFadeIn.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        List<Integer> cards = Arrays.asList(initialGameDataResult.getCard1(), initialGameDataResult.getCard2());
+                        List<ImageView> imageList = Arrays.asList(userCard[0], userCard[1]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, cards, 0);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+
+                Animation fromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+
+                fromTop.setStartOffset(1000);
+                triggerChangesAfterFromTop.setStartOffset(1000);
+
+                triggerChangesAfterFromTop.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        List<Integer> tableCards = Arrays.asList(initialGameDataResult.getTable1(), initialGameDataResult.getTable2(), initialGameDataResult.getTable3());
+                        List<ImageView> imageList = Arrays.asList(tableCardImage[0], tableCardImage[1], tableCardImage[2]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                tableCardImage[0].startAnimation(triggerChangesAfterFromTop);
+                tableCardImage[1].startAnimation(fromTop);
+                tableCardImage[2].startAnimation(fromTop);
+
                 for(int i = 0; i < 3; i++) {
                     if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
                         playerCardImage[i][0].setVisibility(View.VISIBLE);
                         playerCardImage[i][1].setVisibility(View.VISIBLE);
 
-                        playerCardImage[i][0].startAnimation(fade_in);
-                        playerCardImage[i][1].startAnimation(fade_in);
+                        playerCardImage[i][0].startAnimation(fadeIn);
+                        playerCardImage[i][1].startAnimation(fadeIn);
                     }
                 }
             }
