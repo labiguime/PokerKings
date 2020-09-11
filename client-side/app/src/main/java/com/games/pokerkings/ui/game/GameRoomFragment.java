@@ -186,13 +186,15 @@ public class GameRoomFragment extends Fragment {
                 Animation fromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
                 Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
 
-                fromTop.setStartOffset(1000);
-                triggerChangesAfterFromTop.setStartOffset(1000);
+                fromTop.setStartOffset(2000);
+                triggerChangesAfterFromTop.setStartOffset(2000);
 
                 triggerChangesAfterFromTop.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
-
+                        tableCardImage[0].setVisibility(View.VISIBLE);
+                        tableCardImage[1].setVisibility(View.VISIBLE);
+                        tableCardImage[2].setVisibility(View.VISIBLE);
                     }
 
                     @Override

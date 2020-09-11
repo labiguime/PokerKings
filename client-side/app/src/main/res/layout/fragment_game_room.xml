@@ -140,6 +140,7 @@
                         android:id="@+id/table_card_5"
                         android:layout_width="40dp"
                         android:layout_height="55dp"
+                        android:visibility="invisible"
                         android:layout_marginTop="20dp"
                         android:layout_gravity="center"
                         app:srcCompat="@drawable/backside_old" />
@@ -155,6 +156,7 @@
                         android:id="@+id/table_card_1"
                         android:layout_width="40dp"
                         android:layout_height="55dp"
+                        android:visibility="invisible"
                         android:layout_marginTop="20dp"
                         app:srcCompat="@drawable/backside_old" />
                 </LinearLayout>
@@ -169,6 +171,7 @@
                         android:id="@+id/table_card_2"
                         android:layout_width="40dp"
                         android:layout_height="55dp"
+                        android:visibility="invisible"
                         android:layout_marginTop="20dp"
                         app:srcCompat="@drawable/backside_old" />
                 </LinearLayout>
@@ -183,6 +186,7 @@
                         android:id="@+id/table_card_3"
                         android:layout_width="40dp"
                         android:layout_height="55dp"
+                        android:visibility="invisible"
                         android:layout_marginTop="20dp"
                         app:srcCompat="@drawable/backside_old" />
                 </LinearLayout>
@@ -197,6 +201,7 @@
                         android:id="@+id/table_card_4"
                         android:layout_width="40dp"
                         android:layout_height="55dp"
+                        android:visibility="invisible"
                         android:layout_marginTop="20dp"
                         app:srcCompat="@drawable/backside_old" />
                 </LinearLayout>
