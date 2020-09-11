@@ -63,7 +63,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.getRequest = [];
 		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
-		console.log("Request successfully fulfilled!");
+		console.log("Request successfully fulfilled!\n");
 		next();
 
 	} catch (e) {
@@ -88,11 +88,10 @@ roomController.setReady = async function (obj, socket, next) {
 		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 
 		if(playerList.length == 0) {
-			const copySocket = socket;
 			core.startGame(obj, socket, next);
 		}
 
-		console.log("Request successfully fulfilled!");
+		console.log("Request successfully fulfilled!\n");
 		next();
 	} catch {
 		console.log("Cannot retrieve ready players!");
@@ -104,7 +103,7 @@ roomController.getPreGamePlayerList = async function (obj, socket, next) {
 	try {
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 		socket.emit('getPreGamePlayerList', {players: roomPlayers});
-		console.log("Request successfully fulfilled!");
+		console.log("Request successfully fulfilled!\n");
 		return;
 	} catch {
 		console.log("Cannot retrieve players!");
@@ -124,30 +123,46 @@ roomController.play = async function (obj, socket, next) {
 		const room = await Room.findOne({room_id: obj.room_id});
 		if(!room) {
 			// This room doesn't exist
+			success = false;
+			message = "This room doesn't exist!";
+			socket.emit('getAuthorizationToPlay', {success, message});
 			return;
 		}
 
 		if(room.current_player != obj.spot_id) {
 			// Not your turn
+			success = false;
+			message = "This is not your turn!";
+			socket.emit('getAuthorizationToPlay', {success, message});
 			return;
 		}
-
+		
 		const player_index = room.players_ids.indexOf(obj.spot_id);
+		socket.getRequest = [];
+
 		if(!obj.is_folding) {
 			if(obj.raise < room.current_minimum) {
 				// The raise is too low
+				success = false;
+				message = "The raise is lower than the current minimum!";
+				socket.emit('getAuthorizationToPlay', {success, message});
 				return ;
 			}
 
 			if(obj.raise > room.players_money[player_index]) {
 				// Not enough money
+				success = false;
+				message = "You don't have enough money to raise by this amount!";
+				socket.emit('getAuthorizationToPlay', {success, message});
 				return;
 			}
-			// send response to play
-		} else {
-			// Fold here
-		}
+		}	
+		success = true;
+		socket.emit('getAuthorizationToPlay', {success});
+		core.manageGame(obj, socket, next, room);
 
+		console.log("Request successfully fulfilled!\n");
+		next();
 	} catch {
 		console.log("Cannot retrieve players!");
 		socket.emit('getPreGamePlayerList', {players: roomPlayers});

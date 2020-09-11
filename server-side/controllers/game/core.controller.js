@@ -9,7 +9,6 @@ let coreController = {};
 
 coreController.startGame = async function (obj, socket, next) {
   try {
-    console.log(socket.getRequest);
     const playerList = await User.find({room_id: obj.room_id}, {spot_id: 1, name: 1});
     if(!playerList) {
       console.log("Error: This room is empty but should have at least two players to start game. Room: "+obj.room_id);
