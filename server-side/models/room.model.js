@@ -39,8 +39,12 @@ const roomSchema = new Schema({
 		type: String,
 	}],
 
+	still_in_round: [{
+		type: String,
+	}],
+
 	current_player: {
-		type: Number,
+		type: String,
 	},
 
 	game_stage: {

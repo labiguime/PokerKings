@@ -3,6 +3,7 @@ const Spot = require('../../models/spot.model');
 const User = require('../../models/user.model');
 
 const core = require('../../controllers/game/core.controller');
+const room = require('../../routes/socket/room');
 let roomController = {};
 
 roomController.joinRoom = async function (obj, socket, next) {
@@ -105,6 +106,48 @@ roomController.getPreGamePlayerList = async function (obj, socket, next) {
 		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 		console.log("Request successfully fulfilled!");
 		return;
+	} catch {
+		console.log("Cannot retrieve players!");
+		socket.emit('getPreGamePlayerList', {players: roomPlayers});
+	}
+};
+
+// OBJECTS: room_id
+// is_folding
+// raise
+//
+
+roomController.play = async function (obj, socket, next) {
+	try {
+		// TODO: Check if the room is in a state to receive a play
+
+		const room = await Room.findOne({room_id: obj.room_id});
+		if(!room) {
+			// This room doesn't exist
+			return;
+		}
+
+		if(room.current_player != obj.spot_id) {
+			// Not your turn
+			return;
+		}
+
+		const player_index = room.players_ids.indexOf(obj.spot_id);
+		if(!obj.is_folding) {
+			if(obj.raise < room.current_minimum) {
+				// The raise is too low
+				return ;
+			}
+
+			if(obj.raise > room.players_money[player_index]) {
+				// Not enough money
+				return;
+			}
+			// send response to play
+		} else {
+			// Fold here
+		}
+
 	} catch {
 		console.log("Cannot retrieve players!");
 		socket.emit('getPreGamePlayerList', {players: roomPlayers});
