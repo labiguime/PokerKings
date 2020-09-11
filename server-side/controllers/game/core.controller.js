@@ -37,7 +37,11 @@ coreController.startGame = async function (obj, socket, next) {
       players_in_room: nPlayers,
       current_player: players_ids[(nPlayers==2?0:2)],
       game_stage: 0,
-      current_minimum: constants.START_MINIMUM_BET
+      current_minimum: constants.START_MINIMUM_BET,
+      big_blind: players_ids[1],
+      player_who_started: players_ids[(nPlayers==2?0:2)],
+      current_starting_player: players_ids[(nPlayers==2?0:2)],
+      current_ending_player: players_ids[1]
     };
     // populate game room Database
     const room = await Room.findOneAndUpdate({_id: obj.room_id}, roomUpdate, {new: true});
@@ -49,13 +53,44 @@ coreController.startGame = async function (obj, socket, next) {
   } catch(e) {
     console.log("Error: "+ e);
   }
-
-
   // set countdown on acknowledgment
 }
 
-coreController.manageGame = async function (obj, socket, next) {
+coreController.manageGame = async function (obj, socket, next, room) {
+
+  const playerIndex = room.players_ids.indexOf(obj.spot_id);
+  const playerWhoEndsTheRound = (room.still_in_round.indexOf(room.current_starting_player)-1)%room.still_in_round.length;
+  const me = obj.spot_id;
+
+  if(obj.is_folding) {
+    room.still_in_round.splice(playerIndex, 1);
+  } else {
+    room.players_money[playerIndex] -= obj.raise;
+    room.round_total_money += obj.raise;
+  }
+  
+  room.current_player = (room.still_in_round.indexOf(me)+1)%room.still_in_round.length;
+
+  if(room.still_in_round.length == 1) {
+    // Round winner
+
+  } else {
+    if(playerWhoEndsTheRound == playerIndex) {
+
+      if(obj.is_folding) {
+        // it's next round
+      }
+
+
+      
+    }
+  }
+  
+
+  
+  
   // determine state
-}
+  next();
+} 
 
 module.exports = coreController;

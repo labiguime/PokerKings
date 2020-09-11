@@ -67,10 +67,30 @@ const roomSchema = new Schema({
 		type: Number,
 	}],
 
-	first_to_start: {
-		type: Number,
-		default: 0
+	big_blind: {
+		type: String,
 	},
+
+	player_who_started: {
+		type: String,
+	},
+
+	current_starting_player: {
+		type: String,
+	},
+
+	current_ending_player: {
+		type: String,
+	},
+
+	round_starting_min: {
+		type: Number,
+	},
+
+	round_ending_min_bet: {
+		type: Number,
+	}
+
 });
 
 module.exports = mongoose.model('Room', roomSchema);
