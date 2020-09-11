@@ -59,14 +59,34 @@ coreController.startGame = async function (obj, socket, next) {
 coreController.manageGame = async function (obj, socket, next, room) {
 
   const playerIndex = room.players_ids.indexOf(obj.spot_id);
-  const playerWhoEndsTheRound = (room.still_in_round.indexOf(room.current_starting_player)-1)%room.still_in_round.length;
   const me = obj.spot_id;
 
   if(obj.is_folding) {
-    room.still_in_round.splice(playerIndex, 1);
+    if(room.still_in_round.length == 2) {
+      // Round winner is the one that's not me
+    }
+    else if(room.current_ending_player == me) {
+      // go to next round
+    } else if(room.current_starting_player == me) {
+      // Change the player who's supposed to start
+    } else {
+      room.still_in_round.splice(playerIndex, 1);
+      // prepare for next player
+    }
   } else {
+    const absoluteRaise = obj.raise+room.round_players_bets[playerIndex];
     room.players_money[playerIndex] -= obj.raise;
     room.round_total_money += obj.raise;
+
+  // TODO: DONT FORGET TO CHANGE CHECKS FOR RAISE IN ROOM CONTROLLER
+    if(absoluteRaise > room.round_current_minimum) { // It's an increase
+      // The new ender is the one before me
+    } else { // It's a match
+      // Continue the round normally, check for if it's ended
+    }
+    // TODO: If raise is more than current minimum we should do something
+    // change current ending player to be the one before me
+
   }
   
   room.current_player = (room.still_in_round.indexOf(me)+1)%room.still_in_round.length;
@@ -75,14 +95,12 @@ coreController.manageGame = async function (obj, socket, next, room) {
     // Round winner
 
   } else {
-    if(playerWhoEndsTheRound == playerIndex) {
+    if(room.current_ending_player == me) {
 
+      // depends on starting min and ending min bet
       if(obj.is_folding) {
         // it's next round
       }
-
-
-      
     }
   }
   
