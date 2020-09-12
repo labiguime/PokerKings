@@ -72,13 +72,13 @@ public class DataSource {
 
                 success = data.getBoolean("success");
                 message = data.getString("message");
-                spot = data.getString("spot");
-                room = data.getString("room");
 
                 if(!success) {
                     Result.Error result = new Result.Error(message);
                     joinGameAuthorizationLiveData.postValue(result);
                 } else {
+                    spot = data.getString("spot");
+                    room = data.getString("room");
                     Result.Success<Room> result = new Result.Success<>(new Room(room, spot));
                     joinGameAuthorizationLiveData.postValue(result);
                 }
@@ -132,9 +132,8 @@ public class DataSource {
             JSONObject data = (JSONObject) args[0];
             try {
                 Boolean success = data.getBoolean("success");
-                String message = data.getString("message");
-
                 if(!success) {
+                    String message = data.getString("message");
                     Result.Error result = new Result.Error(message);
                     authorizationToPlayLiveData.postValue(result);
                 } else {

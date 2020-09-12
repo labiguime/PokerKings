@@ -145,7 +145,7 @@ public class GameRoomViewModel extends ViewModel {
         @Nullable
         Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
         if(hasPressedAButtonValue != null) {
-            if (hasPressedAButtonValue) {
+            if (!hasPressedAButtonValue) {
                 hasPressedAButton.setValue(true);
                 gameRoomRepository.matchBet();
             }

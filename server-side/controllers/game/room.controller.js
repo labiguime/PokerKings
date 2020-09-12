@@ -111,7 +111,7 @@ roomController.getPreGamePlayerList = async function (obj, socket, next) {
 	}
 };
 
-// OBJECTS: room_id
+// OBJECTS: room_id spot_id
 // is_folding
 // raise
 //
@@ -120,7 +120,7 @@ roomController.play = async function (obj, socket, next) {
 	try {
 		// TODO: Check if the room is in a state to receive a play
 
-		const room = await Room.findOne({room_id: obj.room_id});
+		const room = await Room.findOne({_id: obj.room_id});
 		if(!room) {
 			// This room doesn't exist
 			success = false;
@@ -137,9 +137,9 @@ roomController.play = async function (obj, socket, next) {
 			return;
 		}
 		
-		const player_index = room.players_ids.indexOf(obj.spot_id);
+		const playerIndex = room.players_ids.indexOf(obj.spot_id);
 		socket.getRequest = [];
-
+		const absoluteRaise = obj.raise+room.round_players_bets[playerIndex];
 		// TODO: FIX IF PLAYER DOESNT HAVE ENOUGH MONEY BUT WANTS TO CONTINUE PLAYING
 		// Maybe we can go negative if player has less money than minimum raise to implement it
 		if(!obj.is_folding) {
@@ -152,7 +152,7 @@ roomController.play = async function (obj, socket, next) {
 				return ;
 			}
 
-			if(obj.raise > room.players_money[player_index]) {
+			if(obj.raise > room.players_money[playerIndex]) {
 				// Not enough money
 				success = false;
 				message = "You don't have enough money to raise by this amount!";
@@ -166,9 +166,11 @@ roomController.play = async function (obj, socket, next) {
 
 		console.log("Request successfully fulfilled!\n");
 		next();
-	} catch {
-		console.log("Cannot retrieve players!");
-		socket.emit('getPreGamePlayerList', {players: roomPlayers});
+	} catch (e){
+		success = false;
+		message = e.message;
+		console.log(e);
+		socket.emit('getAuthorizationToPlay', {success: false});
 	}
 };
 
