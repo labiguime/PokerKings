@@ -8,6 +8,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.Result;
@@ -33,6 +34,7 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
     private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
+    private LiveData<RoomState> receiveRoomState;
 
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
@@ -52,6 +54,8 @@ public class GameRoomViewModel extends ViewModel {
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
         this.receiveAuthorizationToPlay = gameRoomRepository.onReceiveAuthorizationToPlay();
+        this.receiveRoomState = gameRoomRepository.onReceiveRoomState();
+
         this.totalMoney = gameRoomRepository.getTotalMoney();
         this.currentMinimum = gameRoomRepository.getCurrentMinimum();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
@@ -100,6 +104,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
         return receiveInitialGameData;
+    }
+
+    public LiveData<RoomState> onReceiveRoomState() {
+        return receiveRoomState;
     }
 
     public LiveData<Boolean> getHasPressedAButton() {

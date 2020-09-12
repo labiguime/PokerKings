@@ -71,6 +71,10 @@ public class GameRoomRepository {
         return authorizationToPlayListener;
     }
 
+    public LiveData<RoomState> onReceiveRoomState() {
+        return roomStateListener;
+    }
+
     public static GameRoomRepository getInstance() {
         if (instance == null) {
             instance = new GameRoomRepository(new DataSource());

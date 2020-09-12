@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.games.pokerkings.R;
 
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.models.*;
 import com.games.pokerkings.databinding.FragmentGameRoomBinding;
 import com.games.pokerkings.databinding.FragmentHomePageBinding;
@@ -138,13 +139,50 @@ public class GameRoomFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        gameRoomViewModel.onReceiveRoomState().observe(getViewLifecycleOwner(), roomState -> {
+            if(roomState.getError() != null) {
+                showErrorMessage(roomState.getError());
+            } else {
+                if(roomState.getIsGameOver()) {
+                    showErrorMessage("This game is over and has been won by player 0!");
+                } else {
+                    showErrorMessage("You are done playing!");
+                    if(roomState.getHasRoundEnded()) {
+                        Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                        triggerChangesAfterFromTop.setStartOffset(2000);
+                        triggerChangesAfterFromTop.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+                                tableCardImage[roomState.getGameStage()+2].setVisibility(View.VISIBLE);
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                List<Integer> tableCards = Arrays.asList(roomState.getTableCard());
+                                List<ImageView> imageList = Arrays.asList(tableCardImage[roomState.getGameStage()+2]);
+                                CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+                        tableCardImage[roomState.getGameStage()+2].startAnimation(triggerChangesAfterFromTop);
+                    }
+                }
+
+            }
+        });
+
         gameRoomViewModel.onReceiveAuthorizationToPlay().observe(getViewLifecycleOwner(), booleanResult -> {
             if(booleanResult instanceof Result.Success) {
-                showErrorMessage("This is a success");
+                //showErrorMessage("This is a success");
             } else {
                 showErrorMessage(((Result.Error) booleanResult).getError());
             }
         });
+
         gameRoomViewModel.getHasUserInterfaceLoaded().observe(getViewLifecycleOwner(), aBoolean -> {
             if(!aBoolean) {
                 //gameRoomViewModel.reloadUserInterface();
