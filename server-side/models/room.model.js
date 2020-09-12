@@ -83,13 +83,13 @@ const roomSchema = new Schema({
 		type: String,
 	},
 
-	round_starting_min: {
+	round_current_minimum: {
 		type: Number,
 	},
 
-	round_ending_min_bet: {
+	round_players_bets: [{
 		type: Number,
-	}
+	}]
 
 });
 

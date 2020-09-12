@@ -140,8 +140,11 @@ roomController.play = async function (obj, socket, next) {
 		const player_index = room.players_ids.indexOf(obj.spot_id);
 		socket.getRequest = [];
 
+		// TODO: FIX IF PLAYER DOESNT HAVE ENOUGH MONEY BUT WANTS TO CONTINUE PLAYING
+		// Maybe we can go negative if player has less money than minimum raise to implement it
 		if(!obj.is_folding) {
-			if(obj.raise < room.current_minimum) {
+	
+			if(absoluteRaise < room.round_current_minimum) {
 				// The raise is too low
 				success = false;
 				message = "The raise is lower than the current minimum!";
