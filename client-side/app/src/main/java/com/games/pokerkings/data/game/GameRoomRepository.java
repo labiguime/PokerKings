@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.*;
 
@@ -32,6 +33,7 @@ public class GameRoomRepository {
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
+    private MediatorLiveData<RoomState> roomStateListener = new MediatorLiveData<>();
     private LiveData<Result<Boolean>> authorizationToPlayListener;
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
     private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
@@ -48,6 +50,7 @@ public class GameRoomRepository {
         this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
         this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
+        this.roomStateListener.addSource(dataSource.onReceiveRoomState(), this::processRoomState);
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
         this.authorizationToPlayListener = dataSource.onReceiveAuthorizationToPlay();
     }
@@ -140,6 +143,33 @@ public class GameRoomRepository {
         }
         dataSource.postRequest("room/POST:play", object);
         return;
+    }
+
+    private void processRoomState(RoomState data) {
+        if(data.getError() != null) {
+            currentMinimumLocal = data.getCurrentMinimum();
+            currentMinimum.setValue(data.getCurrentMinimum());
+            totalMoney.setValue(data.getTableTotal());
+            if(!data.getWhoPlayed().equals(data.getMyIndex())) {
+                Integer startingPlayerIndex = getLayoutForId(data.getMyIndex(), data.getWhoPlayed(), data.getnPlayers());
+                ListManipulation.set(avatarType, startingPlayerIndex, (data.getActionType().equals(1))?User.FOLDED:User.NOT_FOLDED,false);
+                ListManipulation.set(money, startingPlayerIndex, "$"+data.getPlayerNewMoney().toString(), false);
+            } else {
+                ListManipulation.set(avatarType, 0, (data.getActionType().equals(1))?User.FOLDED:User.NOT_FOLDED,false);
+                isPlayerTurn.setValue(false);
+                ListManipulation.set(money, 0, "$"+data.getPlayerNewMoney().toString(), false);
+            }
+            if(!data.getIsGameOver()) {
+                if(data.getMyIndex() != data.getNextPlayer()) {
+                    Integer startingPlayerIndex = getLayoutForId(data.getMyIndex(), data.getNextPlayer(), data.getnPlayers());
+                    ListManipulation.set(avatarType, startingPlayerIndex, User.YOUR_TURN,false);
+                } else {
+                    ListManipulation.set(avatarType, 0, User.YOUR_TURN,false);
+                    isPlayerTurn.setValue(true);
+                }
+            }
+        }
+        roomStateListener.setValue(data);
     }
 
     private void processInitialGameData(Result<InitialGameDataResult> data) {

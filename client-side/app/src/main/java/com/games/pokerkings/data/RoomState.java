@@ -27,8 +27,9 @@ public class RoomState {
     Integer myIndex;
     Integer nPlayers;
     Boolean isGameOver;
+    Integer gameStage;
 
-    public RoomState(Boolean hasRoundEnded, @Nullable List<Integer> allCards, Integer nextPlayer, Integer actionType, Integer whoPlayed, @Nullable Integer winner, Integer playerNewMoney, Integer playerMoneyChange, Integer tableTotal, Integer tableCard, Integer currentMinimum, Integer myIndex, Integer nPlayers, Boolean isGameOver) {
+    public RoomState(Boolean hasRoundEnded, @Nullable List<Integer> allCards, Integer nextPlayer, Integer actionType, Integer whoPlayed, @Nullable Integer winner, Integer playerNewMoney, Integer playerMoneyChange, Integer tableTotal, Integer tableCard, Integer currentMinimum, Integer myIndex, Integer nPlayers, Boolean isGameOver, Integer gameStage) {
         this.error = null;
         this.hasRoundEnded = hasRoundEnded;
         this.allCards = allCards;
@@ -44,6 +45,7 @@ public class RoomState {
         this.myIndex = myIndex;
         this.nPlayers = nPlayers;
         this.isGameOver = isGameOver;
+        this.gameStage = gameStage;
     }
 
     public RoomState(String error) {
@@ -63,6 +65,10 @@ public class RoomState {
     @Nullable
     public List<Integer> getAllCards() {
         return allCards;
+    }
+
+    public Integer getGameStage() {
+        return gameStage;
     }
 
     public Boolean getIsGameOver() {

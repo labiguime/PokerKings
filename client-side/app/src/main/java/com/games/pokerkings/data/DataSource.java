@@ -164,6 +164,7 @@ public class DataSource {
                 Integer currentMinimum = data.getInt("current_minimum");
                 Integer myIndex = data.getInt("my_index");
                 Integer nPlayers = data.getInt("number_of_players");
+                Integer gameStage = data.getInt("game_stage");
                 Boolean isGameOver = data.getBoolean("is_game_over");
                 @Nullable
                 Integer winner = null;
@@ -181,13 +182,12 @@ public class DataSource {
                         allCards = listData;
                     }
                 }
-                RoomState roomState = new RoomState(hasRoundEnded, allCards, nextPlayer, actionType, whoPlayed, winner, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver);
+                RoomState roomState = new RoomState(hasRoundEnded, allCards, nextPlayer, actionType, whoPlayed, winner, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
                 roomStateLiveData.postValue(roomState);
             } catch (JSONException e) {
                 RoomState roomState = new RoomState(e.getMessage());
                 roomStateLiveData.postValue(roomState);
             }
-
         });
 
     }
@@ -218,6 +218,10 @@ public class DataSource {
 
     public LiveData<Result<InitialGameDataResult>> onReceiveInitialRoomData() {
         return initialRoomDataLiveData;
+    }
+
+    public LiveData<RoomState> onReceiveRoomState() {
+        return roomStateLiveData;
     }
 
 
