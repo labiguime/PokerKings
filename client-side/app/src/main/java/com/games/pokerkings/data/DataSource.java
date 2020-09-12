@@ -1,5 +1,6 @@
 package com.games.pokerkings.data;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -15,7 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 public class DataSource {
@@ -34,6 +37,7 @@ public class DataSource {
     private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
+    private MutableLiveData<RoomState> roomStateLiveData = new MutableLiveData<>();
 
 
     public DataSource() {
@@ -144,6 +148,46 @@ public class DataSource {
                 Result.Error result = new Result.Error(e.getMessage());
                 authorizationToPlayLiveData.postValue(result);
             }
+        });
+
+        mSocket.on(GET_ROOM_STATE, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Boolean hasRoundEnded = data.getBoolean("has_round_ended");
+                Integer nextPlayer = data.getInt("next_player");
+                Integer actionType = data.getInt("action_type");
+                Integer whoPlayed = data.getInt("who_played");
+                Integer playerNewMoney = data.getInt("player_new_money");
+                Integer playerMoneyChange = data.getInt("player_money_change");
+                Integer tableTotal = data.getInt("table_total");
+                Integer tableCard = data.getInt("table_card");
+                Integer currentMinimum = data.getInt("current_minimum");
+                Integer myIndex = data.getInt("my_index");
+                Integer nPlayers = data.getInt("number_of_players");
+                Boolean isGameOver = data.getBoolean("is_game_over");
+                @Nullable
+                Integer winner = null;
+                @Nullable
+                List<Integer> allCards = null;
+
+                if(isGameOver) {
+                    winner = data.getInt("winner");
+                    List<Integer> listData = new ArrayList<>();
+                    JSONArray jArray = data.getJSONArray("all_cards");
+                    if (jArray != null) {
+                        for (int i = 0; i < jArray.length(); i++) {
+                            listData.add(jArray.getInt(i));
+                        }
+                        allCards = listData;
+                    }
+                }
+                RoomState roomState = new RoomState(hasRoundEnded, allCards, nextPlayer, actionType, whoPlayed, winner, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver);
+                roomStateLiveData.postValue(roomState);
+            } catch (JSONException e) {
+                RoomState roomState = new RoomState(e.getMessage());
+                roomStateLiveData.postValue(roomState);
+            }
+
         });
 
     }

@@ -70,13 +70,15 @@ coreController.manageGame = async function (obj, socket, next, room) {
     let hasRoundEnded = false;
     let winner = null;
     let actionType = 0;
+    let isGameOver = false;
     if(obj.is_folding) {
       actionType = 1;
       if(room.still_in_round.length == 2) {
         // Round winner is the one that's not me
         hasRoundEnded = true;
         room.still_in_round.splice(playerIndex, 1);
-        winner = room.still_in_round[0];
+        winner = room.players_ids.indexOf(room.still_in_round[0]);
+        isGameOver = true;
       }
       else if(room.current_ending_player == me) {
         // go to next round
@@ -155,6 +157,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
       action_type: actionType,
       who_played: room.players_ids.indexOf(me),
       winner: winner,
+      is_game_over: isGameOver,
       player_new_money: room.players_money[playerIndex],
       player_money_change: obj.raise,
       table_total: room.round_total_money,
@@ -172,6 +175,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
     } else { // this game is over
       if(!winner) {
         data["all_cards"] = room.users_cards;
+        data["is_game_over"] = true;
         // TODO: decide who is winner from the remaining players
         winner = room.still_in_round[0]; 
         resetRoom();
