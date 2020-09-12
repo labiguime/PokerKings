@@ -114,6 +114,10 @@ public class GameRoomRepository {
 
     }
 
+    public void matchBet() {
+        return;
+    }
+
     private void processInitialGameData(Result<InitialGameDataResult> data) {
         if(data instanceof Result.Success) {
             InitialGameDataResult res = ((Result.Success<InitialGameDataResult>) data).getData();
