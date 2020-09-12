@@ -138,6 +138,13 @@ public class GameRoomFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        gameRoomViewModel.onReceiveAuthorizationToPlay().observe(getViewLifecycleOwner(), booleanResult -> {
+            if(booleanResult instanceof Result.Success) {
+                showErrorMessage("This is a success");
+            } else {
+                showErrorMessage(((Result.Error) booleanResult).getError());
+            }
+        });
         gameRoomViewModel.getHasUserInterfaceLoaded().observe(getViewLifecycleOwner(), aBoolean -> {
             if(!aBoolean) {
                 //gameRoomViewModel.reloadUserInterface();
