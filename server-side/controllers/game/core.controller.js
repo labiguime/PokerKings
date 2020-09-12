@@ -150,8 +150,14 @@ coreController.manageGame = async function (obj, socket, next, room) {
       room.round_players_bets = [0, 0, 0, 0];
     }
 
-    const data = {
+    const updateRoom = await Room.findOneAndUpdate({_id: obj.room_id}, room, {new: true});
+    if(!updateRoom) {
+      console.log("Big error in the room");
+    }
+
+    let data = {
       has_round_ended: hasRoundEnded,
+      game_stage: room.game_stage,
       table_card: room.table_cards[room.game_stage+2],
       next_player: room.players_ids.indexOf(room.current_player),
       action_type: actionType,
@@ -164,12 +170,12 @@ coreController.manageGame = async function (obj, socket, next, room) {
       all_cards: null,
       current_minimum: room.round_current_minimum,
       my_index: -1,
-      number_of_players: room.players_in_room.length
+      number_of_players: room.players_ids.length
     };
     if(room.game_stage < 3 && winner == null) { // still playing
       if(hasRoundEnded) {
         // give new card
-        data.push({table_card: room.table_cards[room.game_stage+2]});
+        data["table_card"] = room.table_cards[room.game_stage+2];
       }
 
     } else { // this game is over
@@ -185,7 +191,8 @@ coreController.manageGame = async function (obj, socket, next, room) {
     room.players_ids.forEach((item, i) => {
       data["current_minimum"] = room.round_current_minimum-room.round_players_bets[i];
       data["my_index"] = i;
-      socket.getRequest.push({room: "spot/"+item, route: "getRoomState", data});
+      let shallowCopy = Object.assign({}, data);
+      socket.getRequest.push({room: "spot/"+item, route: "getRoomState", data: shallowCopy});
     });
   } catch (e) {
     console.log(e);

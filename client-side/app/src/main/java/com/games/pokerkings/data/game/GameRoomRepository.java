@@ -150,7 +150,7 @@ public class GameRoomRepository {
     }
 
     private void processRoomState(RoomState data) {
-        if(data.getError() != null) {
+        if(data.getError() == null) {
             currentMinimumLocal = data.getCurrentMinimum();
             currentMinimum.setValue(data.getCurrentMinimum());
             totalMoney.setValue(data.getTableTotal());
