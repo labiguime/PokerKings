@@ -29,6 +29,7 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Integer> currentMinimum;
     private LiveData<Boolean> receivePreGamePlayerList;
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
+    private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
 
     public GameRoomViewModel() {
@@ -48,6 +49,7 @@ public class GameRoomViewModel extends ViewModel {
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
+        this.receiveAuthorizationToPlay = gameRoomRepository.onReceiveAuthorizationToPlay();
         this.totalMoney = gameRoomRepository.getTotalMoney();
         this.currentMinimum = gameRoomRepository.getCurrentMinimum();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
@@ -86,6 +88,10 @@ public class GameRoomViewModel extends ViewModel {
         return receivePreGamePlayerList;
     }
 
+    public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {
+        return receiveAuthorizationToPlay;
+    }
+
     public LiveData<Result<Boolean>> onReceiveReadyPlayerAuthorization() {
         return receiveReadyPlayerAuthorization;
     }
@@ -93,6 +99,8 @@ public class GameRoomViewModel extends ViewModel {
     public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
         return receiveInitialGameData;
     }
+
+
 
     public LiveData<Boolean> getHasGameStarted() {
         return hasGameStarted;

@@ -157,6 +157,10 @@ public class DataSource {
         mSocket.on(req, listener);
     }
 
+    public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {
+        return authorizationToPlayLiveData;
+    }
+
     public LiveData<Result<TreeMap<String, User>>> onReceivePreGamePlayerList() {
         return preGamePlayerListLiveData;
     }

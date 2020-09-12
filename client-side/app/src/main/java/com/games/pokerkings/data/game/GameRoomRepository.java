@@ -32,10 +32,12 @@ public class GameRoomRepository {
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
+    private LiveData<Result<Boolean>> authorizationToPlayListener;
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
     private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
     private MutableLiveData<List<Integer>> tableCards = new MutableLiveData<>(Arrays.asList(-1, -1, -1, -1, -1));
     private MutableLiveData<List<Integer>> playerCards = new MutableLiveData<>(Arrays.asList(-1, -1));
+
 
     public static final String TAG = "LOG_GAME_ROOM";
 
@@ -46,7 +48,7 @@ public class GameRoomRepository {
         this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
-
+        this.authorizationToPlayListener = dataSource.onReceiveAuthorizationToPlay();
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -59,6 +61,10 @@ public class GameRoomRepository {
 
     public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
         return initialGameDataListener;
+    }
+
+    public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {
+        return authorizationToPlayListener;
     }
 
     public static GameRoomRepository getInstance() {
