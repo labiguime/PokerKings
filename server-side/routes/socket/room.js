@@ -19,7 +19,7 @@ module.exports = (socket, next) => {
 
 	socket.on('room/GET:preGamePlayerList', (message) => {
 		console.log('-- Request on: /routes/socket/room => GET:preGamePlayerList');
-			room.getPreGamePlayerList(message, socket, next);
+		room.getPreGamePlayerList(message, socket, next);
 	});
 
 	next();

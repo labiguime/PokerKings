@@ -37,13 +37,14 @@ public class GameRoomRepository {
     private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
     private MutableLiveData<List<Integer>> tableCards = new MutableLiveData<>(Arrays.asList(-1, -1, -1, -1, -1));
     private MutableLiveData<List<Integer>> playerCards = new MutableLiveData<>(Arrays.asList(-1, -1));
-
+    private Integer currentMinimumLocal;
 
     public static final String TAG = "LOG_GAME_ROOM";
 
     public GameRoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
+        currentMinimumLocal = 0;
         this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
         this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
@@ -115,6 +116,29 @@ public class GameRoomRepository {
     }
 
     public void matchBet() {
+        String roomId;
+        String spotId;
+        JSONObject object = new JSONObject();
+        try {
+            assert user.getRoom() != null;
+            roomId = user.getRoom().getName();
+            spotId = user.getRoom().getSpot();
+        } catch (NullPointerException e) {
+            //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
+            return;
+        }
+
+        // TODO: We see the importance of persisting the DATA because using currentMinimumLocal is just an ugly shortcut
+        try {
+            object.put("room_id", roomId);
+            object.put("spot_id", spotId);
+            object.put("is_folding", false);
+            object.put("raise", currentMinimumLocal);
+        } catch(JSONException e) {
+            //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
+            return;
+        }
+        dataSource.postRequest("room/POST:play", object);
         return;
     }
 
@@ -137,6 +161,7 @@ public class GameRoomRepository {
                 ListManipulation.set(avatarType, 0, User.YOUR_TURN,false);
                 isPlayerTurn.setValue(true);
             }
+            currentMinimumLocal = res.getCurrentMinimum();
             currentMinimum.setValue(res.getCurrentMinimum());
             totalMoney.setValue(0);
             hasGameStarted.setValue(true);
