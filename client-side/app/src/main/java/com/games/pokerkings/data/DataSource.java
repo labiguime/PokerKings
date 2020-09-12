@@ -26,12 +26,15 @@ public class DataSource {
     public static final String GET_PRE_GAME_PLAYER_LIST = "getPreGamePlayerList";
     public static final String GET_READY_PLAYER_AUTHORIZATION = "getReadyPlayerAuthorization";
     public static final String GET_INITIAL_ROOM_DATA = "getInitialRoomData";
-
+    public static final String GET_AUTHORIZATION_TO_PLAY = "getAuthorizationToPlay";
+    public static final String GET_ROOM_STATE = "getRoomState";
 
     private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
+    private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
+
 
     public DataSource() {
         mSocket = SocketManager.getInstance();
@@ -119,11 +122,28 @@ public class DataSource {
                 Integer table3 = data.getInt("table_card_3");
                 Result.Success<InitialGameDataResult> result = new Result.Success<>(new InitialGameDataResult(true, userIndex, numberOfPlayers, currentMinimum, currentPlayerIndex, startMoney, card1, card2, table1, table2, table3));
                 initialRoomDataLiveData.postValue(result);
-
-
             } catch (JSONException e) {
                 Result.Error result = new Result.Error(e.getMessage());
                 initialRoomDataLiveData.postValue(result);
+            }
+        });
+
+        mSocket.on(GET_AUTHORIZATION_TO_PLAY, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Boolean success = data.getBoolean("success");
+                String message = data.getString("message");
+
+                if(!success) {
+                    Result.Error result = new Result.Error(message);
+                    authorizationToPlayLiveData.postValue(result);
+                } else {
+                    Result.Success<Boolean> result = new Result.Success<>(true);
+                    authorizationToPlayLiveData.postValue(result);
+                }
+            } catch (JSONException e) {
+                Result.Error result = new Result.Error(e.getMessage());
+                authorizationToPlayLiveData.postValue(result);
             }
         });
 

@@ -758,6 +758,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:clickable="true"
+                android:onClick="@{()->gameRoomViewModel.onMatchButtonClicked()}"
                 android:layout_marginRight="10dp"
                 android:layout_weight="2"
                 app:srcCompat="@drawable/check_button" />

@@ -122,4 +122,8 @@ public class GameRoomViewModel extends ViewModel {
         isReadyButtonVisible.setValue(false);
         gameRoomRepository.alertPlayerReady();
     }
+
+    public void onMatchButtonClicked() {
+        return;
+    }
 }
