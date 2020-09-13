@@ -162,4 +162,15 @@ public class GameRoomViewModel extends ViewModel {
             }
         }
     }
+
+    public void onFoldButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                hasPressedAButton.setValue(true);
+                gameRoomRepository.fold();
+            }
+        }
+    }
 }

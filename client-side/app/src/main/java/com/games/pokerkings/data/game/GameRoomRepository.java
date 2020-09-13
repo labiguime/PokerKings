@@ -149,6 +149,33 @@ public class GameRoomRepository {
         return;
     }
 
+    public void fold() {
+        String roomId;
+        String spotId;
+        JSONObject object = new JSONObject();
+        try {
+            assert user.getRoom() != null;
+            roomId = user.getRoom().getName();
+            spotId = user.getRoom().getSpot();
+        } catch (NullPointerException e) {
+            //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
+            return;
+        }
+
+        // TODO: We see the importance of persisting the DATA because using currentMinimumLocal is just an ugly shortcut
+        try {
+            object.put("room_id", roomId);
+            object.put("spot_id", spotId);
+            object.put("is_folding", true);
+            object.put("raise", 0);
+        } catch(JSONException e) {
+            //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
+            return;
+        }
+        dataSource.postRequest("room/POST:play", object);
+        return;
+    }
+
     private void processRoomState(RoomState data) {
         if(data.getError() == null) {
             currentMinimumLocal = data.getCurrentMinimum();
