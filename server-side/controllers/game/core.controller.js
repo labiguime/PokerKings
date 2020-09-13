@@ -250,11 +250,11 @@ function rankCard(playerCards, tableCards) {
       break;
     }
     // Impossible to get a straight out of 4 cards
-    if(rank < 3 && straightCount == 0) break;
+    if(i < 3 && straightCount == 0) break;
 
     // Edge case for this straight: A 2 3 4 5
     if(straightCount == 4 && i==0) {
-      if(rank[12]>=1) {
+      if(ranks[12]>=1) {
         straightCount=5;
         straightStartingRank=3;
       }
@@ -272,7 +272,61 @@ function rankCard(playerCards, tableCards) {
     }
   }
 
+  // Check for similar cards(pairs, X of a kind)
+  let fourOfAKind = -1;
+  let threeOfAKind = -1;
+  let pairs = [-1, -1];
+  let strongest = new Array(-1, -1, -1, -1, -1);
+  for(let i = 12; i > -1; i--) {
+    if(ranks[i] == 4) {
+      fourOfAKind = ranks[i];
+    } else if(ranks[i] == 3 && threeOfAKind == -1) {
+      threeOfAKind = ranks[i];
+    } else if(ranks[i] == 2) {
+      pairs[0] = (pairs[0] == -1) ? ranks[i] : pairs[0];
+      pairs[1] = (pairs[0] != -1 && pairs[1] == -1) ? ranks[i] : pairs[1];
+    } else {
+      for(let u = 0; u < 5; u++) {
+        if(strongest[u] == -1) {
+          strongest[u] = ranks[i];
+        }
+      }
+    }
+  }
+
+  let combinationName = "No pair";
+  let cardsCombination = new Array(-1, -1, -1, -1, -1);
+
   
+  if(straightStartingRank == 12 && allCardsTogether.indexOf(12+13*flush) != -1) { // Check for royal flush
+    combinationName = "Royal flush";
+    cardsCombination = new Array(12, 11, 10, 9, 8); // Check for straight flush
+  } else if(straightCount == 5 && allCardsTogether.indexOf(straightStartingRank+13*flush) != -1) {
+    combinationName = "Straight flush"
+    cardsCombination = new Array(straightStartingRank, straightStartingRank-1, straightStartingRank-2, straightStartingRank-3, straightStartingRank-4);
+  } else if(fourOfAKind != -1) { // check for of a kind
+    combinationName = "Four of a kind";
+    cardsCombination = new Array(fourOfAKind, fourOfAKind+13, fourOfAKind+13*2, fourOfAKind+13*3, strongest[0]);
+  } else if(threeOfAKind != -1 && pairs[0] != -1) { // check for Full house
+    combinationName = "Full house";
+    cardsCombination = new Array(threeOfAKind, threeOfAKind+13, threeOfAKind+13*2, pairs[0], pairs[0]+13);
+  } else if() { // Check for flush (must redefine strongest)
+  } else if(straightCount == 5) { // Regular straight
+    combinationName = "Straight";
+    cardsCombination = new Array(straightStartingRank, straightStartingRank-1, straightStartingRank-2, straightStartingRank-3, (straightStartingRank-4)+13);
+  } else if(threeOfAKind != -1) { // Three of a kind
+    combinationName = "Three of a kind";
+    cardsCombination = new Array(threeOfAKind, threeOfAKind+13, threeOfAKind+13*2, strongest[0], strongest[1]);
+  } else if(pairs[0] != -1 && pairs[1] != -1) { // Two pairs
+    combinationName = "Two pairs";
+    cardsCombination = new Array(pairs[0], pairs[0]+13, pairs[1], pairs[1]+13, strongest[0]);
+  } else if(pairs[0] != -1 && pairs[1] != -1) { // A pair
+    combinationName = "A Pair";
+    cardsCombination = new Array(pairs[0], pairs[0]+13, strongest[0], strongest[1], strongest[2]);
+  } else { // No pair
+    combinationName = "High card";
+    cardsCombination = new Array(strongest[0], strongest[1], strongest[2], strongest[3], strongest[4]);
+  }
 }
 
 module.exports = coreController;
