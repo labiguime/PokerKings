@@ -194,6 +194,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
     }
 
     room.players_ids.forEach((item, i) => {
+      console.log(rankCard([room.users_cards[0+i*2], room.users_cards[1+i*2]], room.table_cards));
       data["current_minimum"] = room.round_current_minimum-room.round_players_bets[i];
       data["my_index"] = i;
       let shallowCopy = Object.assign({}, data);
@@ -215,62 +216,21 @@ async function resetRoom() {
 function rankCard(playerCards, tableCards) {
 
   // We group all the cards together
-  let allCardsTogether = [];
-
-  allCardsTogether.push(playerCards[0]);
-  allCardsTogether.push(playerCards[1]);
-  for(let i = 0; i < tableCards.length; i++) {
-    allCardsTogether.push(tableCards[i]);
-  }
+  let allCardsTogether = groupCards(playerCards, tableCards);
 
   // We set up a ranks array to count each rank
-  let ranks = new Array(13); 
-  for (let i = 0; i < 13; i++) {
-    ranks[i] = 0;
-  }
+  let ranks = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0); 
 
   // Increment rank when found
   for(let i = 0; i < allCardsTogether.length; i++) {
     ranks[(allCardsTogether[i]-1)%13]++;
   }
 
-  // Check for straight
-  let straightCount = 0;
-  let straightStartingRank = -1;
-  for(let i = 12; i > -1; i--) {
-    if(ranks[i] >= 1) {
-      straightCount++;
-    } else {
-      straightCount = 0;
-      straightStartingRank = -1;
-    }
-    // Straight has been found;
-    if(straightCount == 5) {
-      straightStartingRank = i+4;
-      break;
-    }
-    // Impossible to get a straight out of 4 cards
-    if(i < 3 && straightCount == 0) break;
-
-    // Edge case for this straight: A 2 3 4 5
-    if(straightCount == 4 && i==0) {
-      if(ranks[12]>=1) {
-        straightCount=5;
-        straightStartingRank=3;
-      }
-    }
-  }
+  // Find a straight if any
+  let straight = findStraight(ranks);
 
   // Check for any flush
-  let flushType = new Array(0,0,0,0);
-  let flush = -1;
-  for(let i = 0; i < allCardsTogether.length; i++) {
-    flushType[Math.floor(allCardsTogether[i]/13)]++;
-    if(flushType[Math.floor(allCardsTogether[i]/13)] == 5) {
-      flush = allCardsTogether[i];
-      break;
-    }
-  }
+  let flush = findFlush(allCardsTogether);
 
   // Check for similar cards(pairs, X of a kind)
   let fourOfAKind = -1;
@@ -297,23 +257,31 @@ function rankCard(playerCards, tableCards) {
   let combinationName = "No pair";
   let cardsCombination = new Array(-1, -1, -1, -1, -1);
 
-  
-  if(straightStartingRank == 12 && allCardsTogether.indexOf(12+13*flush) != -1) { // Check for royal flush
+  if(straight.start == 12 && allCardsTogether.indexOf(12+13*flush) != -1) { // Check for royal flush
     combinationName = "Royal flush";
     cardsCombination = new Array(12, 11, 10, 9, 8); // Check for straight flush
-  } else if(straightCount == 5 && allCardsTogether.indexOf(straightStartingRank+13*flush) != -1) {
+  } else if(straight.count == 5 && allCardsTogether.indexOf(straight.start+13*flush) != -1) {
     combinationName = "Straight flush"
-    cardsCombination = new Array(straightStartingRank, straightStartingRank-1, straightStartingRank-2, straightStartingRank-3, straightStartingRank-4);
+    cardsCombination = new Array(straight.start, straight.start-1, straight.start-2, straight.start-3, straight.start-4);
   } else if(fourOfAKind != -1) { // check for of a kind
     combinationName = "Four of a kind";
     cardsCombination = new Array(fourOfAKind, fourOfAKind+13, fourOfAKind+13*2, fourOfAKind+13*3, strongest[0]);
   } else if(threeOfAKind != -1 && pairs[0] != -1) { // check for Full house
     combinationName = "Full house";
     cardsCombination = new Array(threeOfAKind, threeOfAKind+13, threeOfAKind+13*2, pairs[0], pairs[0]+13);
-  } else if() { // Check for flush (must redefine strongest)
-  } else if(straightCount == 5) { // Regular straight
+  } else if(flush != -1) { // Check for flush (must redefine strongest)
+    let newStrongest = [];
+    for(let u = 0; u < allCardsTogether.length; u++) {
+      if(Math.floor(allCardsTogether[u]/13)==flush) {
+        newStrongest.push(allCardsTogether[u]-(floor*13));
+      }
+    }
+    newStrongest.sort();
+    combinationName = "Flush";
+    cardsCombination = newStrongest;
+  } else if(straight.count == 5) { // Regular straight
     combinationName = "Straight";
-    cardsCombination = new Array(straightStartingRank, straightStartingRank-1, straightStartingRank-2, straightStartingRank-3, (straightStartingRank-4)+13);
+    cardsCombination = new Array(straight.start, straight.start-1, straight.start-2, straight.start-3, (straight.start-4)+13);
   } else if(threeOfAKind != -1) { // Three of a kind
     combinationName = "Three of a kind";
     cardsCombination = new Array(threeOfAKind, threeOfAKind+13, threeOfAKind+13*2, strongest[0], strongest[1]);
@@ -327,6 +295,61 @@ function rankCard(playerCards, tableCards) {
     combinationName = "High card";
     cardsCombination = new Array(strongest[0], strongest[1], strongest[2], strongest[3], strongest[4]);
   }
+
+  return {name: combinationName, combination: cardsCombination};
+}
+
+function findStraight(rankedCards) {
+  // Check for straight
+  let count = 0;
+  let startingRanking = -1;
+  for(let i = 12; i > -1; i--) {
+    if(rankedCards[i] >= 1) {
+      count++;
+    } else {
+      count = 0;
+      startingRanking = -1;
+    }
+    // Straight has been found;
+    if(count == 5) {
+      startingRanking = i+4;
+      break;
+    }
+    // Impossible to get a straight out of 4 cards
+    if(i < 3 && count == 0) break;
+
+    // Edge case for this straight: A 2 3 4 5
+    if(count == 4 && i==0) {
+      if(rankedCards[12]>=1) {
+        count=5;
+        startingRanking=3;
+      }
+    }
+  }
+  return {count, start: startingRanking};
+}
+
+function groupCards(playerCards, tableCards) {
+  const allCardsTogether = [];
+  allCardsTogether.push(playerCards[0]);
+  allCardsTogether.push(playerCards[1]);
+  for(let i = 0; i < tableCards.length; i++) {
+    allCardsTogether.push(tableCards[i]);
+  }
+  return allCardsTogether;
+}
+
+function findFlush(allCardsTogether) {
+  let flushType = new Array(0,0,0,0);
+  let flush = -1;
+  for(let i = 0; i < allCardsTogether.length; i++) {
+    flushType[Math.floor(allCardsTogether[i]/13)]++;
+    if(flushType[Math.floor(allCardsTogether[i]/13)] == 5) {
+      flush = allCardsTogether[i];
+      break;
+    }
+  }
+  return flush;
 }
 
 module.exports = coreController;
