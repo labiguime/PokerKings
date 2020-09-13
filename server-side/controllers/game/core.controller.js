@@ -4,7 +4,6 @@ const Room = require('../../models/room.model');
 const Spot = require('../../models/spot.model');
 const User = require('../../models/user.model');
 const roomController = require('./room.controller');
-const assert = require('assert');
 
 
 let coreController = {};
@@ -22,6 +21,11 @@ coreController.startGame = async function (obj, socket, next) {
       players_ids.push(item.spot_id);
     });
 
+    var players_names = [];
+    playerList.forEach((item, i) => {
+      players_ids.push(item.name);
+    });
+
     // draw cards
     const nPlayers = playerList.length;
     const cards = Array.from(Cards.draw(constants.NUMBER_CARDS_TABLE+nPlayers));
@@ -33,9 +37,9 @@ coreController.startGame = async function (obj, socket, next) {
       users_cards: userCards,
       table_cards: roomCards,
       players_money: [constants.START_MONEY-(Math.floor((constants.START_MINIMUM_BET)/2)), constants.START_MONEY-(constants.START_MINIMUM_BET), constants.START_MONEY, constants.START_MONEY],
-      round_total_money: 0,
       room_total_money: 0,
       players_ids: players_ids,
+      players_names: players_names,
       still_in_round: players_ids,
       players_in_room: nPlayers,
       current_player: players_ids[(nPlayers==2?0:2)],
@@ -70,16 +74,19 @@ coreController.manageGame = async function (obj, socket, next, room) {
     const playerIndex = room.players_ids.indexOf(obj.spot_id);
     const me = obj.spot_id;
     let hasRoundEnded = false;
-    let winner = null;
+    let winner = [];
     let actionType = 0;
     let isGameOver = false;
+    let winningMessage = "";
     if(obj.is_folding) {
       actionType = 1;
       if(room.still_in_round.length == 2) {
         // Round winner is the one that's not me
         hasRoundEnded = true;
         room.still_in_round.splice(playerIndex, 1);
-        winner = room.players_ids.indexOf(room.still_in_round[0]);
+        winner.push(room.players_ids.indexOf(room.still_in_round[0]));
+        winningMessage = room.players_names[winner[0]]+" has won!";
+        room.players_money[winner[0]] += room.room_total_money;
         isGameOver = true;
       }
       else if(room.current_ending_player == me) {
@@ -99,7 +106,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
     } else {
       const absoluteRaise = obj.raise+room.round_players_bets[playerIndex];
       room.players_money[playerIndex] -= obj.raise;
-      room.round_total_money += obj.raise;
+      room.room_total_money += obj.raise;
       room.round_players_bets[playerIndex] = absoluteRaise;
       
 
@@ -157,6 +164,24 @@ coreController.manageGame = async function (obj, socket, next, room) {
       console.log("Big error in the room");
     }
 
+    let winData = {
+      winner: winner,
+      has_round_ended: hasRoundEnded,
+      game_stage: room.game_stage,
+      message: winningMessage,
+      players_money: [0, 0, 0, 0],
+      all_cards: [0],
+      my_index: 0, 
+      number_of_players: 0, 
+      current_minimum: 0, 
+      current_player: 0, 
+      card_1: -1, 
+      card_2: -1, 
+      table_card_1: -1, 
+      table_card_2: -1, 
+      table_card_3: -1  
+    };
+
     let data = {
       has_round_ended: hasRoundEnded,
       game_stage: room.game_stage,
@@ -164,45 +189,69 @@ coreController.manageGame = async function (obj, socket, next, room) {
       next_player: room.players_ids.indexOf(room.current_player),
       action_type: actionType,
       who_played: room.players_ids.indexOf(me),
-      winner: winner,
       is_game_over: isGameOver,
       player_new_money: room.players_money[playerIndex],
       player_money_change: obj.raise,
-      table_total: room.round_total_money,
-      all_cards: [0],
+      table_total: room.room_total_money,
       current_minimum: room.round_current_minimum,
       my_index: -1,
       number_of_players: room.players_ids.length
     };
-    if(room.game_stage < 3 && winner == null) { // still playing
-      if(hasRoundEnded) {
-        // give new card
-        data["table_card"] = room.table_cards[room.game_stage+2];
-      }
 
-    } else { // this game is over
-      data["table_card"] = -1;
-      if(!winner) {
-        data["all_cards"] = room.users_cards;
-        data["is_game_over"] = true;
-        
-        // TODO: decide who is winner from the remaining players
+    if(room.game_stage < 3 && winner.length == 0) { // The game is still going
+      room.players_ids.forEach((item, i) => { 
+        data["current_minimum"] = room.round_current_minimum-room.round_players_bets[i];
+        data["my_index"] = i;
+        let shallowCopy = Object.assign({}, data);
+        socket.getRequest.push({room: "spot/"+item, route: "getRoomState", data: shallowCopy});
+      });
+
+    } else { // The game is over
+      if(winner.length == 0) { // We have to determine the winner from the remaining players
         let results = getWinners(room.players_ids, room.still_in_round, room.table_cards, room.users_cards);
-        console.log("winners "+results.winners);
-        console.log("Hand: "+results.winningHand.name);
-        data["winner"] = room.players_ids.indexOf(room.still_in_round[0]); 
+        winData["all_cards"] = room.users_cards; // TODO: Don't give all the users cards
+        winData["winner"] = results.winners;
 
-        // TODO: Reset the room to get ready for a new round
-        resetRoom();
+        // Come up with winning message and determine gains
+        if(results.winners.length == 1) {
+          const winnerName = players_names[results.winners[0]];
+          room.players_money[result.winners[0]] += room.room_total_money;
+          winData["message"] = winnerName+" has won with the following hand: "+results.winningHand.name;
+        } else {
+          let aggregatedNames = "";
+          let moneyShare = Math.floor(room.room_total_money/result.winners.length);
+
+          result.winners.forEach((item, i)=> {
+            aggregatedNames = aggregatedNames+(players_names[item]+",");
+            room.players_money[item] += moneyShare;
+          });
+
+          winData["message"] = aggregatedNames+" have won with the following hand: "+results.winningHand.name;
+        }
       }
-    }
+      // Reset the room to get ready for a new round
+      const resetRoomResult = resetRoom();
 
-    room.players_ids.forEach((item, i) => { 
-      data["current_minimum"] = room.round_current_minimum-room.round_players_bets[i];
-      data["my_index"] = i;
-      let shallowCopy = Object.assign({}, data);
-      socket.getRequest.push({room: "spot/"+item, route: "getRoomState", data: shallowCopy});
-    });
+      // Add the data to the broadcast queue
+      room.players_ids.forEach((item, i) => { 
+
+        // Set the remaining variables
+        winData["current_minimum"] = resetRoomResult.round_current_minimum-resetRoomResult.round_players_bets[i];
+        winData["my_index"] = i;
+        winData["players_money"] = resetRoomResult.players_money;
+        winData["number_of_players"] = resetRoomResult.players_ids.length
+        winData["current_player"] = resetRoomResult.current_player; 
+        winData["card_1"] = resetRoomResult.userCards[0+2*i]; 
+        winData["card_2"] = resetRoomResult.userCards[1+2*i]; 
+        winData["table_card_1"] = resetRoomResult.tableCards[0];
+        winData["table_card_2"] = resetRoomResult.tableCards[1]; 
+        winData["table_card_3"] = resetRoomResult.tableCards[2];
+
+        let shallowCopy = Object.assign({}, winData);
+        socket.getRequest.push({room: "spot/"+item, route: "getRoomResults", data: shallowCopy});
+      });
+    }
+    
   } catch (e) {
     console.log(e);
   }
