@@ -39,8 +39,12 @@ const roomSchema = new Schema({
 		type: String,
 	}],
 
+	still_in_round: [{
+		type: String,
+	}],
+
 	current_player: {
-		type: Number,
+		type: String,
 	},
 
 	game_stage: {
@@ -63,10 +67,30 @@ const roomSchema = new Schema({
 		type: Number,
 	}],
 
-	first_to_start: {
-		type: Number,
-		default: 0
+	big_blind: {
+		type: String,
 	},
+
+	player_who_started: {
+		type: String,
+	},
+
+	current_starting_player: {
+		type: String,
+	},
+
+	current_ending_player: {
+		type: String,
+	},
+
+	round_current_minimum: {
+		type: Number,
+	},
+
+	round_players_bets: [{
+		type: Number,
+	}]
+
 });
 
 module.exports = mongoose.model('Room', roomSchema);

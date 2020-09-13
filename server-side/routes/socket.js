@@ -27,7 +27,7 @@ exports = module.exports = (io) => {
 				const route = item.route;
 				const data = item.data;
 				io.in(room).emit(route, data);
-				console.log('-- GET route '+route+' has been broadcast on '+room);
+				console.log('-- GET route '+route+' has been broadcast on '+room+'\n');
 			});
 			socket.getRequest = [];
 			return;

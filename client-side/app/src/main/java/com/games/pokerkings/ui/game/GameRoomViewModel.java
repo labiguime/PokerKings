@@ -1,5 +1,6 @@
 package com.games.pokerkings.ui.game;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -7,6 +8,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.Result;
@@ -18,6 +20,7 @@ public class GameRoomViewModel extends ViewModel {
     private GameRoomRepository gameRoomRepository;
     private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
+    private MutableLiveData<Boolean> hasPressedAButton = new MutableLiveData<>(false);
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerTurn;
@@ -29,7 +32,9 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Integer> currentMinimum;
     private LiveData<Boolean> receivePreGamePlayerList;
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
+    private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
+    private LiveData<RoomState> receiveRoomState;
 
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
@@ -48,6 +53,12 @@ public class GameRoomViewModel extends ViewModel {
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
+        this.receiveAuthorizationToPlay = Transformations.map(gameRoomRepository.onReceiveAuthorizationToPlay(), value -> {
+            this.hasPressedAButton.setValue(false);
+            return value;
+        });
+        this.receiveRoomState = gameRoomRepository.onReceiveRoomState();
+
         this.totalMoney = gameRoomRepository.getTotalMoney();
         this.currentMinimum = gameRoomRepository.getCurrentMinimum();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
@@ -86,12 +97,24 @@ public class GameRoomViewModel extends ViewModel {
         return receivePreGamePlayerList;
     }
 
+    public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {
+        return receiveAuthorizationToPlay;
+    }
+
     public LiveData<Result<Boolean>> onReceiveReadyPlayerAuthorization() {
         return receiveReadyPlayerAuthorization;
     }
 
     public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
         return receiveInitialGameData;
+    }
+
+    public LiveData<RoomState> onReceiveRoomState() {
+        return receiveRoomState;
+    }
+
+    public LiveData<Boolean> getHasPressedAButton() {
+        return hasPressedAButton;
     }
 
     public LiveData<Boolean> getHasGameStarted() {
@@ -119,7 +142,24 @@ public class GameRoomViewModel extends ViewModel {
     }
 
     public void onReadyButtonClicked() {
-        isReadyButtonVisible.setValue(false);
-        gameRoomRepository.alertPlayerReady();
+        @Nullable
+        Boolean isReadyVisible = isReadyButtonVisible.getValue();
+        if(isReadyVisible != null) {
+            if (isReadyVisible) {
+                isReadyButtonVisible.setValue(false);
+                gameRoomRepository.alertPlayerReady();
+            }
+        }
+    }
+
+    public void onMatchButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                hasPressedAButton.setValue(true);
+                gameRoomRepository.matchBet();
+            }
+        }
     }
 }

@@ -739,6 +739,7 @@
             android:orientation="horizontal"
             android:visibility="@{(gameRoomViewModel.isPlayerTurn == true &amp;&amp; gameRoomViewModel.hasGameStarted == true) ? View.VISIBLE:View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
+            android:clickable="@{!gameRoomViewModel.hasPressedAButton}"
             app:layout_constraintTop_toBottomOf="@+id/game_room_main_constraint_layout"
             tools:layout_editor_absoluteX="8dp">
 
@@ -758,6 +759,8 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->gameRoomViewModel.onMatchButtonClicked()}"
                 android:layout_marginRight="10dp"
                 android:layout_weight="2"
                 app:srcCompat="@drawable/check_button" />

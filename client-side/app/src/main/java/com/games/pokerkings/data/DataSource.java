@@ -1,5 +1,6 @@
 package com.games.pokerkings.data;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -15,7 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 public class DataSource {
@@ -26,12 +29,16 @@ public class DataSource {
     public static final String GET_PRE_GAME_PLAYER_LIST = "getPreGamePlayerList";
     public static final String GET_READY_PLAYER_AUTHORIZATION = "getReadyPlayerAuthorization";
     public static final String GET_INITIAL_ROOM_DATA = "getInitialRoomData";
-
+    public static final String GET_AUTHORIZATION_TO_PLAY = "getAuthorizationToPlay";
+    public static final String GET_ROOM_STATE = "getRoomState";
 
     private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
+    private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
+    private MutableLiveData<RoomState> roomStateLiveData = new MutableLiveData<>();
+
 
     public DataSource() {
         mSocket = SocketManager.getInstance();
@@ -62,24 +69,20 @@ public class DataSource {
         mSocket.on(GET_JOIN_GAME_AUTHORIZATION, args -> {
             JSONObject data = (JSONObject) args[0];
             try {
-                Boolean success;
-                String message;
-                String spot;
-                String room;
-
-                success = data.getBoolean("success");
-                message = data.getString("message");
-                spot = data.getString("spot");
-                room = data.getString("room");
-
+                Boolean success = data.getBoolean("success");
                 if(!success) {
+                    String message;
+                    message = data.getString("message");
                     Result.Error result = new Result.Error(message);
                     joinGameAuthorizationLiveData.postValue(result);
                 } else {
+                    String spot;
+                    String room;
+                    spot = data.getString("spot");
+                    room = data.getString("room");
                     Result.Success<Room> result = new Result.Success<>(new Room(room, spot));
                     joinGameAuthorizationLiveData.postValue(result);
                 }
-
             } catch (JSONException e) {
                 Result.Error result = new Result.Error(e.getMessage());
                 joinGameAuthorizationLiveData.postValue(result);
@@ -91,7 +94,7 @@ public class DataSource {
             try {
                 Boolean success = data.getBoolean("success");
                 if(success) {
-                    Result.Success<Boolean> result = new Result.Success<>(success);
+                    Result.Success<Boolean> result = new Result.Success<>(true);
                     readyPlayerAuthorizationLiveData.postValue(result);
                 } else {
                     Result.Error result = new Result.Error(Constants.ERROR_UNKNOWN);
@@ -119,11 +122,67 @@ public class DataSource {
                 Integer table3 = data.getInt("table_card_3");
                 Result.Success<InitialGameDataResult> result = new Result.Success<>(new InitialGameDataResult(true, userIndex, numberOfPlayers, currentMinimum, currentPlayerIndex, startMoney, card1, card2, table1, table2, table3));
                 initialRoomDataLiveData.postValue(result);
-
-
             } catch (JSONException e) {
                 Result.Error result = new Result.Error(e.getMessage());
                 initialRoomDataLiveData.postValue(result);
+            }
+        });
+
+        mSocket.on(GET_AUTHORIZATION_TO_PLAY, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Boolean success = data.getBoolean("success");
+                if(!success) {
+                    String message = data.getString("message");
+                    Result.Error result = new Result.Error(message);
+                    authorizationToPlayLiveData.postValue(result);
+                } else {
+                    Result.Success<Boolean> result = new Result.Success<>(true);
+                    authorizationToPlayLiveData.postValue(result);
+                }
+            } catch (JSONException e) {
+                Result.Error result = new Result.Error(e.getMessage());
+                authorizationToPlayLiveData.postValue(result);
+            }
+        });
+
+        mSocket.on(GET_ROOM_STATE, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Boolean hasRoundEnded = data.getBoolean("has_round_ended");
+                Integer nextPlayer = data.getInt("next_player");
+                Integer actionType = data.getInt("action_type");
+                Integer whoPlayed = data.getInt("who_played");
+                Integer playerNewMoney = data.getInt("player_new_money");
+                Integer playerMoneyChange = data.getInt("player_money_change");
+                Integer tableTotal = data.getInt("table_total");
+                Integer tableCard = data.getInt("table_card");
+                Integer currentMinimum = data.getInt("current_minimum");
+                Integer myIndex = data.getInt("my_index");
+                Integer nPlayers = data.getInt("number_of_players");
+                Integer gameStage = data.getInt("game_stage");
+                Boolean isGameOver = data.getBoolean("is_game_over");
+                @Nullable
+                Integer winner = null;
+                @Nullable
+                List<Integer> allCards = null;
+
+                if(isGameOver) {
+                    winner = data.getInt("winner");
+                    List<Integer> listData = new ArrayList<>();
+                    JSONArray jArray = data.getJSONArray("all_cards");
+                    if (jArray != null) {
+                        for (int i = 0; i < jArray.length(); i++) {
+                            listData.add(jArray.getInt(i));
+                        }
+                        allCards = listData;
+                    }
+                }
+                RoomState roomState = new RoomState(hasRoundEnded, allCards, nextPlayer, actionType, whoPlayed, winner, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
+                roomStateLiveData.postValue(roomState);
+            } catch (JSONException e) {
+                RoomState roomState = new RoomState(e.getMessage());
+                roomStateLiveData.postValue(roomState);
             }
         });
 
@@ -135,6 +194,10 @@ public class DataSource {
 
     public void getRequest(String req, Emitter.Listener listener) {
         mSocket.on(req, listener);
+    }
+
+    public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {
+        return authorizationToPlayLiveData;
     }
 
     public LiveData<Result<TreeMap<String, User>>> onReceivePreGamePlayerList() {
@@ -151,6 +214,10 @@ public class DataSource {
 
     public LiveData<Result<InitialGameDataResult>> onReceiveInitialRoomData() {
         return initialRoomDataLiveData;
+    }
+
+    public LiveData<RoomState> onReceiveRoomState() {
+        return roomStateLiveData;
     }
 
 
