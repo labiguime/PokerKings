@@ -194,7 +194,12 @@ coreController.manageGame = async function (obj, socket, next, room) {
     }
 
     room.players_ids.forEach((item, i) => {
-      console.log(rankCard([room.users_cards[0+i*2], room.users_cards[1+i*2]], room.table_cards));
+      let the_cards = new Array(room.users_cards[0+i*2], room.users_cards[1+i*2]);
+      let result = rankCard(the_cards, room.table_cards);
+      console.log("i "+i);
+      console.log(the_cards);
+      console.log(result);
+      
       data["current_minimum"] = room.round_current_minimum-room.round_players_bets[i];
       data["my_index"] = i;
       let shallowCopy = Object.assign({}, data);
@@ -239,16 +244,17 @@ function rankCard(playerCards, tableCards) {
   let strongest = new Array(-1, -1, -1, -1, -1);
   for(let i = 12; i > -1; i--) {
     if(ranks[i] == 4) {
-      fourOfAKind = ranks[i];
+      fourOfAKind = i;
     } else if(ranks[i] == 3 && threeOfAKind == -1) {
-      threeOfAKind = ranks[i];
+      threeOfAKind = i;
     } else if(ranks[i] == 2) {
-      pairs[0] = (pairs[0] == -1) ? ranks[i] : pairs[0];
-      pairs[1] = (pairs[0] != -1 && pairs[1] == -1) ? ranks[i] : pairs[1];
+      pairs[0] = (pairs[0] == -1) ? i : pairs[0];
+      pairs[1] = (pairs[0] != -1 && pairs[0] != i && pairs[1] == -1) ? i : pairs[1];
     } else {
       for(let u = 0; u < 5; u++) {
         if(strongest[u] == -1) {
-          strongest[u] = ranks[i];
+          strongest[u] = i;
+          break;
         }
       }
     }
