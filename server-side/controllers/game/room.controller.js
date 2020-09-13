@@ -52,7 +52,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 			return;
 		}
 
-		const updateRoomResult = await Room.findOneAndUpdate({_id: obj.room_id}, {players_in_room: room.players_in_room+1}, {new: true});
+		const updateRoomResult = await Room.findOneAndUpdate({_id: room._id}, {players_in_room: room.players_in_room+1}, {new: true});
 		if(!updateRoomResult) {
 			success = false;
 			message = "Error while updating the room. Try again!";
@@ -103,6 +103,7 @@ roomController.setReady = async function (obj, socket, next) {
 			return;
 		}
 
+		// TODO: Fix the pre game player list received
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 
@@ -132,11 +133,6 @@ roomController.getPreGamePlayerList = async function (obj, socket, next) {
 		socket.emit('getPreGamePlayerList', {players: roomPlayers});
 	}
 };
-
-// OBJECTS: room_id spot_id
-// is_folding
-// raise
-//
 
 roomController.play = async function (obj, socket, next) {
 	try {
