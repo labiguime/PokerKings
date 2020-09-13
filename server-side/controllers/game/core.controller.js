@@ -4,6 +4,7 @@ const Room = require('../../models/room.model');
 const Spot = require('../../models/spot.model');
 const User = require('../../models/user.model');
 const roomController = require('./room.controller');
+const assert = require('assert');
 
 
 let coreController = {};
@@ -186,6 +187,9 @@ coreController.manageGame = async function (obj, socket, next, room) {
         data["is_game_over"] = true;
         
         // TODO: decide who is winner from the remaining players
+        let results = getWinners(room.players_ids, room.still_in_round, room.table_cards, room.users_cards);
+        console.log("winners "+results.winners);
+        console.log("Hand: "+results.winningHand.name);
         data["winner"] = room.players_ids.indexOf(room.still_in_round[0]); 
 
         // TODO: Reset the room to get ready for a new round
@@ -264,19 +268,24 @@ function rankCard(playerCards, tableCards) {
   }
 
   let combinationName = "No pair";
+  let combinationRank = 0;
   let cardsCombination = new Array(-1, -1, -1, -1, -1);
 
   if(straight.start == 12 && allCardsTogether.indexOf((12+13*flush)-1) != -1) { // Check for royal flush
     combinationName = "Royal flush";
+    combinationRank = 9;
     cardsCombination = new Array(12, 11, 10, 9, 8); // Check for straight flush
   } else if(straight.count == 5 && allCardsTogether.indexOf((straight.start+13*flush)-1) != -1) {
     combinationName = "Straight flush"
+    combinationRank = 8;
     cardsCombination = new Array(straight.start, straight.start-1, straight.start-2, straight.start-3, straight.start-4);
   } else if(fourOfAKind != -1) { // check for of a kind
     combinationName = "Four of a kind";
+    combinationRank = 7;
     cardsCombination = new Array(fourOfAKind, fourOfAKind, fourOfAKind, fourOfAKind, strongest[0]);
   } else if(threeOfAKind != -1 && pairs[0] != -1) { // check for Full house
     combinationName = "Full house";
+    combinationRank = 6;
     cardsCombination = new Array(threeOfAKind, threeOfAKind, threeOfAKind, pairs[0], pairs[0]);
   } else if(flush != -1) { // Check for flush (must redefine strongest)
     let newStrongest = [];
@@ -289,24 +298,30 @@ function rankCard(playerCards, tableCards) {
     newStrongest.splice(5, newStrongest.length-5);
     console.log(newStrongest);
     combinationName = "Flush";
+    combinationRank = 5;
     cardsCombination = newStrongest;
   } else if(straight.count == 5) { // Regular straight
     combinationName = "Straight";
+    combinationRank = 4;
     cardsCombination = new Array(straight.start, straight.start-1, straight.start-2, straight.start-3, (straight.start-4));
   } else if(threeOfAKind != -1) { // Three of a kind
     combinationName = "Three of a kind";
+    combinationRank = 3;
     cardsCombination = new Array(threeOfAKind, threeOfAKind, threeOfAKind, strongest[0], strongest[1]);
   } else if(pairs[0] != -1 && pairs[1] != -1) { // Two pairs
     combinationName = "Two pairs";
+    combinationRank = 2;
     cardsCombination = new Array(pairs[0], pairs[0], pairs[1], pairs[1], strongest[0]);
   } else if(pairs[0] != -1) { // A pair
     combinationName = "A Pair";
+    combinationRank = 1;
     cardsCombination = new Array(pairs[0], pairs[0], strongest[0], strongest[1], strongest[2]);
   } else { // No pair
     combinationName = "High card";
+    combinationRank = 0;
     cardsCombination = new Array(strongest[0], strongest[1], strongest[2], strongest[3], strongest[4]);
   }
-  return {name: combinationName, combination: cardsCombination};
+  return {name: combinationName, combination: cardsCombination, rank: combinationRank};
 }
 
 function findStraight(rankedCards) {
@@ -339,6 +354,32 @@ function findStraight(rankedCards) {
   return {count, start: startingRanking};
 }
 
+function getWinners(allPlayers, competingPlayers, tableCards, userCards) {
+
+  let winners = new Array();
+  let winningHand = {name: "", combination: [], rank: -1};
+  competingPlayers.forEach((item, i) => { 
+    const index = allPlayers.indexOf(item);
+    const myCards = [userCards[0+2*index], userCards[1+2*index]];
+    const bestHand = rankCard(myCards, tableCards);
+
+    if(bestHand.rank > winningHand.rank) {
+      winningHand = bestHand;
+      winners = new Array();
+      winners.push(index);
+    } else if(bestHand.rank == winningHand.rank) {
+      if(bestHand.combination.some((item, i)=>{ item > winningHand.combination[i]})) {
+        winningHand = bestHand;
+        winners = new Array();
+        winners.push(index);
+      } else if(bestHand.combination.every((item, i)=>{ item == winningHand.combination[i]})) {
+        winners.push(index);
+      }
+    }
+  });
+  return {winners, winningHand};
+}
+
 function groupCards(playerCards, tableCards) {
   const allCardsTogether = [];
   allCardsTogether.push(playerCards[0]);
@@ -363,3 +404,6 @@ function findFlush(allCardsTogether) {
 }
 
 module.exports = coreController;
+
+
+  
