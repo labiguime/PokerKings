@@ -67,11 +67,7 @@ const roomSchema = new Schema({
 		type: Number,
 	}],
 
-	big_blind: {
-		type: String,
-	},
-
-	player_who_started: {
+	small_blind: {
 		type: String,
 	},
 

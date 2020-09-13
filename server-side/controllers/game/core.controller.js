@@ -45,8 +45,7 @@ coreController.startGame = async function (obj, socket, next) {
       current_player: players_ids[(nPlayers==2?0:2)],
       game_stage: 0,
       current_minimum: constants.START_MINIMUM_BET,
-      big_blind: players_ids[1],
-      player_who_started: players_ids[(nPlayers==2?0:2)],
+      small_blind: players_ids[0],
       current_starting_player: players_ids[(nPlayers==2?0:2)],
       current_ending_player: players_ids[1],
       round_current_minimum: constants.START_MINIMUM_BET,
@@ -92,7 +91,10 @@ coreController.manageGame = async function (obj, socket, next, room) {
       else if(room.current_ending_player == me) {
         // go to next round
         hasRoundEnded = true;
-        const newIndex = (room.still_in_round.indexOf(room.current_starting_player)-1)%room.still_in_round.length;
+        let newIndex = (room.still_in_round.indexOf(room.current_starting_player)-1)%room.still_in_round.length;
+        if(newIndex == -1) {
+          newIndex = room.still_in_round.length-1;
+        }
         room.current_player = room.current_starting_player;
         room.current_ending_player = room.still_in_round[newIndex];
       } else {
@@ -114,7 +116,10 @@ coreController.manageGame = async function (obj, socket, next, room) {
       if(absoluteRaise > room.round_current_minimum) { // It's an increase
         actionType = 3;
         // The new ender is the one before me
-        const newIndex = (room.still_in_round.indexOf(me)-1)%room.still_in_round.length;
+        let newIndex = (room.still_in_round.indexOf(me)-1)%room.still_in_round.length;
+        if(newIndex == -1) {
+          newIndex = room.still_in_round.length-1;
+        }
         room.round_current_minimum = absoluteRaise;
         room.current_ending_player = room.still_in_round[newIndex];
 
@@ -125,7 +130,10 @@ coreController.manageGame = async function (obj, socket, next, room) {
         actionType = 2;
         if(room.current_ending_player == me) {
           // end of the round, next round please
-          const newIndex = (room.still_in_round.indexOf(room.current_starting_player)-1)%room.still_in_round.length;
+          let newIndex = (room.still_in_round.indexOf(room.current_starting_player)-1)%room.still_in_round.length;
+          if(newIndex == -1) {
+            newIndex = room.still_in_round.length-1;
+          }
           room.current_player = room.current_starting_player;
           room.current_ending_player = room.still_in_round[newIndex];
           
@@ -157,11 +165,6 @@ coreController.manageGame = async function (obj, socket, next, room) {
       room.game_stage += 1;
       room.round_current_minimum = 0;
       room.round_players_bets = [0, 0, 0, 0];
-    }
-
-    const updateRoom = await Room.findOneAndUpdate({_id: obj.room_id}, room, {new: true});
-    if(!updateRoom) {
-      console.log("Big error in the room");
     }
 
     let winData = {
@@ -199,6 +202,8 @@ coreController.manageGame = async function (obj, socket, next, room) {
     };
 
     if(room.game_stage < 3 && winner.length == 0) { // The game is still going
+      const updateRoom = await Room.findOneAndUpdate({_id: obj.room_id}, room, {new: true});
+
       room.players_ids.forEach((item, i) => { 
         data["current_minimum"] = room.round_current_minimum-room.round_players_bets[i];
         data["my_index"] = i;
@@ -230,17 +235,19 @@ coreController.manageGame = async function (obj, socket, next, room) {
         }
       }
       // Reset the room to get ready for a new round
-      const resetRoomResult = resetRoom();
+      const resetRoomResult = resetRoom(room);
 
       // Add the data to the broadcast queue
-      room.players_ids.forEach((item, i) => { 
+      resetRoomResult.players_ids.forEach((item, i) => { 
 
         // Set the remaining variables
         winData["current_minimum"] = resetRoomResult.round_current_minimum-resetRoomResult.round_players_bets[i];
         winData["my_index"] = i;
         winData["players_money"] = resetRoomResult.players_money;
         winData["number_of_players"] = resetRoomResult.players_ids.length
-        winData["current_player"] = resetRoomResult.current_player; 
+        winData["current_player"] = resetRoomResult.players_ids.indexOf(resetRoomResult.current_player);
+        winData["big_blind"] = (resetRoomResult.players_ids.indexOf(resetRoomResult.smallBlind)+1)%resetRoomResult.players_ids.length;
+        winData["small_blind"] = resetRoomResult.players_ids.indexOf(resetRoomResult.smallBlind); 
         winData["card_1"] = resetRoomResult.userCards[0+2*i]; 
         winData["card_2"] = resetRoomResult.userCards[1+2*i]; 
         winData["table_card_1"] = resetRoomResult.tableCards[0];
@@ -251,18 +258,58 @@ coreController.manageGame = async function (obj, socket, next, room) {
         socket.getRequest.push({room: "spot/"+item, route: "getRoomResults", data: shallowCopy});
       });
     }
-    
   } catch (e) {
     console.log(e);
   }
 
-  
-  // determine state
   next();
 } 
 
-async function resetRoom() {
+async function resetRoom(room) {
 
+  // draw cards
+  const nPlayers = room.players_ids.length;
+  const cards = Array.from(Cards.draw(constants.NUMBER_CARDS_TABLE+nPlayers));
+
+  // distribute cards
+  const roomCards = cards.slice(0, constants.NUMBER_CARDS_TABLE);
+  const userCards = cards.slice(constants.NUMBER_CARDS_TABLE, (nPlayers*2)+constants.NUMBER_CARDS_TABLE);
+
+  const smallBlindIndex = (room.players_ids.indexOf(room.smallBlind)+1)%nPlayers;
+  const bigBlindIndex = (smallBlindIndex+1)%nPlayers;
+  const currentIndex = (bigBlindIndex+1)%nPlayers;
+
+  let currentBets = new Array(nPlayers);
+  for(let i = 0; i < nPlayers; i++) {
+    currentBets[i] = 0;
+  }
+
+  currentBets[smallBlindIndex] = Math.floor((constants.START_MINIMUM_BET)/2);
+  currentBets[bigBlindIndex] = constants.START_MINIMUM_BET;
+
+  room.players_money[smallBlindIndex] -= currentBets[smallBlindIndex];
+  room.players_money[bigBlindIndex] -= currentBets[bigBlindIndex];
+
+  const roomUpdate = {
+    users_cards: userCards,
+    table_cards: roomCards,
+    players_money: room.players_money,
+    room_total_money: 0,
+    still_in_round: room.players_ids,
+    players_in_room: nPlayers,
+    current_player: players_ids[currentIndex],
+    game_stage: 0,
+    current_minimum: constants.START_MINIMUM_BET,
+    small_blind: room.players_ids[smallBlindIndex],
+    current_starting_player: players_ids[currentIndex],
+    current_ending_player: players_ids[bigBlindIndex],
+    round_current_minimum: constants.START_MINIMUM_BET,
+    round_players_bets: currentBets
+  };
+
+  // Update the room
+  const roomUpdateResult = await Room.findOneAndUpdate({_id: room._id}, roomUpdate, {new: true});
+  return roomUpdateResult;
 }
 
 function rankCard(playerCards, tableCards) {
