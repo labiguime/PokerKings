@@ -212,4 +212,67 @@ async function resetRoom() {
 
 }
 
+function rankCard(playerCards, tableCards) {
+
+  // We group all the cards together
+  let allCardsTogether = [];
+
+  allCardsTogether.push(playerCards[0]);
+  allCardsTogether.push(playerCards[1]);
+  for(let i = 0; i < tableCards.length; i++) {
+    allCardsTogether.push(tableCards[i]);
+  }
+
+  // We set up a ranks array to count each rank
+  let ranks = new Array(13); 
+  for (let i = 0; i < 13; i++) {
+    ranks[i] = 0;
+  }
+
+  // Increment rank when found
+  for(let i = 0; i < allCardsTogether.length; i++) {
+    ranks[(allCardsTogether[i]-1)%13]++;
+  }
+
+  // Check for straight
+  let straightCount = 0;
+  let straightStartingRank = -1;
+  for(let i = 12; i > -1; i--) {
+    if(ranks[i] >= 1) {
+      straightCount++;
+    } else {
+      straightCount = 0;
+      straightStartingRank = -1;
+    }
+    // Straight has been found;
+    if(straightCount == 5) {
+      straightStartingRank = i+4;
+      break;
+    }
+    // Impossible to get a straight out of 4 cards
+    if(rank < 3 && straightCount == 0) break;
+
+    // Edge case for this straight: A 2 3 4 5
+    if(straightCount == 4 && i==0) {
+      if(rank[12]>=1) {
+        straightCount=5;
+        straightStartingRank=3;
+      }
+    }
+  }
+
+  // Check for any flush
+  let flushType = new Array(0,0,0,0);
+  let flush = -1;
+  for(let i = 0; i < allCardsTogether.length; i++) {
+    flushType[Math.floor(allCardsTogether[i]/13)]++;
+    if(flushType[Math.floor(allCardsTogether[i]/13)] == 5) {
+      flush = allCardsTogether[i];
+      break;
+    }
+  }
+
+  
+}
+
 module.exports = coreController;
