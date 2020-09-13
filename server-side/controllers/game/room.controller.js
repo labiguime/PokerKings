@@ -12,16 +12,16 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!room) {
 			success = false;
 			message = "This room doesn't exist.";
-			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
-			console.log({success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
 			return;
 		}
 
 		if (room.is_in_game == true) {
 			success = false;
 			message = "A game is currently being played in this room.";
-			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
-			console.log({success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
 			return;
 		}
 
@@ -29,8 +29,8 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(isNameTaken.length == 1) {
 			success = false;
 			message = "This username is already taken!";
-			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
-			console.log({success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
 			return;
 		}
 
@@ -38,8 +38,8 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!spot) {
 			success = false;
 			message = "This room is full.";
-			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
-			console.log({success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
 			return;
 		}
 
@@ -47,25 +47,38 @@ roomController.joinRoom = async function (obj, socket, next) {
 		if(!user) {
 			success = false;
 			message = "There are too many players connected to PokerKings.";
-			socket.emit('getJoinRoomAuthorization', {success: success, message: message});
-			console.log({success: success, message: message});
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
 			return;
 		}
 
-		success = true;
-		message = "Joining the room...";
-		const roomRoute = "room/"+room._id;
-		const privateRoute = "spot/"+spot._id;
-		socket.emit('getJoinRoomAuthorization', {success: success, message: message, spot: spot._id, room: room._id});
-		socket.join(roomRoute);
-		socket.join(privateRoute);
+		const updateRoomResult = await Room.findOneAndUpdate({_id: obj.room_id}, {players_in_room: room.players_in_room+1}, {new: true});
+		if(!updateRoomResult) {
+			success = false;
+			message = "Error while updating the room. Try again!";
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
+			return;	
+		}
 
-		const roomPlayers = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+		const updatePlayerResult = await User.find({room_id: room._id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
+		if(!updatePlayerResult) {
+			success = false;
+			message = "Error while updating your information. Try again!";
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
+			return;	
+		}
+
+		socket.join("room/"+room._id);
+		socket.join("spot/"+spot._id);
+		socket.emit('getJoinRoomAuthorization', {success: true, spot: spot._id, room: room._id});
+
 		socket.getRequest = [];
 		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+
 		console.log("Request successfully fulfilled!\n");
 		next();
-
 	} catch (e) {
 		console.log(e.message);
 	}
@@ -82,12 +95,21 @@ roomController.setReady = async function (obj, socket, next) {
 
 		socket.emit('getReadyPlayerAuthorization', {success: true});
 
+		const room = await Room.findOne({_id: obj.room_id});
+		if(!room) {
+			// This room doesn't exist
+			console.log("this room doesn't exist!");
+			socket.emit('getReadyPlayerAuthorization', {success: false});
+			return;
+		}
+
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 
 		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 
-		if(playerList.length == 0) {
+		// There must be more than 1 player in the room for the game to start
+		if(playerList.length == 0 && room.players_in_room > 1) {
 			core.startGame(obj, socket, next);
 		}
 

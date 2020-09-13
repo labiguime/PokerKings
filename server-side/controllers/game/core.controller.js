@@ -28,6 +28,7 @@ coreController.startGame = async function (obj, socket, next) {
     const roomCards = cards.slice(0, constants.NUMBER_CARDS_TABLE);
     const userCards = cards.slice(constants.NUMBER_CARDS_TABLE, (nPlayers*2)+constants.NUMBER_CARDS_TABLE);
     const roomUpdate = {
+      is_in_game: true,
       users_cards: userCards,
       table_cards: roomCards,
       players_money: [constants.START_MONEY-(Math.floor((constants.START_MINIMUM_BET)/2)), constants.START_MONEY-(constants.START_MINIMUM_BET), constants.START_MONEY, constants.START_MONEY],

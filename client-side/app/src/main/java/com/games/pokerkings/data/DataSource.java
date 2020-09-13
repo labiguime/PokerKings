@@ -69,24 +69,20 @@ public class DataSource {
         mSocket.on(GET_JOIN_GAME_AUTHORIZATION, args -> {
             JSONObject data = (JSONObject) args[0];
             try {
-                Boolean success;
-                String message;
-                String spot;
-                String room;
-
-                success = data.getBoolean("success");
-                message = data.getString("message");
-
+                Boolean success = data.getBoolean("success");
                 if(!success) {
+                    String message;
+                    message = data.getString("message");
                     Result.Error result = new Result.Error(message);
                     joinGameAuthorizationLiveData.postValue(result);
                 } else {
+                    String spot;
+                    String room;
                     spot = data.getString("spot");
                     room = data.getString("room");
                     Result.Success<Room> result = new Result.Success<>(new Room(room, spot));
                     joinGameAuthorizationLiveData.postValue(result);
                 }
-
             } catch (JSONException e) {
                 Result.Error result = new Result.Error(e.getMessage());
                 joinGameAuthorizationLiveData.postValue(result);
@@ -98,7 +94,7 @@ public class DataSource {
             try {
                 Boolean success = data.getBoolean("success");
                 if(success) {
-                    Result.Success<Boolean> result = new Result.Success<>(success);
+                    Result.Success<Boolean> result = new Result.Success<>(true);
                     readyPlayerAuthorizationLiveData.postValue(result);
                 } else {
                     Result.Error result = new Result.Error(Constants.ERROR_UNKNOWN);
