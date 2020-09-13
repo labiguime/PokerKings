@@ -53,7 +53,10 @@ public class GameRoomViewModel extends ViewModel {
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
-        this.receiveAuthorizationToPlay = gameRoomRepository.onReceiveAuthorizationToPlay();
+        this.receiveAuthorizationToPlay = Transformations.map(gameRoomRepository.onReceiveAuthorizationToPlay(), value -> {
+            this.hasPressedAButton.setValue(false);
+            return value;
+        });
         this.receiveRoomState = gameRoomRepository.onReceiveRoomState();
 
         this.totalMoney = gameRoomRepository.getTotalMoney();

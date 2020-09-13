@@ -167,7 +167,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
       player_new_money: room.players_money[playerIndex],
       player_money_change: obj.raise,
       table_total: room.round_total_money,
-      all_cards: null,
+      all_cards: [0],
       current_minimum: room.round_current_minimum,
       my_index: -1,
       number_of_players: room.players_ids.length
@@ -179,11 +179,15 @@ coreController.manageGame = async function (obj, socket, next, room) {
       }
 
     } else { // this game is over
+      data["table_card"] = -1;
       if(!winner) {
         data["all_cards"] = room.users_cards;
         data["is_game_over"] = true;
+        
         // TODO: decide who is winner from the remaining players
-        winner = room.still_in_round[0]; 
+        data["winner"] = room.players_ids.indexOf(room.still_in_round[0]); 
+
+        // TODO: Reset the room to get ready for a new round
         resetRoom();
       }
     }
