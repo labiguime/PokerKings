@@ -34,7 +34,7 @@ coreController.startGame = async function (obj, socket, next) {
       users_cards: userCards,
       table_cards: roomCards,
       players_money: [constants.START_MONEY-(Math.floor((constants.START_MINIMUM_BET)/2)), constants.START_MONEY-(constants.START_MINIMUM_BET), constants.START_MONEY, constants.START_MONEY],
-      room_total_money: constants.START_MINIMUM_BET+Math.floor(constants.START_MINIMUM_BET),
+      room_total_money: constants.START_MINIMUM_BET+Math.floor(constants.START_MINIMUM_BET/2),
       players_ids: players_ids,
       players_names: players_names,
       still_in_round: players_ids,
@@ -105,14 +105,19 @@ coreController.manageGame = async function (obj, socket, next, room) {
         room.still_in_round.splice(playerIndex, 1);
       } 
     } else {
+      console.log("The raise is "+obj.raise+ " and his current total is "+room.round_players_bets[playerIndex]);
       const absoluteRaise = obj.raise+room.round_players_bets[playerIndex];
       room.players_money[playerIndex] -= obj.raise;
+      console.log("total money before: "+ room.room_total_money);
       room.room_total_money += obj.raise;
+      console.log("total money after: "+ room.room_total_money);
+      
       room.round_players_bets[playerIndex] = absoluteRaise;
       
 
     // TODO: DONT FORGET TO CHANGE CHECKS FOR RAISE IN ROOM CONTROLLER
       if(absoluteRaise > room.round_current_minimum) { // It's an increase
+        console.log("THERE HAS BEEN AN INCREASE!!!");
         actionType = 3;
         // The new ender is the one before me
         let newIndex = (room.still_in_round.indexOf(me)-1)%room.still_in_round.length;
@@ -308,6 +313,7 @@ async function resetRoom(room) {
     players_in_room: nPlayers,
     current_player: room.players_ids[currentIndex],
     game_stage: 0,
+    room_total_money: 150,
     current_minimum: constants.START_MINIMUM_BET,
     small_blind: room.players_ids[smallBlindIndex],
     current_starting_player: room.players_ids[currentIndex],

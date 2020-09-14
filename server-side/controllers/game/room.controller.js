@@ -109,12 +109,14 @@ roomController.setReady = async function (obj, socket, next) {
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
 
-		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
+		
 
 		// There must be more than 1 player in the room for the game to start
 		if(playerList.length == 0 && room.players_in_room > 1) {
 			core.startGame(obj, socket, next);
 		}
+
+		socket.getRequest.push({room: roomRoute, route: "getPreGamePlayerList", data: {players: roomPlayers}});
 
 		console.log("Request successfully fulfilled!\n");
 		next();

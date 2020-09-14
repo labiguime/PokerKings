@@ -265,7 +265,7 @@ public class GameRoomRepository {
 
         currentMinimumLocal = roomResults.getCurrentMinimum();
         currentMinimum.setValue(roomResults.getCurrentMinimum());
-        totalMoney.setValue(0);
+        totalMoney.setValue(150);
 
     }
 
@@ -274,7 +274,7 @@ public class GameRoomRepository {
             InitialGameDataResult res = ((Result.Success<InitialGameDataResult>) data).getData();
 
             if(res.getUserIndex() < 2) {
-                Integer m = Integer.parseInt(res.getStartMoney().toString())-50*(res.getUserIndex()+1);
+                Integer m = Integer.parseInt("10000")-50*(res.getUserIndex()+1);
                 ListManipulation.set(money, 0, "$"+m.toString(), false);
             } else {
                 ListManipulation.set(money, 0, "$"+res.getStartMoney().toString(), false);
@@ -283,10 +283,12 @@ public class GameRoomRepository {
             for(int i = 0; i < res.getNumberOfPlayers(); i++) {
                 if(res.getUserIndex() == i) continue;
                 if(i < 2) {
-                    Integer m = Integer.parseInt(res.getStartMoney().toString())-50*(i+1);
-                    ListManipulation.set(money, i, "$"+m.toString(), false);
+                    Integer m = Integer.parseInt("10000")-50*(i+1);
+                    Integer pIndex = getLayoutForId(res.getUserIndex(), i, res.getNumberOfPlayers());
+                    ListManipulation.set(money, pIndex, "$"+m.toString(), false);
                 } else {
-                    ListManipulation.set(money, i, "$"+res.getStartMoney().toString(), false);
+                    Integer pIndex = getLayoutForId(res.getUserIndex(), i, res.getNumberOfPlayers());
+                    ListManipulation.set(money, pIndex, "$"+"10000", false);
                 }
             }
             ListManipulation.set(playerCards, 0, res.getCard1(),false);

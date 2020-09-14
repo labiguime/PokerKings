@@ -107,37 +107,15 @@ public class GameRoomFragment extends Fragment {
                 showErrorMessage(roomState.getError());
             } else {
                 if(roomState.getHasRoundEnded()) {
-                    /*Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.from_top);
-                    triggerChangesAfterFromTop.setStartOffset(2000);
-                    triggerChangesAfterFromTop.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                            tableCardImage[roomState.getGameStage()+2].setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            List<Integer> tableCards = Arrays.asList(roomState.getTableCard());
-                            List<ImageView> imageList = Arrays.asList(tableCardImage[roomState.getGameStage()+2]);
-                            CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-                    tableCardImage[roomState.getGameStage()+2].startAnimation(triggerChangesAfterFromTop);*/
-
                     tableCardImage[roomState.getGameStage()+2].setVisibility(View.VISIBLE);
-                    CardManipulation.fadeCardIn(tableCardImage[roomState.getGameStage()+2], 2000).start();
+                    CardManipulation.fadeCardIn(tableCardImage[roomState.getGameStage()+2], 0).start();
                     Handler handler = new Handler();
                     Runnable runnable = () -> {
                         List<Integer> tableCards = Arrays.asList(roomState.getTableCard());
                         List<ImageView> imageList = Arrays.asList(tableCardImage[roomState.getGameStage()+2]);
                         CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
                     };
-                    handler.postDelayed(runnable, 3200);
+                    handler.postDelayed(runnable, 1300);
 
                 }
             }
