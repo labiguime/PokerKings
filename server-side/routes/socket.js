@@ -4,21 +4,31 @@
 */
 
 const room = require('./socket/room');
-const core = require('../../controllers/game/core.controller');
+const core = require('../controllers/game/core.controller');
 
 exports = module.exports = (io) => {
 
   //
-	io.on('connection', (socket, next) => {
+	io.on('connection', (socket) => {
 		console.log("Client Id: ["+socket.id+"] has connected to the server.");
 		socket.on('disconnect', () => {
 			console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
-			const result = await coreController.onDisconnect(socket, next);
-			if(!result) {
-				console.log("The disconnection wasn't successful!");
+			core.onDisconnect(socket);
+			const getRequest = socket.getRequest;
+			if(getRequest === undefined || getRequest.length == 0) {}
+			else {
+				getRequest.forEach((item, i) => {
+					const room = item.room;
+					const route = item.route;
+					const data = item.data;
+					io.in(room).emit(route, data);
+					console.log('-- GET route '+route+' has been broadcast on '+room+'\n');
+				});
+				socket.getRequest = [];
+				return;
 			}
 		});
-		next();
+		//next();
 	});
 
   // We check for all routes using middlewares

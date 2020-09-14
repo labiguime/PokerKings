@@ -62,7 +62,7 @@ coreController.startGame = async function (obj, socket, next) {
   // set countdown on acknowledgment
 }
 
-coreController.onDisconnect = async function (socket, next) {
+coreController.onDisconnect = async function (socket) {
   try {
     const spot = await Spot.findOne({player_id: socket.id}, {_id: 1, room_id: 1});
 		if(!spot) {
@@ -70,13 +70,13 @@ coreController.onDisconnect = async function (socket, next) {
 			return;
     }
     
-    const room = await Room.findOne({_id: spot.room_id}, {is_in_game: 1, number_of_players: 1});
+    const room = await Room.findOne({_id: spot.room_id}, {is_in_game: 1, players_in_room: 1});
     if(!room) {
       console.log("Spot belongs to a room but couldn't find that room!");
       return;
     }
 
-    const updatedRoom = await Room.findOneAndUpdate({_id: spot.room_id}, {number_of_players: room.number_of_players-1, updating: true});
+    const updatedRoom = await Room.findOneAndUpdate({_id: spot.room_id}, {players_in_room: room.players_in_room-1, updating: true});
     if(!updatedRoom) {
       console.log("Could not update the room!");
       return;
@@ -101,6 +101,20 @@ coreController.onDisconnect = async function (socket, next) {
       // set everyone to not ready
       const playerList = await User.find({room_id: spot.room_id}, {_id: 1});
       if(playerList) {
+        const start = async () => {
+          await asyncForEach(playerList, async (item) => {
+            const internalUpdate = await User.findOneAndUpdate({_id: item._id}, {ready: false});
+            if(!internalUpdate) {
+              console.log("An error has occured!\n");
+              return;
+            }
+          });
+          console.log('Done');
+        }
+      }
+
+
+      /*if(playerList) {
         playerList.forEach((item) => {
           const internalUpdate = await User.findOneAndUpdate({_id: item._id}, {ready: false});
           if(!internalUpdate) {
@@ -108,7 +122,7 @@ coreController.onDisconnect = async function (socket, next) {
             return;
           }
         });
-      }
+      }*/
 
       socket.getRequest = [];
       var players_ids = [];
@@ -119,7 +133,7 @@ coreController.onDisconnect = async function (socket, next) {
       players_ids.sort();
       players_ids.forEach((item, i) => {
         if(item != spot._id) {
-          socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 0, my_index: i, number_of_players: players_ids.length, disconnected_player: players_ids.indexOf(spot._id)}});
+          socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 0, my_index: i, players_in_room: players_ids.length, disconnected_player: players_ids.indexOf(spot._id)}});
         }
       });
 
@@ -148,28 +162,28 @@ coreController.onDisconnect = async function (socket, next) {
       });
 
       console.log('-------- reset_room command --');
-      let result = await require('../models/room.model').deleteMany({});
+      let result = await require('../../models/room.model').deleteMany({});
       if(!result) {
         console.log("Admin: Couldn't reset room table!");
         return;
       }
       console.log("Admin: Room table has been reset!");
   
-      result = await require('../models/spot.model').deleteMany({});
+      result = await require('../../models/spot.model').deleteMany({});
       if(!result) {
         console.log("Admin: Couldn't reset spot table!");
         return;
       }
       console.log("Admin: Spot table has been reset!");
   
-      result = await require('../models/user.model').deleteMany({});
+      result = await require('../../models/user.model').deleteMany({});
       if(!result) {
         console.log("Admin: Couldn't reset user table!");
         return;
       }
       console.log("Admin: User table has been reset!");
   
-      const room = new require('../models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false, table_cards: null, users_cards: null,
+      const room = new require('../../models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false, table_cards: null, users_cards: null,
             players_ids: null, current_player: -1, game_stage: -1, current_minimum: 0, room_total_money: 0, round_total_money: 0, players_money: null});
       result = await room.save();
       if(!result) {
@@ -178,7 +192,7 @@ coreController.onDisconnect = async function (socket, next) {
       }
   
       //const spot = new require('./models/spot.model')([]{room_id: result._id});
-      result = await require('../models/spot.model').insertMany([{room_id: result._id}, {room_id: result._id}, {room_id: result._id}, {room_id: result._id}]);
+      result = await require('../../models/spot.model').insertMany([{room_id: result._id}, {room_id: result._id}, {room_id: result._id}, {room_id: result._id}]);
       if(!result) { //
         console.log('Admin: Cannot create spots!');
         return;
@@ -189,10 +203,8 @@ coreController.onDisconnect = async function (socket, next) {
     // I
 
     console.log("Successfully added the player to the queue of disconnected players\n");
-    next();
   } catch (e) {
     console.log(e);
-    return;
   }
 }
 coreController.manageGame = async function (obj, socket, next, room) {
