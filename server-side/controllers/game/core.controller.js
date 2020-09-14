@@ -213,7 +213,13 @@ coreController.manageGame = async function (obj, socket, next, room) {
     } else { // The game is over
       if(winner.length == 0) { // We have to determine the winner from the remaining players
         let results = getWinners(room.players_ids, room.still_in_round, room.table_cards, room.users_cards);
-        winData["all_cards"] = room.users_cards; // TODO: Don't give all the users cards
+        let cardsToSend = new Array(-1, -1, -1, -1, -1, -1, -1, -1);
+        room.still_in_round.forEach((item)=> {
+          cardsToSend[room.players_ids.indexOf(item)*2]= room.users_cards[room.players_ids.indexOf(item)*2];
+          cardsToSend[room.players_ids.indexOf(item)*2+1]= room.users_cards[room.players_ids.indexOf(item)*2+1];
+        });
+
+        winData["all_cards"] = cardsToSend; // TODO: Don't give all the users cards
         winData["winner"] = results.winners;
 
         // Come up with winning message and determine gains

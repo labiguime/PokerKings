@@ -153,4 +153,16 @@ public class CardManipulation {
         fadeIn.setStartDelay(startDelay);
         return fadeIn;
     }
+
+    public static Integer getLayoutForId(int playerIndex, int id, int size) {
+        if(size == 2) return 1;
+        int newId = (id+(size-playerIndex))%size;
+        if(newId == 1) {
+            return 2;
+        } else if(newId == 2) {
+            return 1;
+        } else {
+            return 3;
+        }
+    }
 }

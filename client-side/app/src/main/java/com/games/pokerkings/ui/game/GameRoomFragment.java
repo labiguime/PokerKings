@@ -137,43 +137,57 @@ public class GameRoomFragment extends Fragment {
                 showErrorMessage(roomResults.getError());
             } else {
 
-                if(roomResults.getHasRoundEnded() == true && roomResults.getGameStage() == 3) { // We have to show the results progressively
+                if(roomResults.getHasRoundEnded() && roomResults.getGameStage() == 3) { // We have to show the results progressively
+
+                    showErrorMessage(roomResults.getMessage());
+
+                    Integer me = roomResults.getMyIndex();
+                    Integer nPlayers = roomResults.getnPlayers();
+
+                    for(int i = 0; i < 4; i++) {
+                        if(i == me) continue;
+                        int id = CardManipulation.getLayoutForId(me, i, nPlayers);
+                        if(layoutPlayer[id].getVisibility() == View.VISIBLE) {
+                            List<Integer> userCards = Arrays.asList(roomResults.getAllCards().get(0+i*2), roomResults.getAllCards().get(1+i*2));
+                            if(userCards.get(0) == -1 || userCards.get(1) == -1) continue;
+
+                            List<ImageView> imageList = Arrays.asList(playerCardImage[id-1][0], playerCardImage[id-1][1]);
+                            CardManipulation.revealCards(getActivity(), getResources(), imageList, userCards, 0);
+                        }
+                    }
+
+                    Handler handler = new Handler();
+                    Runnable runnable = () -> {
+                        showErrorMessage(roomResults.getMessage());
+                    };
+
+                    Runnable runnable1 = () -> {
+
+                        hideAllCards(roomResults.getGameStage());
+                    };
+
+                    Runnable runnable2 = () -> {
+
+                        List<Integer> userCards = Arrays.asList(roomResults.getCard1(), roomResults.getCard2());
+                        List<ImageView> imageList = Arrays.asList(userCard[0], userCard[1]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, userCards, 0);
+
+                        List<Integer> tableCards = Arrays.asList(roomResults.getTable1(), roomResults.getTable2(), roomResults.getTable3());
+                        imageList = Arrays.asList(tableCardImage[0], tableCardImage[1], tableCardImage[2]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
+
+                        gameRoomViewModel.triggerAfterRoomResultsChanges();
+                    };
+                    handler.postDelayed(runnable, 5000);
+                    handler.postDelayed(runnable1, 10000);
+                    handler.postDelayed(runnable2, 21000);
 
                 } else {
                     // Tell them who won
                     showErrorMessage(roomResults.getMessage());
 
-                    // Get the cards that we want to fade
-                    List<ImageView> shortFadeList = new ArrayList<>();
-                    List<ImageView> longFadeList = new ArrayList<>();
-
-                    if(roomResults.getGameStage() > 1) {
-                        longFadeList.add(tableCardImage[3]);
-                    }
-
-                    if(roomResults.getGameStage() > 2) {
-                        longFadeList.add(tableCardImage[4]);
-                    }
-
-                    shortFadeList.addAll(Arrays.asList(userCard).subList(0, 2));
-                    for(int i = 0; i < 3; i++) {
-                        if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
-                            shortFadeList.add(playerCardImage[i][0]);
-                            shortFadeList.add(playerCardImage[i][1]);
-                        }
-                    }
-
-                    for (ImageView image: shortFadeList) {
-                        fadeOutAndIn(getResources(), image, 3000, 5000);
-                    }
-
-                    for (ImageView image: longFadeList) {
-                        CardManipulation.fadeCardOut(getResources(), image, 3000).start();
-                    }
-
-                    for (int i = 0; i < 3; i++) {
-                        fadeOutAndIn(getResources(), tableCardImage[i], 3000, 5000);
-                    }
+                    //
+                    hideAllCards(roomResults.getGameStage());
 
                     Handler handler = new Handler();
                     Runnable runnable = () -> {
@@ -295,6 +309,40 @@ public class GameRoomFragment extends Fragment {
 
     public void showErrorMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+    }
+
+    public void hideAllCards(Integer gameStage) {
+        // Get the cards that we want to fade
+        List<ImageView> shortFadeList = new ArrayList<>();
+        List<ImageView> longFadeList = new ArrayList<>();
+
+        if(gameStage > 1) {
+            longFadeList.add(tableCardImage[3]);
+        }
+
+        if(gameStage > 2) {
+            longFadeList.add(tableCardImage[4]);
+        }
+
+        shortFadeList.addAll(Arrays.asList(userCard).subList(0, 2));
+        for(int i = 0; i < 3; i++) {
+            if(layoutPlayer[i+1].getVisibility() == View.VISIBLE) {
+                shortFadeList.add(playerCardImage[i][0]);
+                shortFadeList.add(playerCardImage[i][1]);
+            }
+        }
+
+        for (ImageView image: shortFadeList) {
+            fadeOutAndIn(getResources(), image, 3000, 5000);
+        }
+
+        for (ImageView image: longFadeList) {
+            CardManipulation.fadeCardOut(getResources(), image, 3000).start();
+        }
+
+        for (int i = 0; i < 3; i++) {
+            fadeOutAndIn(getResources(), tableCardImage[i], 3000, 5000);
+        }
     }
 
 
