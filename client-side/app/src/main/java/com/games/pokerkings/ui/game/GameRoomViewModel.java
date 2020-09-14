@@ -34,6 +34,7 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
     private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
+    private LiveData<String> receiveRoomResults;
     private LiveData<RoomState> receiveRoomState;
 
     public GameRoomViewModel() {
@@ -49,7 +50,7 @@ public class GameRoomViewModel extends ViewModel {
             }
             return value;
         });
-
+        this.receiveRoomResults = gameRoomRepository.onReceiveRoomResults();
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
         this.hasUserInterfaceLoaded = gameRoomRepository.getHasUserInterfaceLoaded();
@@ -109,6 +110,10 @@ public class GameRoomViewModel extends ViewModel {
         return receiveInitialGameData;
     }
 
+    public LiveData<String> onReceiveRoomResults() {
+        return receiveRoomResults;
+    }
+
     public LiveData<RoomState> onReceiveRoomState() {
         return receiveRoomState;
     }
@@ -159,6 +164,17 @@ public class GameRoomViewModel extends ViewModel {
             if (!hasPressedAButtonValue) {
                 hasPressedAButton.setValue(true);
                 gameRoomRepository.matchBet();
+            }
+        }
+    }
+
+    public void onFoldButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                hasPressedAButton.setValue(true);
+                gameRoomRepository.fold();
             }
         }
     }

@@ -39,6 +39,10 @@ const roomSchema = new Schema({
 		type: String,
 	}],
 
+	players_names: [{
+		type: String,
+	}],
+
 	still_in_round: [{
 		type: String,
 	}],
@@ -59,19 +63,11 @@ const roomSchema = new Schema({
 		type: Number,
 	},
 
-	round_total_money: {
-		type: Number,
-	},
-
 	players_money: [{
 		type: Number,
 	}],
 
-	big_blind: {
-		type: String,
-	},
-
-	player_who_started: {
+	small_blind: {
 		type: String,
 	},
 

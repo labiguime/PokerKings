@@ -33,6 +33,7 @@ public class GameRoomRepository {
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
+    private LiveData<String> roomResultsListener;
     private MediatorLiveData<RoomState> roomStateListener = new MediatorLiveData<>();
     private LiveData<Result<Boolean>> authorizationToPlayListener;
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
@@ -53,6 +54,7 @@ public class GameRoomRepository {
         this.roomStateListener.addSource(dataSource.onReceiveRoomState(), this::processRoomState);
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
         this.authorizationToPlayListener = dataSource.onReceiveAuthorizationToPlay();
+        this.roomResultsListener = dataSource.onReceiveRoomResults();
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -69,6 +71,10 @@ public class GameRoomRepository {
 
     public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {
         return authorizationToPlayListener;
+    }
+
+    public LiveData<String> onReceiveRoomResults() {
+        return roomResultsListener;
     }
 
     public LiveData<RoomState> onReceiveRoomState() {
@@ -141,6 +147,33 @@ public class GameRoomRepository {
             object.put("spot_id", spotId);
             object.put("is_folding", false);
             object.put("raise", currentMinimumLocal);
+        } catch(JSONException e) {
+            //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
+            return;
+        }
+        dataSource.postRequest("room/POST:play", object);
+        return;
+    }
+
+    public void fold() {
+        String roomId;
+        String spotId;
+        JSONObject object = new JSONObject();
+        try {
+            assert user.getRoom() != null;
+            roomId = user.getRoom().getName();
+            spotId = user.getRoom().getSpot();
+        } catch (NullPointerException e) {
+            //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
+            return;
+        }
+
+        // TODO: We see the importance of persisting the DATA because using currentMinimumLocal is just an ugly shortcut
+        try {
+            object.put("room_id", roomId);
+            object.put("spot_id", spotId);
+            object.put("is_folding", true);
+            object.put("raise", 0);
         } catch(JSONException e) {
             //notifyReadyPlayerError.setValue(new Result.Error(e.getMessage()));
             return;

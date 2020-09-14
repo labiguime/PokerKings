@@ -31,6 +31,7 @@ public class DataSource {
     public static final String GET_INITIAL_ROOM_DATA = "getInitialRoomData";
     public static final String GET_AUTHORIZATION_TO_PLAY = "getAuthorizationToPlay";
     public static final String GET_ROOM_STATE = "getRoomState";
+    public static final String GET_ROOM_RESULTS = "getRoomResults";
 
     private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
@@ -38,6 +39,7 @@ public class DataSource {
     private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
     private MutableLiveData<RoomState> roomStateLiveData = new MutableLiveData<>();
+    private MutableLiveData<String> roomResultsLiveData = new MutableLiveData<>();
 
 
     public DataSource() {
@@ -146,6 +148,16 @@ public class DataSource {
             }
         });
 
+        mSocket.on(GET_ROOM_RESULTS, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                String message = data.getString("message");
+                roomResultsLiveData.postValue(message);
+            } catch (JSONException e) {
+                roomResultsLiveData.postValue(e.getMessage());
+            }
+        });
+
         mSocket.on(GET_ROOM_STATE, args -> {
             JSONObject data = (JSONObject) args[0];
             try {
@@ -162,7 +174,8 @@ public class DataSource {
                 Integer nPlayers = data.getInt("number_of_players");
                 Integer gameStage = data.getInt("game_stage");
                 Boolean isGameOver = data.getBoolean("is_game_over");
-                @Nullable
+
+                /*@Nullable
                 Integer winner = null;
                 @Nullable
                 List<Integer> allCards = null;
@@ -177,8 +190,8 @@ public class DataSource {
                         }
                         allCards = listData;
                     }
-                }
-                RoomState roomState = new RoomState(hasRoundEnded, allCards, nextPlayer, actionType, whoPlayed, winner, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
+                }*/
+                RoomState roomState = new RoomState(hasRoundEnded, nextPlayer, actionType, whoPlayed, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
                 roomStateLiveData.postValue(roomState);
             } catch (JSONException e) {
                 RoomState roomState = new RoomState(e.getMessage());
@@ -194,6 +207,10 @@ public class DataSource {
 
     public void getRequest(String req, Emitter.Listener listener) {
         mSocket.on(req, listener);
+    }
+
+    public LiveData<String> onReceiveRoomResults() {
+        return roomResultsLiveData;
     }
 
     public LiveData<Result<Boolean>> onReceiveAuthorizationToPlay() {

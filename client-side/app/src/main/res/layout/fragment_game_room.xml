@@ -750,6 +750,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:clickable="true"
+                android:onClick="@{()->gameRoomViewModel.onFoldButtonClicked()}"
                 android:layout_weight="2"
                 app:srcCompat="@drawable/fold_button" />
 
