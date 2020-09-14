@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomResults;
 import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.*;
@@ -33,7 +34,7 @@ public class GameRoomRepository {
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
-    private LiveData<String> roomResultsListener;
+    private LiveData<RoomResults> roomResultsListener;
     private MediatorLiveData<RoomState> roomStateListener = new MediatorLiveData<>();
     private LiveData<Result<Boolean>> authorizationToPlayListener;
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
@@ -73,7 +74,7 @@ public class GameRoomRepository {
         return authorizationToPlayListener;
     }
 
-    public LiveData<String> onReceiveRoomResults() {
+    public LiveData<RoomResults> onReceiveRoomResults() {
         return roomResultsListener;
     }
 

@@ -175,7 +175,7 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
-        gameRoomViewModel.onReceiveRoomResults().observe(getViewLifecycleOwner(), this::showErrorMessage);
+        //gameRoomViewModel.onReceiveRoomResults().observe(getViewLifecycleOwner(), this::showErrorMessage);
 
         gameRoomViewModel.onReceiveAuthorizationToPlay().observe(getViewLifecycleOwner(), booleanResult -> {
             if(booleanResult instanceof Result.Success) {
