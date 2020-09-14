@@ -53,7 +53,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 		}
 
 		const updateRoomResult = await Room.findOneAndUpdate({_id: room._id}, {players_in_room: room.players_in_room+1}, {new: true});
-		if(!updateRoomResult) {
+		if(!updateRoomResult || updateRoomResult.updating == true) {
 			success = false;
 			message = "Error while updating the room. Try again!";
 			socket.emit('getJoinRoomAuthorization', {success, message});
@@ -98,7 +98,7 @@ roomController.setReady = async function (obj, socket, next) {
 		socket.emit('getReadyPlayerAuthorization', {success: true});
 
 		const room = await Room.findOne({_id: obj.room_id});
-		if(!room) {
+		if(!room || room.updating == true) {
 			// This room doesn't exist
 			console.log("this room doesn't exist!");
 			socket.emit('getReadyPlayerAuthorization', {success: false});
@@ -108,7 +108,6 @@ roomController.setReady = async function (obj, socket, next) {
 		// TODO: Fix the pre game player list received
 		const roomRoute = "room/"+obj.room_id;
 		const roomPlayers = await User.find({room_id: obj.room_id}, {name: 1, avatar: 1, spot_id: 1, ready: 1});
-
 		
 
 		// There must be more than 1 player in the room for the game to start

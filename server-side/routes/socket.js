@@ -9,15 +9,16 @@ const core = require('../../controllers/game/core.controller');
 exports = module.exports = (io) => {
 
   //
-	io.on('connection', (socket) => {
+	io.on('connection', (socket, next) => {
 		console.log("Client Id: ["+socket.id+"] has connected to the server.");
 		socket.on('disconnect', () => {
 			console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
-			const result = await coreController.onDisconnect(socket);
+			const result = await coreController.onDisconnect(socket, next);
 			if(!result) {
 				console.log("The disconnection wasn't successful!");
 			}
 		});
+		next();
 	});
 
   // We check for all routes using middlewares

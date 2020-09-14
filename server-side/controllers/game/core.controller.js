@@ -62,21 +62,137 @@ coreController.startGame = async function (obj, socket, next) {
   // set countdown on acknowledgment
 }
 
-coreController.onDisconnect = async function (socket) {
+coreController.onDisconnect = async function (socket, next) {
   try {
-    const spot = await Spot.findOne({player_id: socket.id}, {_id: 1});
+    const spot = await Spot.findOne({player_id: socket.id}, {_id: 1, room_id: 1});
 		if(!spot) {
-			success = false;
-			message = "This room is full.";
-			socket.emit('getJoinRoomAuthorization', {success, message});
-			console.log({success, message});
+			console.log("The disconnected player wasn't part of a room!\n");
 			return;
-		}
+    }
+    
+    const room = await Room.findOne({_id: spot.room_id}, {is_in_game: 1, number_of_players: 1});
+    if(!room) {
+      console.log("Spot belongs to a room but couldn't find that room!");
+      return;
+    }
 
-    return true;
+    const updatedRoom = await Room.findOneAndUpdate({_id: spot.room_id}, {number_of_players: room.number_of_players-1, updating: true});
+    if(!updatedRoom) {
+      console.log("Could not update the room!");
+      return;
+    }
+
+    const updatedSpot = await Spot.findOneAndUpdate({player_id: socket.id}, {player_id: 'None'});
+    if(!updatedSpot) {
+			console.log("Couldn't reset the spot!\n");
+			return;
+    }
+
+    const userUpdate = await User.findOneAndUpdate({room_id: spot.room_id, spot_id: spot._id}, {room_id: null, spot_id: null});
+    if(!userUpdate) {
+			console.log("Couldn't reset the user!\n");
+			return;
+    }
+
+    // Update players UI if !is in game
+
+    if(!room.is_in_game) {
+      console.log("The room is not in a game so it can keep its players.");
+      // set everyone to not ready
+      const playerList = await User.find({room_id: spot.room_id}, {_id: 1});
+      if(playerList) {
+        playerList.forEach((item) => {
+          const internalUpdate = await User.findOneAndUpdate({_id: item._id}, {ready: false});
+          if(!internalUpdate) {
+            console.log("An error has occured!\n");
+            return;
+          }
+        });
+      }
+
+      socket.getRequest = [];
+      var players_ids = [];
+      playerList.forEach((item) => {
+        players_ids.push(item.spot_id);
+      });
+      players_ids.push(spot._id);
+      players_ids.sort();
+      players_ids.forEach((item, i) => {
+        if(item != spot._id) {
+          socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 0, my_index: i, number_of_players: players_ids.length, disconnected_player: players_ids.indexOf(spot._id)}});
+        }
+      });
+
+      const finalRoomUpdate = await Room.findOneAndUpdate({_id: spot.room_id}, {updating: false});
+      if(!finalRoomUpdate) {
+        console.log("Could not make the final update, so the room is unplayable!");
+        return;
+      }
+
+      console.log("Update successful!\n");
+    
+    } else {
+      // set everyone to not ready
+      const playerList = await User.find({room_id: spot.room_id}, {_id: 1});
+      socket.getRequest = [];
+      var players_ids = [];
+      playerList.forEach((item) => {
+        players_ids.push(item.spot_id);
+      });
+      players_ids.push(spot._id);
+      players_ids.sort();
+      players_ids.forEach((item, i) => {
+        if(item != spot._id) { // Sorry but this game is over, join again
+          socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 1}});
+        }
+      });
+
+      console.log('-------- reset_room command --');
+      let result = await require('../models/room.model').deleteMany({});
+      if(!result) {
+        console.log("Admin: Couldn't reset room table!");
+        return;
+      }
+      console.log("Admin: Room table has been reset!");
+  
+      result = await require('../models/spot.model').deleteMany({});
+      if(!result) {
+        console.log("Admin: Couldn't reset spot table!");
+        return;
+      }
+      console.log("Admin: Spot table has been reset!");
+  
+      result = await require('../models/user.model').deleteMany({});
+      if(!result) {
+        console.log("Admin: Couldn't reset user table!");
+        return;
+      }
+      console.log("Admin: User table has been reset!");
+  
+      const room = new require('../models/room.model')({name: 'Room#1', color: 0, players_in_room: 0, is_in_game: false, table_cards: null, users_cards: null,
+            players_ids: null, current_player: -1, game_stage: -1, current_minimum: 0, room_total_money: 0, round_total_money: 0, players_money: null});
+      result = await room.save();
+      if(!result) {
+        console.log('Admin: Cannot create room!');
+        return;
+      }
+  
+      //const spot = new require('./models/spot.model')([]{room_id: result._id});
+      result = await require('../models/spot.model').insertMany([{room_id: result._id}, {room_id: result._id}, {room_id: result._id}, {room_id: result._id}]);
+      if(!result) { //
+        console.log('Admin: Cannot create spots!');
+        return;
+      }
+      console.log('Admin: Room table has been reset and new room has been created!');
+    }
+
+    // I
+
+    console.log("Successfully added the player to the queue of disconnected players\n");
+    next();
   } catch (e) {
     console.log(e);
-    return false;
+    return;
   }
 }
 coreController.manageGame = async function (obj, socket, next, room) {
