@@ -162,7 +162,8 @@ public class DataSource {
                 Integer nPlayers = data.getInt("number_of_players");
                 Integer gameStage = data.getInt("game_stage");
                 Boolean isGameOver = data.getBoolean("is_game_over");
-                @Nullable
+
+                /*@Nullable
                 Integer winner = null;
                 @Nullable
                 List<Integer> allCards = null;
@@ -177,8 +178,8 @@ public class DataSource {
                         }
                         allCards = listData;
                     }
-                }
-                RoomState roomState = new RoomState(hasRoundEnded, allCards, nextPlayer, actionType, whoPlayed, winner, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
+                }*/
+                RoomState roomState = new RoomState(hasRoundEnded, nextPlayer, actionType, whoPlayed, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
                 roomStateLiveData.postValue(roomState);
             } catch (JSONException e) {
                 RoomState roomState = new RoomState(e.getMessage());
