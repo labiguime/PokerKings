@@ -146,7 +146,7 @@ public class GameRoomFragment extends Fragment {
                 if(roomState.getIsGameOver()) {
                     showErrorMessage("This game is over and has been won by player 0!");
                 } else {
-                    showErrorMessage("You are done playing!");
+                    //showErrorMessage("You are done playing!");
                     if(roomState.getHasRoundEnded()) {
                         Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
                         triggerChangesAfterFromTop.setStartOffset(2000);
@@ -174,6 +174,8 @@ public class GameRoomFragment extends Fragment {
 
             }
         });
+
+        gameRoomViewModel.onReceiveRoomResults().observe(getViewLifecycleOwner(), this::showErrorMessage);
 
         gameRoomViewModel.onReceiveAuthorizationToPlay().observe(getViewLifecycleOwner(), booleanResult -> {
             if(booleanResult instanceof Result.Success) {
