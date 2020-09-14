@@ -51,6 +51,7 @@ public class GameRoomViewModel extends ViewModel {
             }
             return value;
         });
+
         this.receiveRoomResults = gameRoomRepository.onReceiveRoomResults();
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
