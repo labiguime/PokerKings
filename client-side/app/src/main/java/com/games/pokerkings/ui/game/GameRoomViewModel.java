@@ -8,6 +8,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomResults;
 import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.game.GameRoomRepository;
 import com.games.pokerkings.data.models.User;
@@ -34,7 +35,7 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
     private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
-    private LiveData<String> receiveRoomResults;
+    private LiveData<RoomResults> receiveRoomResults;
     private LiveData<RoomState> receiveRoomState;
 
     public GameRoomViewModel() {
@@ -50,6 +51,7 @@ public class GameRoomViewModel extends ViewModel {
             }
             return value;
         });
+
         this.receiveRoomResults = gameRoomRepository.onReceiveRoomResults();
         this.receivePreGamePlayerList = gameRoomRepository.onReceivePreGamePlayerList();
         this.receiveInitialGameData = gameRoomRepository.onReceiveInitialGameData();
@@ -59,7 +61,6 @@ public class GameRoomViewModel extends ViewModel {
             return value;
         });
         this.receiveRoomState = gameRoomRepository.onReceiveRoomState();
-
         this.totalMoney = gameRoomRepository.getTotalMoney();
         this.currentMinimum = gameRoomRepository.getCurrentMinimum();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
@@ -110,7 +111,7 @@ public class GameRoomViewModel extends ViewModel {
         return receiveInitialGameData;
     }
 
-    public LiveData<String> onReceiveRoomResults() {
+    public LiveData<RoomResults> onReceiveRoomResults() {
         return receiveRoomResults;
     }
 
@@ -140,6 +141,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<List<String>> getName() {
         return name;
+    }
+
+    public void triggerAfterRoomResultsChanges() {
+        gameRoomRepository.updateRoomWithResults();
     }
 
     public void setUserInterfaceForUser(User u) {

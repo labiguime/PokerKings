@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.games.pokerkings.data.DataSource;
 import com.games.pokerkings.data.InitialGameDataResult;
+import com.games.pokerkings.data.RoomResults;
 import com.games.pokerkings.data.RoomState;
 import com.games.pokerkings.data.models.User;
 import com.games.pokerkings.utils.*;
@@ -22,6 +23,7 @@ public class GameRoomRepository {
     private static volatile GameRoomRepository instance;
     private DataSource dataSource;
     private User user;
+    private RoomResults roomResults;
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isPlayerTurn = new MutableLiveData<>(false);
@@ -33,7 +35,7 @@ public class GameRoomRepository {
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
-    private LiveData<String> roomResultsListener;
+    private MediatorLiveData<RoomResults> roomResultsListener = new MediatorLiveData<>();
     private MediatorLiveData<RoomState> roomStateListener = new MediatorLiveData<>();
     private LiveData<Result<Boolean>> authorizationToPlayListener;
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
@@ -47,14 +49,15 @@ public class GameRoomRepository {
     public GameRoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
+        this.roomResults = new RoomResults("No results");
         currentMinimumLocal = 0;
         this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
         this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
         this.roomStateListener.addSource(dataSource.onReceiveRoomState(), this::processRoomState);
+        this.roomResultsListener.addSource(dataSource.onReceiveRoomResults(), this::processRoomResults);
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
         this.authorizationToPlayListener = dataSource.onReceiveAuthorizationToPlay();
-        this.roomResultsListener = dataSource.onReceiveRoomResults();
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -73,7 +76,7 @@ public class GameRoomRepository {
         return authorizationToPlayListener;
     }
 
-    public LiveData<String> onReceiveRoomResults() {
+    public LiveData<RoomResults> onReceiveRoomResults() {
         return roomResultsListener;
     }
 
@@ -209,11 +212,84 @@ public class GameRoomRepository {
         roomStateListener.setValue(data);
     }
 
+    private void processRoomResults(RoomResults data) {
+        if(data.getError() == null) {
+            roomResults = data;
+
+            Integer me = data.getMyIndex();
+            Integer nplayers = data.getnPlayers();
+
+            // It's nobody's turn for now
+            for(int i = 0; i < nplayers; i++) {
+                if(i == me) {
+                    isPlayerTurn.setValue(false);
+                    ListManipulation.set(avatarType, 0, User.NOT_FOLDED,false);
+                    continue;
+                }
+                Integer index = getLayoutForId(me, i, nplayers);
+                ListManipulation.set(avatarType, index, User.NOT_FOLDED,false);
+            }
+        }
+        roomResultsListener.setValue(data);
+    }
+
+    public void updateRoomWithResults() {
+        Integer me = roomResults.getMyIndex();
+        Integer playing = roomResults.getCurrentPlayer();
+        Integer nplayers = roomResults.getnPlayers();
+
+        // Show the new player
+        if(playing != me) {
+            Integer index = getLayoutForId(me, playing, nplayers);
+            ListManipulation.set(avatarType, index, User.YOUR_TURN,false);
+        } else {
+            ListManipulation.set(avatarType, 0, User.YOUR_TURN,false);
+        }
+
+        // Set my money
+        ListManipulation.set(money, 0, "$"+roomResults.getPlayersMoney().get(me).toString(), false);
+
+        // Set everyone else's money
+        for (int i = 0; i < nplayers; i++) {
+            if(i == me) {
+                ListManipulation.set(money, 0, "$"+roomResults.getPlayersMoney().get(me).toString(), false);
+                continue;
+            }
+            Integer index = getLayoutForId(me, i, nplayers);
+            ListManipulation.set(money, i, "$"+roomResults.getPlayersMoney().get(index).toString(), false);
+        }
+
+        if(roomResults.getCurrentPlayer() == me) {
+            isPlayerTurn.setValue(true);
+        }
+
+        currentMinimumLocal = roomResults.getCurrentMinimum();
+        currentMinimum.setValue(roomResults.getCurrentMinimum());
+        totalMoney.setValue(150);
+
+    }
+
     private void processInitialGameData(Result<InitialGameDataResult> data) {
         if(data instanceof Result.Success) {
             InitialGameDataResult res = ((Result.Success<InitialGameDataResult>) data).getData();
-            for(int i = 0; i < 4; i++) {
-                ListManipulation.set(money, i, "$"+res.getStartMoney().toString(), false);
+
+            if(res.getUserIndex() < 2) {
+                Integer m = Integer.parseInt("10000")-50*(res.getUserIndex()+1);
+                ListManipulation.set(money, 0, "$"+m.toString(), false);
+            } else {
+                ListManipulation.set(money, 0, "$"+res.getStartMoney().toString(), false);
+            }
+
+            for(int i = 0; i < res.getNumberOfPlayers(); i++) {
+                if(res.getUserIndex() == i) continue;
+                if(i < 2) {
+                    Integer m = Integer.parseInt("10000")-50*(i+1);
+                    Integer pIndex = getLayoutForId(res.getUserIndex(), i, res.getNumberOfPlayers());
+                    ListManipulation.set(money, pIndex, "$"+m.toString(), false);
+                } else {
+                    Integer pIndex = getLayoutForId(res.getUserIndex(), i, res.getNumberOfPlayers());
+                    ListManipulation.set(money, pIndex, "$"+"10000", false);
+                }
             }
             ListManipulation.set(playerCards, 0, res.getCard1(),false);
             ListManipulation.set(playerCards, 1, res.getCard2(),false);
@@ -230,7 +306,7 @@ public class GameRoomRepository {
             }
             currentMinimumLocal = res.getCurrentMinimum();
             currentMinimum.setValue(res.getCurrentMinimum());
-            totalMoney.setValue(0);
+            totalMoney.setValue(150);
             hasGameStarted.setValue(true);
             initialGameDataListener.setValue(((Result.Success<InitialGameDataResult>) data).getData());
         } else {

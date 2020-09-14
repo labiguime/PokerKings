@@ -39,7 +39,7 @@ public class DataSource {
     private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
     private MutableLiveData<RoomState> roomStateLiveData = new MutableLiveData<>();
-    private MutableLiveData<String> roomResultsLiveData = new MutableLiveData<>();
+    private MutableLiveData<RoomResults> roomResultsLiveData = new MutableLiveData<>();
 
 
     public DataSource() {
@@ -152,9 +152,52 @@ public class DataSource {
             JSONObject data = (JSONObject) args[0];
             try {
                 String message = data.getString("message");
-                roomResultsLiveData.postValue(message);
+                Boolean hasRoundEnded = data.getBoolean("has_round_ended");
+                Integer currentMinimum = data.getInt("current_minimum");
+                Integer myIndex = data.getInt("my_index");
+                Integer nPlayers = data.getInt("number_of_players");
+                Integer gameStage = data.getInt("game_stage");
+                Integer currentPlayer = data.getInt("current_player");
+                Integer card1 = data.getInt("card_1");
+                Integer card2 = data.getInt("card_2");
+                Integer table1 = data.getInt("table_card_1");
+                Integer table2 = data.getInt("table_card_2");
+                Integer table3 = data.getInt("table_card_3");
+                List<Integer> winner = null;
+                List<Integer> allCards = null;
+                List<Integer> playersMoney = null;
+                List<Integer> listData = new ArrayList<>();
+
+                JSONArray jArray = data.getJSONArray("winner");
+                if (jArray != null) {
+                    for (int i = 0; i < jArray.length(); i++) {
+                        listData.add(jArray.getInt(i));
+                    }
+                    winner = listData;
+                }
+
+                listData = new ArrayList<>();
+                jArray = data.getJSONArray("all_cards");
+                if (jArray != null) {
+                    for (int i = 0; i < jArray.length(); i++) {
+                        listData.add(jArray.getInt(i));
+                    }
+                    allCards = listData;
+                }
+
+                listData = new ArrayList<>();
+                jArray = data.getJSONArray("players_money");
+                if (jArray != null) {
+                    for (int i = 0; i < jArray.length(); i++) {
+                        listData.add(jArray.getInt(i));
+                    }
+                    playersMoney = listData;
+                }
+
+                RoomResults roomResults = new RoomResults(message, hasRoundEnded, currentMinimum, myIndex, nPlayers, gameStage, currentPlayer, card1, card2, table1, table2, table3, winner, allCards, playersMoney);
+                roomResultsLiveData.postValue(roomResults);
             } catch (JSONException e) {
-                roomResultsLiveData.postValue(e.getMessage());
+                roomResultsLiveData.postValue(new RoomResults(e.getMessage()));
             }
         });
 
@@ -175,22 +218,6 @@ public class DataSource {
                 Integer gameStage = data.getInt("game_stage");
                 Boolean isGameOver = data.getBoolean("is_game_over");
 
-                /*@Nullable
-                Integer winner = null;
-                @Nullable
-                List<Integer> allCards = null;
-
-                if(isGameOver) {
-                    winner = data.getInt("winner");
-                    List<Integer> listData = new ArrayList<>();
-                    JSONArray jArray = data.getJSONArray("all_cards");
-                    if (jArray != null) {
-                        for (int i = 0; i < jArray.length(); i++) {
-                            listData.add(jArray.getInt(i));
-                        }
-                        allCards = listData;
-                    }
-                }*/
                 RoomState roomState = new RoomState(hasRoundEnded, nextPlayer, actionType, whoPlayed, playerNewMoney, playerMoneyChange, tableTotal, tableCard, currentMinimum, myIndex, nPlayers, isGameOver, gameStage);
                 roomStateLiveData.postValue(roomState);
             } catch (JSONException e) {
@@ -209,7 +236,7 @@ public class DataSource {
         mSocket.on(req, listener);
     }
 
-    public LiveData<String> onReceiveRoomResults() {
+    public LiveData<RoomResults> onReceiveRoomResults() {
         return roomResultsLiveData;
     }
 
