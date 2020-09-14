@@ -152,6 +152,48 @@ public class DataSource {
             JSONObject data = (JSONObject) args[0];
             try {
                 String message = data.getString("message");
+                Boolean hasRoundEnded = data.getBoolean("has_round_ended");
+                Integer currentMinimum = data.getInt("current_minimum");
+                Integer myIndex = data.getInt("my_index");
+                Integer nPlayers = data.getInt("number_of_players");
+                Integer gameStage = data.getInt("game_stage");
+                Integer currentPlayer = data.getInt("current_player");
+                Integer card1 = data.getInt("card_1");
+                Integer card2 = data.getInt("card_2");
+                Integer table1 = data.getInt("table_card_1");
+                Integer table2 = data.getInt("table_card_2");
+                Integer table3 = data.getInt("table_card_3");
+                List<Integer> winner;
+                List<Integer> allCards;
+                List<Integer> playersMoney;
+                List<Integer> listData = new ArrayList<>();
+
+                JSONArray jArray = data.getJSONArray("winner");
+                if (jArray != null) {
+                    for (int i = 0; i < jArray.length(); i++) {
+                        listData.add(jArray.getInt(i));
+                    }
+                    winner = listData;
+                }
+
+                listData = new ArrayList<>();
+                jArray = data.getJSONArray("all_cards");
+                if (jArray != null) {
+                    for (int i = 0; i < jArray.length(); i++) {
+                        listData.add(jArray.getInt(i));
+                    }
+                    allCards = listData;
+                }
+
+                listData = new ArrayList<>();
+                jArray = data.getJSONArray("players_money");
+                if (jArray != null) {
+                    for (int i = 0; i < jArray.length(); i++) {
+                        listData.add(jArray.getInt(i));
+                    }
+                    playersMoney = listData;
+                }
+
                 roomResultsLiveData.postValue(message);
             } catch (JSONException e) {
                 roomResultsLiveData.postValue(e.getMessage());
