@@ -1,5 +1,6 @@
 package com.games.pokerkings.data.game;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -32,13 +33,13 @@ public class GameRoomRepository {
     private MutableLiveData<List<String>> name = new MutableLiveData<>(Arrays.asList("", "", "", ""));
     private MutableLiveData<List<String>> money = new MutableLiveData<>(Arrays.asList("", "", "", ""));
     private MutableLiveData<Result.Error> notifyReadyPlayerError = new MutableLiveData<>();
-    private MutableLiveData<RoomState> notifyOnPlayError = new MutableLiveData<>();
+    private MutableLiveData<Result<Boolean>> notifyOnPlayError = new MutableLiveData<>();
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
     private MediatorLiveData<RoomResults> roomResultsListener = new MediatorLiveData<>();
     private MediatorLiveData<RoomState> roomStateListener = new MediatorLiveData<>();
-    private LiveData<Result<Boolean>> authorizationToPlayListener;
+    private MediatorLiveData<Result<Boolean>> authorizationToPlayListener = new MediatorLiveData<>();
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
     private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
     private MutableLiveData<List<Integer>> tableCards = new MutableLiveData<>(Arrays.asList(-1, -1, -1, -1, -1));
@@ -57,9 +58,10 @@ public class GameRoomRepository {
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
         this.roomStateListener.addSource(dataSource.onReceiveRoomState(), this::processRoomState);
         this.roomResultsListener.addSource(dataSource.onReceiveRoomResults(), this::processRoomResults);
-        this.roomStateListener.addSource(notifyOnPlayError, value -> roomStateListener.setValue(value));
+        //this.roomStateListener.addSource(notifyOnPlayError, value -> roomStateListener.setValue(value));
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
-        this.authorizationToPlayListener = dataSource.onReceiveAuthorizationToPlay();
+        this.authorizationToPlayListener.addSource(dataSource.onReceiveAuthorizationToPlay(), value -> authorizationToPlayListener.setValue(value));
+        this.authorizationToPlayListener.addSource(notifyOnPlayError, value -> authorizationToPlayListener.setValue(value));
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -142,7 +144,7 @@ public class GameRoomRepository {
             roomId = user.getRoom().getName();
             spotId = user.getRoom().getSpot();
         } catch (NullPointerException e) {
-            notifyOnPlayError.setValue(new RoomState(e.getMessage()));
+            notifyOnPlayError.setValue(new Result.Error(e.getMessage()));
             return;
         }
 
@@ -153,7 +155,7 @@ public class GameRoomRepository {
             object.put("is_folding", false);
             object.put("raise", currentMinimumLocal);
         } catch(JSONException e) {
-            notifyOnPlayError.setValue(new RoomState(e.getMessage()));
+            notifyOnPlayError.setValue(new Result.Error(e.getMessage()));
             return;
         }
         dataSource.postRequest("room/POST:play", object);
@@ -168,7 +170,7 @@ public class GameRoomRepository {
             roomId = user.getRoom().getName();
             spotId = user.getRoom().getSpot();
         } catch (NullPointerException e) {
-            notifyOnPlayError.setValue(new RoomState(e.getMessage()));
+            notifyOnPlayError.setValue(new Result.Error(e.getMessage()));
             return;
         }
 
@@ -179,30 +181,41 @@ public class GameRoomRepository {
             object.put("is_folding", true);
             object.put("raise", 0);
         } catch(JSONException e) {
-            notifyOnPlayError.setValue(new RoomState(e.getMessage()));
+            notifyOnPlayError.setValue(new Result.Error(e.getMessage()));
             return;
         }
         dataSource.postRequest("room/POST:play", object);
     }
 
-    public void raise(Integer raise) {
+    public void raise(@Nullable Integer raise) {
         String roomId;
         String spotId;
         JSONObject object = new JSONObject();
+
+        if(raise == null) {
+            notifyOnPlayError.setValue(new Result.Error("The raise must be a valid number!"));
+            return;
+        }
+
         try {
             assert user.getRoom() != null;
             roomId = user.getRoom().getName();
             spotId = user.getRoom().getSpot();
         } catch (NullPointerException e) {
-            notifyOnPlayError.setValue(new RoomState(e.getMessage()));
+            notifyOnPlayError.setValue(new Result.Error(e.getMessage()));
             return;
         }
 
         if(raise < currentMinimumLocal) {
-            notifyOnPlayError.setValue(new RoomState("You must bet at least $"+currentMinimumLocal+"!"));
+            notifyOnPlayError.setValue(new Result.Error("You must bet at least $"+currentMinimumLocal+"!"));
             return;
         } else if(raise > user.getMoney()) {
-            notifyOnPlayError.setValue(new RoomState("This is more money than you currently have!"));
+            notifyOnPlayError.setValue(new Result.Error("This is more money than you currently have!"));
+            return;
+        }
+
+        else if((raise % 10) != 0) {
+            notifyOnPlayError.setValue(new Result.Error("The raise must be a multiple of 10!"));
             return;
         }
 
@@ -213,7 +226,7 @@ public class GameRoomRepository {
             object.put("is_folding", false);
             object.put("raise", raise);
         } catch(JSONException e) {
-            notifyOnPlayError.setValue(new RoomState(e.getMessage()));
+            notifyOnPlayError.setValue(new Result.Error(e.getMessage()));
             return;
         }
         dataSource.postRequest("room/POST:play", object);

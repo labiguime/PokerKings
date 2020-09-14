@@ -1,5 +1,7 @@
 package com.games.pokerkings.ui.game;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -22,6 +24,7 @@ public class GameRoomViewModel extends ViewModel {
     private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
     private MutableLiveData<Boolean> hasPressedAButton = new MutableLiveData<>(false);
+    private MutableLiveData<String> raiseAmount = new MutableLiveData<>("0");
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerTurn;
@@ -143,6 +146,14 @@ public class GameRoomViewModel extends ViewModel {
         return name;
     }
 
+    public MutableLiveData<String> getRaiseAmount() {
+        return raiseAmount;
+    }
+
+    public void setRaiseAmount(String amount) {
+        raiseAmount.setValue(amount);
+    }
+
     public void triggerAfterRoomResultsChanges() {
         gameRoomRepository.updateRoomWithResults();
     }
@@ -158,6 +169,21 @@ public class GameRoomViewModel extends ViewModel {
             if (isReadyVisible) {
                 isReadyButtonVisible.setValue(false);
                 gameRoomRepository.alertPlayerReady();
+            }
+        }
+    }
+
+    public void onRaiseButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+
+        @Nullable
+        Integer raise = Integer.parseInt(raiseAmount.getValue());
+
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                hasPressedAButton.setValue(true);
+                gameRoomRepository.raise(raise);
             }
         }
     }
