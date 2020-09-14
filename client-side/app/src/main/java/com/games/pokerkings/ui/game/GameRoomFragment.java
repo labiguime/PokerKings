@@ -139,8 +139,6 @@ public class GameRoomFragment extends Fragment {
 
                 if(roomResults.getHasRoundEnded() && roomResults.getGameStage() == 3) { // We have to show the results progressively
 
-                    showErrorMessage(roomResults.getMessage());
-
                     Integer me = roomResults.getMyIndex();
                     Integer nPlayers = roomResults.getnPlayers();
 
@@ -157,15 +155,8 @@ public class GameRoomFragment extends Fragment {
                     }
 
                     Handler handler = new Handler();
-                    Runnable runnable = () -> {
-                        showErrorMessage(roomResults.getMessage());
-                    };
-
-                    Runnable runnable1 = () -> {
-
-                        hideAllCards(roomResults.getGameStage());
-                    };
-
+                    Runnable runnable = () -> showErrorMessage(roomResults.getMessage());
+                    Runnable runnable1 = () -> hideAllCards(roomResults.getGameStage());
                     Runnable runnable2 = () -> {
 
                         List<Integer> userCards = Arrays.asList(roomResults.getCard1(), roomResults.getCard2());

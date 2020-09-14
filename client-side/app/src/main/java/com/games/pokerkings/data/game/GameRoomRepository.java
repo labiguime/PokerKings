@@ -220,9 +220,12 @@ public class GameRoomRepository {
             Integer nplayers = data.getnPlayers();
 
             // It's nobody's turn for now
-            isPlayerTurn.setValue(false);
-            ListManipulation.set(avatarType, 0, User.NOT_FOLDED,false);
-            for(int i = 1; i < nplayers; i++) {
+            for(int i = 0; i < nplayers; i++) {
+                if(i == me) {
+                    isPlayerTurn.setValue(false);
+                    ListManipulation.set(avatarType, 0, User.NOT_FOLDED,false);
+                    continue;
+                }
                 Integer index = getLayoutForId(me, i, nplayers);
                 ListManipulation.set(avatarType, index, User.NOT_FOLDED,false);
             }
@@ -236,15 +239,23 @@ public class GameRoomRepository {
         Integer nplayers = roomResults.getnPlayers();
 
         // Show the new player
-        Integer index = getLayoutForId(me, playing, nplayers);
-        ListManipulation.set(avatarType, index, User.YOUR_TURN,false);
+        if(playing != me) {
+            Integer index = getLayoutForId(me, playing, nplayers);
+            ListManipulation.set(avatarType, index, User.YOUR_TURN,false);
+        } else {
+            ListManipulation.set(avatarType, 0, User.YOUR_TURN,false);
+        }
 
         // Set my money
         ListManipulation.set(money, 0, "$"+roomResults.getPlayersMoney().get(me).toString(), false);
 
         // Set everyone else's money
-        for (int i = 1; i < nplayers; i++) {
-            index = getLayoutForId(me, i, nplayers);
+        for (int i = 0; i < nplayers; i++) {
+            if(i == me) {
+                ListManipulation.set(money, 0, "$"+roomResults.getPlayersMoney().get(me).toString(), false);
+                continue;
+            }
+            Integer index = getLayoutForId(me, i, nplayers);
             ListManipulation.set(money, i, "$"+roomResults.getPlayersMoney().get(index).toString(), false);
         }
 
