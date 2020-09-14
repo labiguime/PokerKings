@@ -23,6 +23,7 @@ public class GameRoomRepository {
     private static volatile GameRoomRepository instance;
     private DataSource dataSource;
     private User user;
+    private RoomResults roomResults;
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isPlayerTurn = new MutableLiveData<>(false);
@@ -34,7 +35,7 @@ public class GameRoomRepository {
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
     private MediatorLiveData<Boolean> preGamePlayerListListener = new MediatorLiveData<>();
     private MediatorLiveData<InitialGameDataResult> initialGameDataListener = new MediatorLiveData<>();
-    private LiveData<RoomResults> roomResultsListener;
+    private MediatorLiveData<RoomResults> roomResultsListener = new MediatorLiveData<>();
     private MediatorLiveData<RoomState> roomStateListener = new MediatorLiveData<>();
     private LiveData<Result<Boolean>> authorizationToPlayListener;
     private MutableLiveData<Integer> totalMoney = new MutableLiveData<>();
@@ -48,14 +49,15 @@ public class GameRoomRepository {
     public GameRoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
         this.user = new User();
+        this.roomResults = new RoomResults("No results");
         currentMinimumLocal = 0;
         this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
         this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
         this.roomStateListener.addSource(dataSource.onReceiveRoomState(), this::processRoomState);
+        this.roomResultsListener.addSource(dataSource.onReceiveRoomResults(), this::processRoomResults);
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
         this.authorizationToPlayListener = dataSource.onReceiveAuthorizationToPlay();
-        this.roomResultsListener = dataSource.onReceiveRoomResults();
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -208,6 +210,52 @@ public class GameRoomRepository {
             }
         }
         roomStateListener.setValue(data);
+    }
+
+    private void processRoomResults(RoomResults data) {
+        if(data.getError() == null) {
+            roomResults = data;
+
+            Integer me = data.getMyIndex();
+            Integer nplayers = data.getnPlayers();
+
+            // It's nobody's turn for now
+            isPlayerTurn.setValue(false);
+            ListManipulation.set(avatarType, 0, User.NOT_FOLDED,false);
+            for(int i = 1; i < nplayers; i++) {
+                Integer index = getLayoutForId(me, i, nplayers);
+                ListManipulation.set(avatarType, index, User.NOT_FOLDED,false);
+            }
+        }
+        roomResultsListener.setValue(data);
+    }
+
+    private void updateRoomWithResults() {
+        Integer me = roomResults.getMyIndex();
+        Integer playing = roomResults.getCurrentPlayer();
+        Integer nplayers = roomResults.getnPlayers();
+
+        // Show the new player
+        Integer index = getLayoutForId(me, playing, nplayers);
+        ListManipulation.set(avatarType, index, User.YOUR_TURN,false);
+
+        // Set my money
+        ListManipulation.set(money, 0, "$"+roomResults.getPlayersMoney().get(me).toString(), false);
+
+        // Set everyone else's money
+        for (int i = 1; i < nplayers; i++) {
+            index = getLayoutForId(me, i, nplayers);
+            ListManipulation.set(money, i, "$"+roomResults.getPlayersMoney().get(index).toString(), false);
+        }
+
+        if(roomResults.getCurrentPlayer() == me) {
+            isPlayerTurn.setValue(true);
+        }
+
+        currentMinimumLocal = roomResults.getCurrentMinimum();
+        currentMinimum.setValue(roomResults.getCurrentMinimum());
+        totalMoney.setValue(0);
+
     }
 
     private void processInitialGameData(Result<InitialGameDataResult> data) {
