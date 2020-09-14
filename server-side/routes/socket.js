@@ -3,6 +3,9 @@
 * re-routing socket calls and implements global broadcast.
 */
 
+const room = require('./socket/room');
+const core = require('../../controllers/game/core.controller');
+
 exports = module.exports = (io) => {
 
   //
@@ -10,6 +13,10 @@ exports = module.exports = (io) => {
 		console.log("Client Id: ["+socket.id+"] has connected to the server.");
 		socket.on('disconnect', () => {
 			console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
+			const result = await coreController.onDisconnect(socket);
+			if(!result) {
+				console.log("The disconnection wasn't successful!");
+			}
 		});
 	});
 

@@ -62,6 +62,23 @@ coreController.startGame = async function (obj, socket, next) {
   // set countdown on acknowledgment
 }
 
+coreController.onDisconnect = async function (socket) {
+  try {
+    const spot = await Spot.findOne({player_id: socket.id}, {_id: 1});
+		if(!spot) {
+			success = false;
+			message = "This room is full.";
+			socket.emit('getJoinRoomAuthorization', {success, message});
+			console.log({success, message});
+			return;
+		}
+
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+}
 coreController.manageGame = async function (obj, socket, next, room) {
 
   try {
