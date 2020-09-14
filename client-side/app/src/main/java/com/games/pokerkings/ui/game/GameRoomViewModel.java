@@ -177,8 +177,11 @@ public class GameRoomViewModel extends ViewModel {
         @Nullable
         Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
 
+        String value = raiseAmount.getValue();
+        if(value == null) return;
+
         @Nullable
-        Integer raise = Integer.parseInt(raiseAmount.getValue());
+        Integer raise = Integer.parseInt(value);
 
         if(hasPressedAButtonValue != null) {
             if (!hasPressedAButtonValue) {
@@ -206,6 +209,61 @@ public class GameRoomViewModel extends ViewModel {
             if (!hasPressedAButtonValue) {
                 hasPressedAButton.setValue(true);
                 gameRoomRepository.fold();
+            }
+        }
+    }
+
+    public void onIncreaseButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                @Nullable
+                String value = raiseAmount.getValue();
+                if (value == null) return;
+
+                @Nullable
+                int raise = Integer.parseInt(value);
+
+                if (raise < 50) {
+                    raiseAmount.setValue("50");
+                } else if (raise < 100) {
+                    raiseAmount.setValue("100");
+                } else if (raise < 500) {
+                    Integer newRaise = raise+100;
+                    raiseAmount.setValue(newRaise.toString());
+                } else {
+                    Integer newRaise = raise+500;
+                    raiseAmount.setValue(newRaise.toString());
+                }
+            }
+        }
+    }
+
+    public void onDecreaseButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                @Nullable
+                String value = raiseAmount.getValue();
+                if (value == null) return;
+
+                @Nullable
+                int raise = Integer.parseInt(value);
+
+                if (raise > 500) {
+                    Integer newRaise = raise-500;
+                    raiseAmount.setValue(newRaise.toString());
+                } else if (raise > 100) {
+                    Integer newRaise = raise-100;
+                    raiseAmount.setValue(newRaise.toString());
+                } else if (raise > 50) {
+                    Integer newRaise = raise-50;
+                    raiseAmount.setValue(newRaise.toString());
+                } else {
+                    raiseAmount.setValue("50");
+                }
             }
         }
     }

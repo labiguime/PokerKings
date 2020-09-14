@@ -90,6 +90,7 @@
             android:background="@android:color/transparent"
             android:drawableLeft="@drawable/icon_username"
             android:text="@={homePageViewModel.name}"
+            android:imeOptions="flagNoExtractUi"
             android:ems="10"
             android:hint="@string/nickname_text"
             android:inputType="textPersonName"
