@@ -3,8 +3,10 @@ package com.games.pokerkings.utils;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.widget.ImageView;
 
@@ -104,5 +106,51 @@ public class CardManipulation {
         set.playSequentially(animator1, animator2);
         set.setTarget(images.get(currentCard));
         set.start();
+    }
+
+    public static ObjectAnimator fadeCardOut(Resources resources, ImageView view, int startDelay) {
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f);
+        Drawable drawable = resources.getDrawable(R.drawable.backside_old);
+        fadeOut.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.setImageDrawable(drawable);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        fadeOut.setStartDelay(startDelay);
+        fadeOut.setDuration(2000);
+        return fadeOut;
+    }
+
+    public static void fadeOutAndIn(Resources resource, ImageView image, int fadeOutDelay, int fadeInDelay) {
+        AnimatorSet animatorSet = new AnimatorSet();
+        ObjectAnimator fadeOut = CardManipulation.fadeCardOut(resource, image, fadeOutDelay);
+        ObjectAnimator fadeIn = CardManipulation.fadeCardIn(image, fadeInDelay);
+        animatorSet.playSequentially(fadeOut, fadeIn);
+        animatorSet.start();
+    }
+
+
+    public static ObjectAnimator fadeCardIn(ImageView view, int startDelay) {
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f);
+        fadeIn.setDuration(1000);
+        fadeIn.setStartDelay(startDelay);
+        return fadeIn;
     }
 }

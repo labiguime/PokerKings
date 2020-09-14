@@ -61,7 +61,6 @@ public class GameRoomViewModel extends ViewModel {
             return value;
         });
         this.receiveRoomState = gameRoomRepository.onReceiveRoomState();
-
         this.totalMoney = gameRoomRepository.getTotalMoney();
         this.currentMinimum = gameRoomRepository.getCurrentMinimum();
         this.hasGameStarted = gameRoomRepository.getHasGameStarted();
@@ -142,6 +141,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<List<String>> getName() {
         return name;
+    }
+
+    public void triggerAfterRoomResultsChanges() {
+        gameRoomRepository.updateRoomWithResults();
     }
 
     public void setUserInterfaceForUser(User u) {

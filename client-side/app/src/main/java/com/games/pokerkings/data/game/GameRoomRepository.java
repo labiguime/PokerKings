@@ -230,7 +230,7 @@ public class GameRoomRepository {
         roomResultsListener.setValue(data);
     }
 
-    private void updateRoomWithResults() {
+    public void updateRoomWithResults() {
         Integer me = roomResults.getMyIndex();
         Integer playing = roomResults.getCurrentPlayer();
         Integer nplayers = roomResults.getnPlayers();

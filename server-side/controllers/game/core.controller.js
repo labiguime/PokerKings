@@ -70,6 +70,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
     const playerIndex = room.players_ids.indexOf(obj.spot_id);
     const me = obj.spot_id;
     let hasRoundEnded = false;
+    let justPressedFold = false;
     let winner = [];
     let actionType = 0;
     let isGameOver = false;
@@ -79,6 +80,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
       if(room.still_in_round.length == 2) {
         // Round winner is the one that's not me
         hasRoundEnded = true;
+        justPressedFold = true;
         room.still_in_round.splice(playerIndex, 1);
         winner.push(room.players_ids.indexOf(room.still_in_round[0]));
         winningMessage = room.players_names[winner[0]]+" has won!";
@@ -237,6 +239,9 @@ coreController.manageGame = async function (obj, socket, next, room) {
       // Add the data to the broadcast queue
       resetRoomResult.players_ids.forEach((item, i) => { 
 
+        if(justPressedFold == true && hasRoundEnded == true && room.game_stage == 3) {
+          winData["has_round_ended"] = false;
+        }
         // Set the remaining variables
         winData["current_minimum"] = resetRoomResult.round_current_minimum-resetRoomResult.round_players_bets[i];
         winData["my_index"] = i;

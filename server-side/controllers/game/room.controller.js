@@ -70,6 +70,7 @@ roomController.joinRoom = async function (obj, socket, next) {
 			return;	
 		}
 
+		const roomRoute = "room/"+room._id;
 		socket.join("room/"+room._id);
 		socket.join("spot/"+spot._id);
 		socket.emit('getJoinRoomAuthorization', {success: true, spot: spot._id, room: room._id});
