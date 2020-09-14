@@ -155,7 +155,7 @@ coreController.onDisconnect = async function (socket) {
       });
       players_ids.push(spot._id);
       players_ids.sort();
-      players_ids.forEach((item, i) => {
+      players_ids.forEach((item) => {
         if(item != spot._id) { // Sorry but this game is over, join again
           socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 1}});
         }
