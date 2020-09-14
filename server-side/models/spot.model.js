@@ -11,6 +11,11 @@ const spotSchema = new Schema({
 	player_id: {
 		type: String,
 		default: 'None'
+	},
+
+	socket_id: {
+		type: String,
+		default: 'None'
 	}
 });
 
