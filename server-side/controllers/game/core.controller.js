@@ -364,11 +364,15 @@ function rankCard(playerCards, tableCards) {
   let combinationRank = 0;
   let cardsCombination = new Array(-1, -1, -1, -1, -1);
 
-  if(straight.start == 12 && allCardsTogether.indexOf((12+13*flush)-1) != -1) { // Check for royal flush
+  if(straight.start == 12 && allCardsTogether.indexOf((12+13*flush)-1) != -1
+  && allCardsTogether.indexOf((11+13*flush)-1) != -1 && allCardsTogether.indexOf((10+13*flush)-1) != -1 
+  && allCardsTogether.indexOf((9+13*flush)-1) != -1 && allCardsTogether.indexOf((8+13*flush)-1) != -1) { // Check for royal flush
     combinationName = "Royal flush";
     combinationRank = 9;
     cardsCombination = new Array(12, 11, 10, 9, 8); // Check for straight flush
-  } else if(straight.count == 5 && allCardsTogether.indexOf((straight.start+13*flush)-1) != -1) {
+  } else if(straight.count == 5 && allCardsTogether.indexOf((straight.start+13*flush)-1) != -1
+  && allCardsTogether.indexOf((straight.start-1+13*flush)-1) != -1 && allCardsTogether.indexOf((straight.start-2+13*flush)-1) != -1
+  && allCardsTogether.indexOf((straight.start-3+13*flush)-1) != -1 && ( ( straight.start == 3 && flush == 0 && allCardsTogether.indexOf(0) != -1) || ( allCardsTogether.indexOf((straight.start-3+13*flush)-1) != -1 ) ) ) {
     combinationName = "Straight flush"
     combinationRank = 8;
     cardsCombination = new Array(straight.start, straight.start-1, straight.start-2, straight.start-3, straight.start-4);
