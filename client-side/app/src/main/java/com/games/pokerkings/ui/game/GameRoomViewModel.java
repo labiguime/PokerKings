@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.games.pokerkings.data.DisconnectionType;
 import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.RoomResults;
 import com.games.pokerkings.data.RoomState;
@@ -37,6 +38,7 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Boolean> receivePreGamePlayerList;
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
     private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
+    private LiveData<DisconnectionType> receiveDisconnectEvent;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
     private LiveData<RoomResults> receiveRoomResults;
     private LiveData<RoomState> receiveRoomState;
@@ -52,6 +54,12 @@ public class GameRoomViewModel extends ViewModel {
                 isReadyButtonVisible.setValue(false);
                 isPlayerReady.setValue(true);
             }
+            return value;
+        });
+
+        this.receiveDisconnectEvent = Transformations.map(gameRoomRepository.onReceiveDisconnectEvent(), value -> {
+            isReadyButtonVisible.setValue(true);
+            isPlayerReady.setValue(false);
             return value;
         });
 
@@ -112,6 +120,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
         return receiveInitialGameData;
+    }
+
+    public LiveData<DisconnectionType> onReceiveDisconnectEvent() {
+        return receiveDisconnectEvent;
     }
 
     public LiveData<RoomResults> onReceiveRoomResults() {

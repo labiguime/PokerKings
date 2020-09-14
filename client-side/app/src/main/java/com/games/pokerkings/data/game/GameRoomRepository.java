@@ -4,8 +4,10 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.games.pokerkings.data.DataSource;
+import com.games.pokerkings.data.DisconnectionType;
 import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.RoomResults;
 import com.games.pokerkings.data.RoomState;
@@ -28,10 +30,10 @@ public class GameRoomRepository {
     private MutableLiveData<Boolean> hasUserInterfaceLoaded = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> hasGameStarted = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isPlayerTurn = new MutableLiveData<>(false);
-    private MutableLiveData<List<String>> avatarType = new MutableLiveData<>(Arrays.asList("", "", "", ""));
-    private MutableLiveData<List<String>> avatar = new MutableLiveData<>(Arrays.asList("", "", "", ""));
-    private MutableLiveData<List<String>> name = new MutableLiveData<>(Arrays.asList("", "", "", ""));
-    private MutableLiveData<List<String>> money = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+    private MutableLiveData<List<String>> avatarType;
+    private MutableLiveData<List<String>> avatar;
+    private MutableLiveData<List<String>> name;
+    private MutableLiveData<List<String>> money;
     private MutableLiveData<Result.Error> notifyReadyPlayerError = new MutableLiveData<>();
     private MutableLiveData<Result<Boolean>> notifyOnPlayError = new MutableLiveData<>();
     private MediatorLiveData<Result<Boolean>> readyPlayerAuthorizationListener = new MediatorLiveData<>();
@@ -44,6 +46,7 @@ public class GameRoomRepository {
     private MutableLiveData<Integer> currentMinimum = new MutableLiveData<>();
     private MutableLiveData<List<Integer>> tableCards = new MutableLiveData<>(Arrays.asList(-1, -1, -1, -1, -1));
     private MutableLiveData<List<Integer>> playerCards = new MutableLiveData<>(Arrays.asList(-1, -1));
+    private LiveData<DisconnectionType> disconnectEventListener = new MutableLiveData<>();
     private Integer currentMinimumLocal;
 
     public static final String TAG = "LOG_GAME_ROOM";
@@ -53,6 +56,11 @@ public class GameRoomRepository {
         this.user = new User();
         this.roomResults = new RoomResults("No results");
         currentMinimumLocal = 0;
+        avatarType = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+        avatar = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+        name = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+        money = new MutableLiveData<>(Arrays.asList("", "", "", ""));
+
         this.preGamePlayerListListener.addSource(dataSource.onReceivePreGamePlayerList(), this::processPreGamePlayerList);
         this.readyPlayerAuthorizationListener.addSource(dataSource.onReceiveReadyPlayerAuthorization(), this::processReadyPlayerAuthorization);
         this.initialGameDataListener.addSource(dataSource.onReceiveInitialRoomData(), this::processInitialGameData);
@@ -62,6 +70,10 @@ public class GameRoomRepository {
         this.readyPlayerAuthorizationListener.addSource(notifyReadyPlayerError, value -> readyPlayerAuthorizationListener.setValue(value));
         this.authorizationToPlayListener.addSource(dataSource.onReceiveAuthorizationToPlay(), value -> authorizationToPlayListener.setValue(value));
         this.authorizationToPlayListener.addSource(notifyOnPlayError, value -> authorizationToPlayListener.setValue(value));
+        this.disconnectEventListener = Transformations.map(dataSource.onReceiveDisconnectEvent(), value -> {
+            processDisconnectEvent(value);
+            return value;
+        });
     }
 
     public LiveData<Boolean> onReceivePreGamePlayerList() {
@@ -86,6 +98,21 @@ public class GameRoomRepository {
 
     public LiveData<RoomState> onReceiveRoomState() {
         return roomStateListener;
+    }
+
+    public LiveData<DisconnectionType> onReceiveDisconnectEvent() {
+        return disconnectEventListener;
+    }
+
+    public void processDisconnectEvent(DisconnectionType t) {
+        if(t.getType() == 0) {
+            Integer startingPlayerIndex = getLayoutForId(t.getMyIndex(), t.getDisconnectedPlayer(), t.getNumberOfPlayers());
+            ListManipulation.set(avatarType, startingPlayerIndex, "",false);
+            for(int i = 0; i < 4; i++) {
+                ListManipulation.set(money, i, "NOT READY",false);
+            }
+        }
+        return;
     }
 
     public static GameRoomRepository getInstance() {

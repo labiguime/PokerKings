@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Handler;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 
 import com.games.pokerkings.R;
 
+import com.games.pokerkings.data.DisconnectionType;
 import com.games.pokerkings.data.models.*;
 import com.games.pokerkings.databinding.FragmentGameRoomBinding;
 import com.games.pokerkings.utils.CardManipulation;
@@ -144,6 +146,12 @@ public class GameRoomFragment extends Fragment {
                     handler.postDelayed(runnable, 1300);
 
                 }
+            }
+        });
+
+        gameRoomViewModel.onReceiveDisconnectEvent().observe(getViewLifecycleOwner(), disconnectionType -> {
+            if(disconnectionType.getType() == 1) {
+                showErrorMessage("A player has disconnected so the game has ended!");
             }
         });
 
