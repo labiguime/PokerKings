@@ -272,8 +272,22 @@ public class GameRoomRepository {
     private void processInitialGameData(Result<InitialGameDataResult> data) {
         if(data instanceof Result.Success) {
             InitialGameDataResult res = ((Result.Success<InitialGameDataResult>) data).getData();
-            for(int i = 0; i < 4; i++) {
-                ListManipulation.set(money, i, "$"+res.getStartMoney().toString(), false);
+
+            if(res.getUserIndex() < 2) {
+                Integer m = Integer.parseInt(res.getStartMoney().toString())-50*(res.getUserIndex()+1);
+                ListManipulation.set(money, 0, "$"+m.toString(), false);
+            } else {
+                ListManipulation.set(money, 0, "$"+res.getStartMoney().toString(), false);
+            }
+
+            for(int i = 0; i < res.getNumberOfPlayers(); i++) {
+                if(res.getUserIndex() == i) continue;
+                if(i < 2) {
+                    Integer m = Integer.parseInt(res.getStartMoney().toString())-50*(i+1);
+                    ListManipulation.set(money, i, "$"+m.toString(), false);
+                } else {
+                    ListManipulation.set(money, i, "$"+res.getStartMoney().toString(), false);
+                }
             }
             ListManipulation.set(playerCards, 0, res.getCard1(),false);
             ListManipulation.set(playerCards, 1, res.getCard2(),false);
@@ -290,7 +304,7 @@ public class GameRoomRepository {
             }
             currentMinimumLocal = res.getCurrentMinimum();
             currentMinimum.setValue(res.getCurrentMinimum());
-            totalMoney.setValue(0);
+            totalMoney.setValue(150);
             hasGameStarted.setValue(true);
             initialGameDataListener.setValue(((Result.Success<InitialGameDataResult>) data).getData());
         } else {

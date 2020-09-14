@@ -107,7 +107,7 @@ public class GameRoomFragment extends Fragment {
                 showErrorMessage(roomState.getError());
             } else {
                 if(roomState.getHasRoundEnded()) {
-                    Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in);
+                    /*Animation triggerChangesAfterFromTop = AnimationUtils.loadAnimation(getActivity(), R.anim.from_top);
                     triggerChangesAfterFromTop.setStartOffset(2000);
                     triggerChangesAfterFromTop.setAnimationListener(new Animation.AnimationListener() {
                         @Override
@@ -127,7 +127,18 @@ public class GameRoomFragment extends Fragment {
 
                         }
                     });
-                    tableCardImage[roomState.getGameStage()+2].startAnimation(triggerChangesAfterFromTop);
+                    tableCardImage[roomState.getGameStage()+2].startAnimation(triggerChangesAfterFromTop);*/
+
+                    tableCardImage[roomState.getGameStage()+2].setVisibility(View.VISIBLE);
+                    CardManipulation.fadeCardIn(tableCardImage[roomState.getGameStage()+2], 2000).start();
+                    Handler handler = new Handler();
+                    Runnable runnable = () -> {
+                        List<Integer> tableCards = Arrays.asList(roomState.getTableCard());
+                        List<ImageView> imageList = Arrays.asList(tableCardImage[roomState.getGameStage()+2]);
+                        CardManipulation.revealCards(getActivity(), getResources(), imageList, tableCards, 0);
+                    };
+                    handler.postDelayed(runnable, 3200);
+
                 }
             }
         });

@@ -34,7 +34,7 @@ coreController.startGame = async function (obj, socket, next) {
       users_cards: userCards,
       table_cards: roomCards,
       players_money: [constants.START_MONEY-(Math.floor((constants.START_MINIMUM_BET)/2)), constants.START_MONEY-(constants.START_MINIMUM_BET), constants.START_MONEY, constants.START_MONEY],
-      room_total_money: 0,
+      room_total_money: constants.START_MINIMUM_BET+Math.floor(constants.START_MINIMUM_BET),
       players_ids: players_ids,
       players_names: players_names,
       still_in_round: players_ids,
@@ -283,10 +283,11 @@ async function resetRoom(room) {
   const roomCards = cards.slice(0, constants.NUMBER_CARDS_TABLE);
   const userCards = cards.slice(constants.NUMBER_CARDS_TABLE, (nPlayers*2)+constants.NUMBER_CARDS_TABLE);
 
-  const smallBlindIndex = (room.players_ids.indexOf(room.smallBlind)+1)%nPlayers;
-  const bigBlindIndex = (smallBlindIndex+1)%nPlayers;
-  const currentIndex = (bigBlindIndex+1)%nPlayers;
+  const smallBlindIndex = (room.players_ids.indexOf(room.small_blind)+1)%nPlayers;
+  const bigBlindIndex = (room.players_ids.indexOf(room.small_blind)+2)%nPlayers;
+  const currentIndex = (room.players_ids.indexOf(room.small_blind)+3)%nPlayers;
 
+  
   let currentBets = new Array(nPlayers);
   for(let i = 0; i < nPlayers; i++) {
     currentBets[i] = 0;
@@ -302,7 +303,7 @@ async function resetRoom(room) {
     users_cards: userCards,
     table_cards: roomCards,
     players_money: room.players_money,
-    room_total_money: 0,
+    room_total_money: constants.START_MINIMUM_BET+Math.floor(constants.START_MINIMUM_BET),
     still_in_round: room.players_ids,
     players_in_room: nPlayers,
     current_player: room.players_ids[currentIndex],
@@ -314,6 +315,7 @@ async function resetRoom(room) {
     round_current_minimum: constants.START_MINIMUM_BET,
     round_players_bets: currentBets
   };
+
 
   // Update the room
   const roomUpdateResult = await Room.findOneAndUpdate({_id: room._id}, roomUpdate, {new: true});
