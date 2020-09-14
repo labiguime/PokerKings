@@ -13,20 +13,7 @@ exports = module.exports = (io) => {
 		console.log("Client Id: ["+socket.id+"] has connected to the server.");
 		socket.on('disconnect', () => {
 			console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
-			core.onDisconnect(socket);
-			const getRequest = socket.getRequest;
-			if(getRequest === undefined || getRequest.length == 0) {}
-			else {
-				getRequest.forEach((item, i) => {
-					const room = item.room;
-					const route = item.route;
-					const data = item.data;
-					io.in(room).emit(route, data);
-					console.log('-- GET route '+route+' has been broadcast on '+room+'\n');
-				});
-				socket.getRequest = [];
-				return;
-			}
+			core.onDisconnect(socket, io);
 		});
 		//next();
 	});

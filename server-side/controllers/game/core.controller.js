@@ -62,7 +62,7 @@ coreController.startGame = async function (obj, socket, next) {
   // set countdown on acknowledgment
 }
 
-coreController.onDisconnect = async function (socket) {
+coreController.onDisconnect = async function (socket, io) {
   try {
     const spot = await Spot.findOne({player_id: socket.id}, {_id: 1, room_id: 1});
 		if(!spot) {
@@ -99,7 +99,7 @@ coreController.onDisconnect = async function (socket) {
     if(!room.is_in_game) {
       console.log("The room is not in a game so it can keep its players.");
       // set everyone to not ready
-      const playerList = await User.find({room_id: spot.room_id}, {_id: 1});
+      const playerList = await User.find({room_id: spot.room_id}, {_id: 1, spot_id: 1});
       if(playerList) {
         const start = async () => {
           await asyncForEach(playerList, async (item) => {
@@ -132,7 +132,9 @@ coreController.onDisconnect = async function (socket) {
       players_ids.push(spot._id);
       players_ids.sort();
       players_ids.forEach((item, i) => {
+        console.log("Not in game but try");
         if(item != spot._id) {
+          console.log("added!");
           socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 0, my_index: i, players_in_room: players_ids.length, disconnected_player: players_ids.indexOf(spot._id)}});
         }
       });
@@ -147,7 +149,7 @@ coreController.onDisconnect = async function (socket) {
     
     } else {
       // set everyone to not ready
-      const playerList = await User.find({room_id: spot.room_id}, {_id: 1});
+      const playerList = await User.find({room_id: spot.room_id}, {_id: 1, spot_id: 1});
       socket.getRequest = [];
       var players_ids = [];
       playerList.forEach((item) => {
@@ -203,6 +205,20 @@ coreController.onDisconnect = async function (socket) {
     // I
 
     console.log("Successfully added the player to the queue of disconnected players\n");
+    const getRequest = socket.getRequest;
+    if(getRequest === undefined || getRequest.length == 0) {}
+    else {
+      getRequest.forEach((item) => {
+        const room = item.room;
+        const route = item.route;
+        const data = item.data;
+        io.in(room).emit(route, data);
+        console.log('-- GET route '+route+' has been broadcast on '+room+'\n');
+      });
+      socket.getRequest = [];
+      return;
+    }
+
   } catch (e) {
     console.log(e);
   }
