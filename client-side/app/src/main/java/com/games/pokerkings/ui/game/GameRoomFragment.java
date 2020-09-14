@@ -3,6 +3,8 @@ package com.games.pokerkings.ui.game;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -14,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -22,6 +25,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -48,6 +53,7 @@ public class GameRoomFragment extends Fragment {
     ImageView[][] playerCardImage = new ImageView[4][2];
     ImageView[] tableCardImage = new ImageView[5];
     ImageView[] userCard = new ImageView[2];
+    EditText raiseText;
 
 
     public GameRoomFragment() {
@@ -87,6 +93,8 @@ public class GameRoomFragment extends Fragment {
         tableCardImage[3] = binding.getRoot().findViewById(R.id.table_card_4);
         tableCardImage[4] = binding.getRoot().findViewById(R.id.table_card_5);
 
+        raiseText = binding.getRoot().findViewById(R.id.raise_text);
+
         // Recover variables from previous fragment
         Bundle bundle = this.getArguments();
 
@@ -95,7 +103,25 @@ public class GameRoomFragment extends Fragment {
             return null;
         }
         gameRoomViewModel.setUserInterfaceForUser((User)bundle.getSerializable("user"));
+
+        if(!(binding.getRoot() instanceof EditText)) {
+
+            binding.getRoot().setOnTouchListener(new View.OnTouchListener() {
+
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideKeyboardFrom(getContext(), binding.getRoot());
+                    raiseText.clearFocus();
+                    return false;
+                }
+            });
+        }
+
         return binding.getRoot();
+    }
+
+    public static void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     @Override

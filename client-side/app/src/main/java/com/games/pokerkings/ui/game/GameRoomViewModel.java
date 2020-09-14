@@ -1,5 +1,7 @@
 package com.games.pokerkings.ui.game;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -22,6 +24,7 @@ public class GameRoomViewModel extends ViewModel {
     private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
     private MutableLiveData<Boolean> hasPressedAButton = new MutableLiveData<>(false);
+    private MutableLiveData<String> raiseAmount = new MutableLiveData<>("0");
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerTurn;
@@ -143,6 +146,14 @@ public class GameRoomViewModel extends ViewModel {
         return name;
     }
 
+    public MutableLiveData<String> getRaiseAmount() {
+        return raiseAmount;
+    }
+
+    public void setRaiseAmount(String amount) {
+        raiseAmount.setValue(amount);
+    }
+
     public void triggerAfterRoomResultsChanges() {
         gameRoomRepository.updateRoomWithResults();
     }
@@ -158,6 +169,24 @@ public class GameRoomViewModel extends ViewModel {
             if (isReadyVisible) {
                 isReadyButtonVisible.setValue(false);
                 gameRoomRepository.alertPlayerReady();
+            }
+        }
+    }
+
+    public void onRaiseButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+
+        String value = raiseAmount.getValue();
+        if(value == null) return;
+
+        @Nullable
+        Integer raise = Integer.parseInt(value);
+
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                hasPressedAButton.setValue(true);
+                gameRoomRepository.raise(raise);
             }
         }
     }
@@ -180,6 +209,61 @@ public class GameRoomViewModel extends ViewModel {
             if (!hasPressedAButtonValue) {
                 hasPressedAButton.setValue(true);
                 gameRoomRepository.fold();
+            }
+        }
+    }
+
+    public void onIncreaseButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                @Nullable
+                String value = raiseAmount.getValue();
+                if (value == null) return;
+
+                @Nullable
+                int raise = Integer.parseInt(value);
+
+                if (raise < 50) {
+                    raiseAmount.setValue("50");
+                } else if (raise < 100) {
+                    raiseAmount.setValue("100");
+                } else if (raise < 500) {
+                    Integer newRaise = raise+100;
+                    raiseAmount.setValue(newRaise.toString());
+                } else {
+                    Integer newRaise = raise+500;
+                    raiseAmount.setValue(newRaise.toString());
+                }
+            }
+        }
+    }
+
+    public void onDecreaseButtonClicked() {
+        @Nullable
+        Boolean hasPressedAButtonValue = hasPressedAButton.getValue();
+        if(hasPressedAButtonValue != null) {
+            if (!hasPressedAButtonValue) {
+                @Nullable
+                String value = raiseAmount.getValue();
+                if (value == null) return;
+
+                @Nullable
+                int raise = Integer.parseInt(value);
+
+                if (raise > 500) {
+                    Integer newRaise = raise-500;
+                    raiseAmount.setValue(newRaise.toString());
+                } else if (raise > 100) {
+                    Integer newRaise = raise-100;
+                    raiseAmount.setValue(newRaise.toString());
+                } else if (raise > 50) {
+                    Integer newRaise = raise-50;
+                    raiseAmount.setValue(newRaise.toString());
+                } else {
+                    raiseAmount.setValue("50");
+                }
             }
         }
     }
