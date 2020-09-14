@@ -17,13 +17,10 @@ coreController.startGame = async function (obj, socket, next) {
     }
     
     var players_ids = [];
-    playerList.forEach((item, i) => {
-      players_ids.push(item.spot_id);
-    });
-
     var players_names = [];
     playerList.forEach((item, i) => {
-      players_ids.push(item.name);
+      players_ids.push(item.spot_id);
+      players_names.push(item.name);
     });
 
     // draw cards
@@ -219,15 +216,15 @@ coreController.manageGame = async function (obj, socket, next, room) {
 
         // Come up with winning message and determine gains
         if(results.winners.length == 1) {
-          const winnerName = players_names[results.winners[0]];
-          room.players_money[result.winners[0]] += room.room_total_money;
+          const winnerName = room.players_names[results.winners[0]];
+          room.players_money[results.winners[0]] += room.room_total_money;
           winData["message"] = winnerName+" has won with the following hand: "+results.winningHand.name;
         } else {
           let aggregatedNames = "";
           let moneyShare = Math.floor(room.room_total_money/result.winners.length);
 
-          result.winners.forEach((item, i)=> {
-            aggregatedNames = aggregatedNames+(players_names[item]+",");
+          results.winners.forEach((item)=> {
+            aggregatedNames = aggregatedNames+(room.players_names[item]+",");
             room.players_money[item] += moneyShare;
           });
 
@@ -235,7 +232,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
         }
       }
       // Reset the room to get ready for a new round
-      const resetRoomResult = resetRoom(room);
+      const resetRoomResult = await resetRoom(room);
 
       // Add the data to the broadcast queue
       resetRoomResult.players_ids.forEach((item, i) => { 
@@ -248,11 +245,11 @@ coreController.manageGame = async function (obj, socket, next, room) {
         winData["current_player"] = resetRoomResult.players_ids.indexOf(resetRoomResult.current_player);
         winData["big_blind"] = (resetRoomResult.players_ids.indexOf(resetRoomResult.smallBlind)+1)%resetRoomResult.players_ids.length;
         winData["small_blind"] = resetRoomResult.players_ids.indexOf(resetRoomResult.smallBlind); 
-        winData["card_1"] = resetRoomResult.userCards[0+2*i]; 
-        winData["card_2"] = resetRoomResult.userCards[1+2*i]; 
-        winData["table_card_1"] = resetRoomResult.tableCards[0];
-        winData["table_card_2"] = resetRoomResult.tableCards[1]; 
-        winData["table_card_3"] = resetRoomResult.tableCards[2];
+        winData["card_1"] = resetRoomResult.users_cards[0+2*i]; 
+        winData["card_2"] = resetRoomResult.users_cards[1+2*i]; 
+        winData["table_card_1"] = resetRoomResult.table_cards[0];
+        winData["table_card_2"] = resetRoomResult.table_cards[1]; 
+        winData["table_card_3"] = resetRoomResult.table_cards[2];
 
         let shallowCopy = Object.assign({}, winData);
         socket.getRequest.push({room: "spot/"+item, route: "getRoomResults", data: shallowCopy});
@@ -297,12 +294,12 @@ async function resetRoom(room) {
     room_total_money: 0,
     still_in_round: room.players_ids,
     players_in_room: nPlayers,
-    current_player: players_ids[currentIndex],
+    current_player: room.players_ids[currentIndex],
     game_stage: 0,
     current_minimum: constants.START_MINIMUM_BET,
     small_blind: room.players_ids[smallBlindIndex],
-    current_starting_player: players_ids[currentIndex],
-    current_ending_player: players_ids[bigBlindIndex],
+    current_starting_player: room.players_ids[currentIndex],
+    current_ending_player: room.players_ids[bigBlindIndex],
     round_current_minimum: constants.START_MINIMUM_BET,
     round_players_bets: currentBets
   };
