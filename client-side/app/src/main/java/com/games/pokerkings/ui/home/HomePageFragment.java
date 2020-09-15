@@ -68,6 +68,8 @@ public class HomePageFragment extends Fragment {
                 homePageViewModel.setHasPlayerPressedJoin();
                 User joiningUser = ((Result.Success<User>)userResult).getData();
                 launchGameRoomFragment(joiningUser);
+            } else if(userResult instanceof Result.Progress) {
+                homePageViewModel.notifyPlayerHasLeftGameRoom();
             }
         });
     }

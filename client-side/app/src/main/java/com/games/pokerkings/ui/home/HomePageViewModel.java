@@ -68,4 +68,8 @@ public class HomePageViewModel extends ViewModel{
         homePageRepository.joinGame();
     }
 
+    public void notifyPlayerHasLeftGameRoom() {
+        homePageRepository.leaveGameRoom();
+    }
+
 }

@@ -55,6 +55,10 @@ public class HomePageRepository {
         return instance;
     }
 
+    public void leaveGameRoom() {
+        JSONObject leaveObject = new JSONObject();
+        dataSource.postRequest("room/POST:leave", leaveObject);
+    }
     public void setUsername(String name) {
         user.setName(name);
     }
