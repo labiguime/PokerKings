@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -152,6 +153,9 @@ public class GameRoomFragment extends Fragment {
         gameRoomViewModel.onReceiveDisconnectEvent().observe(getViewLifecycleOwner(), disconnectionType -> {
             if(disconnectionType.getType() == 1) {
                 showErrorMessage("A player has disconnected so the game has ended!");
+                FragmentManager fm = getActivity()
+                        .getSupportFragmentManager();
+                fm.popBackStack ("home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         });
 

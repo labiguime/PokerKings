@@ -95,8 +95,7 @@ public class HomePageFragment extends Fragment {
         // Move to the next fragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);
-        transaction.addToBackStack(null);
-
+        transaction.addToBackStack("home");
         transaction.commit();
 
     }

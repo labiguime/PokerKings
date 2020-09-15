@@ -36,19 +36,26 @@ public class DataSource {
     public static final String GET_ROOM_RESULTS = "getRoomResults";
     public static final String GET_DISCONNECT_EVENT = "getDisconnectEvent";
 
-    private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
-    private MutableLiveData<RoomState> roomStateLiveData = new MutableLiveData<>();
-    private MutableLiveData<RoomResults> roomResultsLiveData = new MutableLiveData<>();
-    private MutableLiveData<DisconnectionType> disconnectEventLiveData = new MutableLiveData<>();
+    private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData;
+    private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData;
+    private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData;
+    private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData;
+    private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData;
+    private MutableLiveData<RoomState> roomStateLiveData;
+    private MutableLiveData<RoomResults> roomResultsLiveData;
+    private MutableLiveData<DisconnectionType> disconnectEventLiveData;
 
 
     public DataSource() {
         mSocket = SocketManager.getInstance();
-
+        preGamePlayerListLiveData = new MutableLiveData<>();
+        joinGameAuthorizationLiveData = new MutableLiveData<>();
+        readyPlayerAuthorizationLiveData = new MutableLiveData<>();
+        initialRoomDataLiveData = new MutableLiveData<>();
+        authorizationToPlayLiveData = new MutableLiveData<>();
+        roomStateLiveData = new MutableLiveData<>();
+        roomResultsLiveData = new MutableLiveData<>();
+        disconnectEventLiveData = new MutableLiveData<>();
         mSocket.on(GET_PRE_GAME_PLAYER_LIST, args -> {
             JSONObject data = (JSONObject) args[0];
             HashMap<String, User> fetchedUsers = new HashMap<>();

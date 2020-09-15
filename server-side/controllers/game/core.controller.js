@@ -64,6 +64,7 @@ coreController.startGame = async function (obj, socket, next) {
 
 coreController.onDisconnect = async function (socket, io, next) {
   try {
+    console.log(socket.id);
     const spot = await Spot.findOne({player_id: socket.id}, {_id: 1, room_id: 1});
 		if(!spot) {
 			console.log("The disconnected player wasn't part of a room!\n");
@@ -75,6 +76,23 @@ coreController.onDisconnect = async function (socket, io, next) {
       console.log("Spot belongs to a room but couldn't find that room!");
       return;
     }
+
+    /*if(room.is_in_game == false && room.players_in_room == 0) {
+      console.log("Player being kicked out!");
+      const updatedSpot = await Spot.findOneAndUpdate({player_id: socket.id}, {player_id: 'None'});
+      if(!updatedSpot) {
+        console.log("Couldn't reset the spot!\n");
+        return;
+      }
+
+      const userUpdate = await User.findOneAndUpdate({room_id: spot.room_id, spot_id: spot._id}, {room_id: null, spot_id: null});
+      if(!userUpdate) {
+        console.log("Couldn't reset the user!\n");
+        return;
+      }
+      console.log("Successfully kicked out!\n");
+      return;
+    }*/
 
     const updatedRoom = await Room.findOneAndUpdate({_id: spot.room_id}, {players_in_room: room.players_in_room-1, updating: true});
     if(!updatedRoom) {
@@ -95,34 +113,12 @@ coreController.onDisconnect = async function (socket, io, next) {
     }
 
     // Update players UI if !is in game
-
+    
     if(!room.is_in_game) {
       console.log("The room is not in a game so it can keep its players.");
       // set everyone to not ready
       const playerList = await User.find({room_id: spot.room_id}, {_id: 1, spot_id: 1});
-      if(playerList) {
-        const start = async () => {
-          await asyncForEach(playerList, async (item) => {
-            const internalUpdate = await User.findOneAndUpdate({_id: item._id}, {ready: false});
-            if(!internalUpdate) {
-              console.log("An error has occured!\n");
-              return;
-            }
-          });
-          console.log('Done');
-        }
-      }
-
-
-      /*if(playerList) {
-        playerList.forEach((item) => {
-          const internalUpdate = await User.findOneAndUpdate({_id: item._id}, {ready: false});
-          if(!internalUpdate) {
-            console.log("An error has occured!\n");
-            return;
-          }
-        });
-      }*/
+      const updateFields = await User.updateMany({room_id: spot.room_id}, { $set: {ready: false} });
 
       socket.getRequest = [];
       var players_ids = [];
@@ -132,9 +128,7 @@ coreController.onDisconnect = async function (socket, io, next) {
       players_ids.push(spot._id);
       players_ids.sort();
       players_ids.forEach((item, i) => {
-        console.log("Not in game but try");
         if(item != spot._id) {
-          console.log("added!");
           socket.getRequest.push({room: "spot/"+item, route: "getDisconnectEvent", data: {type: 0, my_index: i, players_in_room: players_ids.length, disconnected_player: players_ids.indexOf(spot._id)}});
         }
       });
