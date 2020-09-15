@@ -1,5 +1,7 @@
 package com.games.pokerkings.data;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -32,19 +34,28 @@ public class DataSource {
     public static final String GET_AUTHORIZATION_TO_PLAY = "getAuthorizationToPlay";
     public static final String GET_ROOM_STATE = "getRoomState";
     public static final String GET_ROOM_RESULTS = "getRoomResults";
+    public static final String GET_DISCONNECT_EVENT = "getDisconnectEvent";
 
-    private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData = new MutableLiveData<>();
-    private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData = new MutableLiveData<>();
-    private MutableLiveData<RoomState> roomStateLiveData = new MutableLiveData<>();
-    private MutableLiveData<RoomResults> roomResultsLiveData = new MutableLiveData<>();
+    private MutableLiveData<Result<TreeMap<String, User>>> preGamePlayerListLiveData;
+    private MutableLiveData<Result<Room>> joinGameAuthorizationLiveData;
+    private MutableLiveData<Result<Boolean>> readyPlayerAuthorizationLiveData;
+    private MutableLiveData<Result<InitialGameDataResult>> initialRoomDataLiveData;
+    private MutableLiveData<Result<Boolean>> authorizationToPlayLiveData;
+    private MutableLiveData<RoomState> roomStateLiveData;
+    private MutableLiveData<RoomResults> roomResultsLiveData;
+    private MutableLiveData<DisconnectionType> disconnectEventLiveData;
 
 
     public DataSource() {
         mSocket = SocketManager.getInstance();
-
+        preGamePlayerListLiveData = new MutableLiveData<>();
+        joinGameAuthorizationLiveData = new MutableLiveData<>();
+        readyPlayerAuthorizationLiveData = new MutableLiveData<>();
+        initialRoomDataLiveData = new MutableLiveData<>();
+        authorizationToPlayLiveData = new MutableLiveData<>();
+        roomStateLiveData = new MutableLiveData<>();
+        roomResultsLiveData = new MutableLiveData<>();
+        disconnectEventLiveData = new MutableLiveData<>();
         mSocket.on(GET_PRE_GAME_PLAYER_LIST, args -> {
             JSONObject data = (JSONObject) args[0];
             HashMap<String, User> fetchedUsers = new HashMap<>();
@@ -108,6 +119,26 @@ public class DataSource {
                 readyPlayerAuthorizationLiveData.postValue(result);
             }
         });
+
+        mSocket.on(GET_DISCONNECT_EVENT, args -> {
+            JSONObject data = (JSONObject) args[0];
+            try {
+                Integer type = data.getInt("type");
+                if(type == 0) { // Disconnection from ready screen
+                    Integer myIndex = data.getInt("my_index");
+                    Integer numberOfPlayers = data.getInt("players_in_room");
+                    Integer disconnectedPlayer = data.getInt("disconnected_player");
+                    DisconnectionType dType = new DisconnectionType(type, myIndex, numberOfPlayers, disconnectedPlayer);
+                    disconnectEventLiveData.postValue(dType);
+                } else {
+                    DisconnectionType dType = new DisconnectionType(type);
+                    disconnectEventLiveData.postValue(dType);
+                }
+            } catch (JSONException e) {
+                Log.d("DEBUG", e.getMessage());
+            }
+        });
+
 
         mSocket.on(GET_INITIAL_ROOM_DATA, args -> {
             JSONObject data = (JSONObject) args[0];
@@ -258,6 +289,10 @@ public class DataSource {
 
     public LiveData<Result<InitialGameDataResult>> onReceiveInitialRoomData() {
         return initialRoomDataLiveData;
+    }
+
+    public LiveData<DisconnectionType> onReceiveDisconnectEvent() {
+        return disconnectEventLiveData;
     }
 
     public LiveData<RoomState> onReceiveRoomState() {

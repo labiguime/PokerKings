@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.games.pokerkings.data.DisconnectionType;
 import com.games.pokerkings.data.InitialGameDataResult;
 import com.games.pokerkings.data.RoomResults;
 import com.games.pokerkings.data.RoomState;
@@ -21,10 +22,10 @@ import java.util.List;
 public class GameRoomViewModel extends ViewModel {
 
     private GameRoomRepository gameRoomRepository;
-    private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
-    private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
-    private MutableLiveData<Boolean> hasPressedAButton = new MutableLiveData<>(false);
-    private MutableLiveData<String> raiseAmount = new MutableLiveData<>("0");
+    private MutableLiveData<Boolean> isPlayerReady;
+    private MutableLiveData<Boolean> isReadyButtonVisible;
+    private MutableLiveData<Boolean> hasPressedAButton;
+    private MutableLiveData<String> raiseAmount;
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerTurn;
@@ -37,12 +38,17 @@ public class GameRoomViewModel extends ViewModel {
     private LiveData<Boolean> receivePreGamePlayerList;
     private LiveData<Result<Boolean>> receiveReadyPlayerAuthorization;
     private LiveData<Result<Boolean>> receiveAuthorizationToPlay;
+    private LiveData<DisconnectionType> receiveDisconnectEvent;
     private LiveData<InitialGameDataResult> receiveInitialGameData;
     private LiveData<RoomResults> receiveRoomResults;
     private LiveData<RoomState> receiveRoomState;
 
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
+        isPlayerReady = new MutableLiveData<>(false);
+        isReadyButtonVisible = new MutableLiveData<>(true);
+        hasPressedAButton = new MutableLiveData<>(false);
+        raiseAmount = new MutableLiveData<>("0");
 
         this.receiveReadyPlayerAuthorization = Transformations.map(gameRoomRepository.onReceiveReadyPlayerAuthorization(), value -> {
             if(value instanceof Result.Error) {
@@ -52,6 +58,12 @@ public class GameRoomViewModel extends ViewModel {
                 isReadyButtonVisible.setValue(false);
                 isPlayerReady.setValue(true);
             }
+            return value;
+        });
+
+        this.receiveDisconnectEvent = Transformations.map(gameRoomRepository.onReceiveDisconnectEvent(), value -> {
+            isReadyButtonVisible.setValue(true);
+            isPlayerReady.setValue(false);
             return value;
         });
 
@@ -112,6 +124,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public LiveData<InitialGameDataResult> onReceiveInitialGameData() {
         return receiveInitialGameData;
+    }
+
+    public LiveData<DisconnectionType> onReceiveDisconnectEvent() {
+        return receiveDisconnectEvent;
     }
 
     public LiveData<RoomResults> onReceiveRoomResults() {

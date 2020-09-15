@@ -1,4 +1,5 @@
 const room = require('../../controllers/game/room.controller');
+const core = require('../../controllers/game/core.controller');
 
 module.exports = (socket, next) => {
 
@@ -15,6 +16,11 @@ module.exports = (socket, next) => {
 	socket.on('room/POST:play', (message) => {
 		console.log('-- Request on: /routes/socket/room => POST:play');
 		room.play(message, socket, next);
+	});
+
+	socket.on('room/POST:leave', () => {
+		console.log('-- Request on: /routes/socket/room => POST:leave');
+		core.onDisconnect(socket, null, next);
 	});
 
 	socket.on('room/GET:preGamePlayerList', (message) => {

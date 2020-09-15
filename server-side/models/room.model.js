@@ -22,6 +22,11 @@ const roomSchema = new Schema({
 		default: false
 	},
 
+	updating: {
+		type: Boolean,
+		default: false
+	},
+
 	last_used: {
 		type: Date,
 		default: Date.now

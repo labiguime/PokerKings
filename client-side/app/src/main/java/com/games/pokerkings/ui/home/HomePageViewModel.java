@@ -1,6 +1,7 @@
 package com.games.pokerkings.ui.home;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -14,12 +15,22 @@ public class HomePageViewModel extends ViewModel{
 
     private MutableLiveData<String> avatar = new MutableLiveData<>();
     private MutableLiveData<String> name = new MutableLiveData<>("");
-    private MutableLiveData<Boolean> hasPlayerPressedJoin = new MutableLiveData<>(false);
-    private LiveData<Result<User>> onJoinGame;
+    private MutableLiveData<Boolean> hasPlayerPressedJoin;
+    private MediatorLiveData<Result<User>> onJoinGame = new MediatorLiveData<>();
+    private MutableLiveData<Result<User>> progressJoin = new MutableLiveData<>();
 
     public HomePageViewModel(HomePageRepository repository) {
         this.homePageRepository = repository;
-        this.onJoinGame = homePageRepository.onReceiveJoinGameAuthorization();
+
+        this.onJoinGame.addSource(homePageRepository.onReceiveJoinGameAuthorization(), value -> {
+            onJoinGame.setValue(value);
+        });
+
+        this.onJoinGame.addSource(progressJoin, value -> {
+            onJoinGame.setValue(value);
+        });
+
+        hasPlayerPressedJoin = new MutableLiveData<>(false);
     }
 
     public LiveData<String> getAvatar() { return avatar; }
@@ -40,6 +51,10 @@ public class HomePageViewModel extends ViewModel{
         hasPlayerPressedJoin.setValue(!hasPlayerPressedJoin.getValue());
     }
 
+    public void setUserHasJoinedRoom() {
+        progressJoin.setValue(new Result.Progress(true));
+    }
+
     public void setName(String s) {
         homePageRepository.setUsername(s);
     }
@@ -51,6 +66,10 @@ public class HomePageViewModel extends ViewModel{
     public void onJoinGameButtonClicked() {
         setHasPlayerPressedJoin();
         homePageRepository.joinGame();
+    }
+
+    public void notifyPlayerHasLeftGameRoom() {
+        homePageRepository.leaveGameRoom();
     }
 
 }

@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ import android.widget.Toast;
 public class HomePageFragment extends Fragment {
 
     private HomePageViewModel homePageViewModel;
-
+    private boolean mAlreadyLoaded = false;
     public HomePageFragment() {
         // Required empty public constructor
     }
@@ -37,6 +38,9 @@ public class HomePageFragment extends Fragment {
         FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(HomePageFragment.this);
         binding.setHomePageViewModel(homePageViewModel);
+        if(mAlreadyLoaded) {
+            homePageViewModel.setUserHasJoinedRoom();
+        }
         return binding.getRoot();
     }
 
@@ -49,6 +53,10 @@ public class HomePageFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        if (savedInstanceState == null && !mAlreadyLoaded) {
+            mAlreadyLoaded = true;
+        }
+
         observeName();
         observeOnJoinGame();
     }
@@ -58,7 +66,6 @@ public class HomePageFragment extends Fragment {
     }
 
     public void observeOnJoinGame() {
-
         homePageViewModel.getOnJoinGame().observe(getViewLifecycleOwner(), userResult -> {
             if(userResult instanceof Result.Error) {
                 homePageViewModel.setHasPlayerPressedJoin();
@@ -68,6 +75,8 @@ public class HomePageFragment extends Fragment {
                 homePageViewModel.setHasPlayerPressedJoin();
                 User joiningUser = ((Result.Success<User>)userResult).getData();
                 launchGameRoomFragment(joiningUser);
+            } else if(userResult instanceof Result.Progress) {
+                homePageViewModel.notifyPlayerHasLeftGameRoom();
             }
         });
     }
@@ -86,8 +95,9 @@ public class HomePageFragment extends Fragment {
         // Move to the next fragment
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);
-        transaction.addToBackStack(null);
+        transaction.addToBackStack("home");
         transaction.commit();
+
     }
 
 }
