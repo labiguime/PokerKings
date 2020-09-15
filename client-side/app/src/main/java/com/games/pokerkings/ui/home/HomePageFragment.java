@@ -24,7 +24,7 @@ import android.widget.Toast;
 public class HomePageFragment extends Fragment {
 
     private HomePageViewModel homePageViewModel;
-
+    private boolean mAlreadyLoaded = false;
     public HomePageFragment() {
         // Required empty public constructor
     }
@@ -38,6 +38,9 @@ public class HomePageFragment extends Fragment {
         FragmentHomePageBinding binding = FragmentHomePageBinding.inflate(inflater, container, false);
         binding.setLifecycleOwner(HomePageFragment.this);
         binding.setHomePageViewModel(homePageViewModel);
+        if(mAlreadyLoaded) {
+            homePageViewModel.setUserHasJoinedRoom();
+        }
         return binding.getRoot();
     }
 
@@ -49,6 +52,10 @@ public class HomePageFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState == null && !mAlreadyLoaded) {
+            mAlreadyLoaded = true;
+        }
 
         observeName();
         observeOnJoinGame();
@@ -89,8 +96,9 @@ public class HomePageFragment extends Fragment {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_placeholder, fragment);
         transaction.addToBackStack(null);
-        homePageViewModel.setUserHasJoinedRoom();
+
         transaction.commit();
+
     }
 
 }

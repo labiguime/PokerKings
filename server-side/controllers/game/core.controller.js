@@ -62,7 +62,7 @@ coreController.startGame = async function (obj, socket, next) {
   // set countdown on acknowledgment
 }
 
-coreController.onDisconnect = async function (socket, io) {
+coreController.onDisconnect = async function (socket, io, next) {
   try {
     const spot = await Spot.findOne({player_id: socket.id}, {_id: 1, room_id: 1});
 		if(!spot) {
@@ -205,18 +205,22 @@ coreController.onDisconnect = async function (socket, io) {
     // I
 
     console.log("Successfully added the player to the queue of disconnected players\n");
-    const getRequest = socket.getRequest;
-    if(getRequest === undefined || getRequest.length == 0) {}
-    else {
-      getRequest.forEach((item) => {
-        const room = item.room;
-        const route = item.route;
-        const data = item.data;
-        io.in(room).emit(route, data);
-        console.log('-- GET route '+route+' has been broadcast on '+room+'\n');
-      });
-      socket.getRequest = [];
-      return;
+    if(io == null) {
+      next();
+    } else {
+      const getRequest = socket.getRequest;
+      if(getRequest === undefined || getRequest.length == 0) {}
+      else {
+        getRequest.forEach((item) => {
+          const room = item.room;
+          const route = item.route;
+          const data = item.data;
+          io.in(room).emit(route, data);
+          console.log('-- GET route '+route+' has been broadcast on '+room+'\n');
+        });
+        socket.getRequest = [];
+        return;
+      }
     }
 
   } catch (e) {

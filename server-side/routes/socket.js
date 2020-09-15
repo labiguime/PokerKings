@@ -13,7 +13,7 @@ exports = module.exports = (io) => {
 		console.log("Client Id: ["+socket.id+"] has connected to the server.");
 		socket.on('disconnect', () => {
 			console.log("Client Id: ["+socket.id+"] has disconnected from the server.");
-			core.onDisconnect(socket, io);
+			core.onDisconnect(socket, io, null);
 		});
 		//next();
 	});

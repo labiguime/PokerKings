@@ -22,10 +22,10 @@ import java.util.List;
 public class GameRoomViewModel extends ViewModel {
 
     private GameRoomRepository gameRoomRepository;
-    private MutableLiveData<Boolean> isPlayerReady = new MutableLiveData<>(false);
-    private MutableLiveData<Boolean> isReadyButtonVisible = new MutableLiveData<>(true);
-    private MutableLiveData<Boolean> hasPressedAButton = new MutableLiveData<>(false);
-    private MutableLiveData<String> raiseAmount = new MutableLiveData<>("0");
+    private MutableLiveData<Boolean> isPlayerReady;
+    private MutableLiveData<Boolean> isReadyButtonVisible;
+    private MutableLiveData<Boolean> hasPressedAButton;
+    private MutableLiveData<String> raiseAmount;
     private LiveData<Boolean> hasUserInterfaceLoaded;
     private LiveData<Boolean> hasGameStarted;
     private LiveData<Boolean> isPlayerTurn;
@@ -45,6 +45,10 @@ public class GameRoomViewModel extends ViewModel {
 
     public GameRoomViewModel() {
         this.gameRoomRepository = GameRoomRepository.getInstance();
+        isPlayerReady = new MutableLiveData<>(false);
+        isReadyButtonVisible = new MutableLiveData<>(true);
+        hasPressedAButton = new MutableLiveData<>(false);
+        raiseAmount = new MutableLiveData<>("0");
 
         this.receiveReadyPlayerAuthorization = Transformations.map(gameRoomRepository.onReceiveReadyPlayerAuthorization(), value -> {
             if(value instanceof Result.Error) {
