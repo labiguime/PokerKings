@@ -255,6 +255,7 @@ coreController.manageGame = async function (obj, socket, next, room) {
         }
         room.current_player = room.current_starting_player;
         room.current_ending_player = room.still_in_round[newIndex];
+        room.still_in_round.splice(playerIndex, 1);
       } else {
         const newIndex = (room.still_in_round.indexOf(me)+1)%room.still_in_round.length;
         if(room.current_starting_player == me) {
