@@ -1,20 +1,33 @@
 package com.games.pokerkings.ui;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 
 import com.games.pokerkings.R;
 import com.games.pokerkings.ui.home.HomePageFragment;
+import com.games.pokerkings.utils.BackgroundService;
 
 public class MainActivity extends AppCompatActivity {
+
+    @Nullable
+    private MediaPlayer music = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(music == null) {
+            music = MediaPlayer.create(MainActivity.this,R.raw.background_music);
+        }
 
         // Forces the phone to stay in landscape mode
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -39,6 +52,20 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!music.isPlaying()) {
+            music.start();
+            music.setLooping(true);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        music.pause();
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
