@@ -11,9 +11,9 @@ A remake of PokerApp, from scratch. Includes new features, incorporates new conc
   - Install Node.JS:
     + Ubuntu: sudo apt-get install nodejs
     + Windows: https://nodejs.org/en/#home-downloadhead
-	- Install MongoDB by following this:
-		+ Ubuntu: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
-		+ Window: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
+  - Install MongoDB by following this:
+    + Ubuntu: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+    + Window: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
   - Install packages:
     + npm install
   - Start server-side:
