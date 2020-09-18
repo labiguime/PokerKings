@@ -1,5 +1,5 @@
 const app = require('express')();
-const server = require('http').Server(app).listen(7000);
+const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
 // We load the module in charge of routing all socket.io requests
@@ -29,6 +29,6 @@ app.get('/', (req, res) => {
 
 app.use('/admin/', require('./routes/admin'));
 
-app.listen(3000, () => {
+server.listen(3000, () => {
 	console.log('The server is up and running on port 3000.');
 });
